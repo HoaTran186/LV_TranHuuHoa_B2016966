@@ -1,4 +1,6 @@
 using backend.Data;
+using backend.Interfaces;
+using backend.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>{
 });
 
 
+builder.Services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
+builder.Services.AddScoped<IProductRepository,ProductRepository>();
 var app = builder.Build();
 
 

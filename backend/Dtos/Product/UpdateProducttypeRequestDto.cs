@@ -1,6 +1,6 @@
 namespace backend.Dtos.Product
 {
-    public class UpdateProductTypeDto
+    public class UpdateProductTypeRequestDto
     {
         public string ProductType_Name { get; set; } = string.Empty;
     }
