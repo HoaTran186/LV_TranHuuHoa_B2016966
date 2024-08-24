@@ -43,9 +43,9 @@ namespace backend.Repository
             return await _context.Products.FindAsync(id);
         }
 
-        public async Task<Product?> UpdateAsync(int id, UpdateProductDto productDto)
+        public async Task<Product?> UpdateAsync(int id, Product productDto)
         {
-            var existingProduct = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
+            var existingProduct = await _context.Products.FindAsync(id);
             if(existingProduct == null)
             {
                 return null;

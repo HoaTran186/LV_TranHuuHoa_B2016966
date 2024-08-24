@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Dtos.Product;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -35,14 +36,34 @@ namespace backend.Repository
             return productTypeModel;
         }
 
-        public Task<List<ProductType>> GetAllAsync()
+        public async Task<List<ProductType>> GetAllAsync(QueryObject query)
         {
-            return _context.ProductType.ToListAsync();
+            var products = _context.ProductType.Include(c => c.Products).AsQueryable();
+            if(!string.IsNullOrWhiteSpace(query.ProductType_Name))
+            {
+                products = products.Where(s => s.ProductType_Name.Contains(query.ProductType_Name));
+            }
+            if(!string.IsNullOrWhiteSpace(query.SortBy))
+            {
+                if(query.SortBy.Equals("Product Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    products = query.IsDecsending ? products.OrderByDescending(s => s.ProductType_Name) : products.OrderBy(s => s.ProductType_Name);
+                }
+            }
+            var skipNumber = (query.PageNumber -1) * query.PageSize;
+
+
+            return await products.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
         public async Task<ProductType?> GetByIdAsync(int id)
         {
-            return await _context.ProductType.FindAsync(id);
+            return await _context.ProductType.Include(c => c.Products).FirstOrDefaultAsync(i => i.Id == id);
+        }
+
+        public Task<bool> ProductTypeExists(int id)
+        {
+        return _context.ProductType.AnyAsync(s => s.Id == id);
         }
 
         public async Task<ProductType?> UpdateAsync(int id, UpdateProductTypeRequestDto productTypeDto)

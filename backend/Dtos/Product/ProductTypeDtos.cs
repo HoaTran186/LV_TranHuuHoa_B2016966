@@ -4,5 +4,6 @@ namespace backend.Dtos.Product
     {
         public int Id {get; set;}
         public string ProductType_Name { get; set; } = string.Empty;
+        public List<ProductDto> Products {get; set;}
     }
 }

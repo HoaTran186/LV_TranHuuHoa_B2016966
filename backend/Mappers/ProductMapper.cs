@@ -32,5 +32,18 @@ namespace backend.Mappers
                 ProductTypeId = productDto.ProductTypeId
             };
         }
+        public static Product ToProductFromUpdateDto(this UpdateProductDto productDto)
+        {
+            return new Product
+            {
+                Product_Name = productDto.Product_Name,
+                Origin = productDto.Origin,
+                Unique = productDto.Unique,
+                Apply = productDto.Apply,
+                Result = productDto.Result,
+                Price = productDto.Price,
+                ProductTypeId = productDto.ProductTypeId
+            };
+        }
     }
 }

@@ -10,7 +10,8 @@ namespace backend.Mappers
             return new ProductTypeDto
             {
                 Id = productTypeModel.Id,
-                ProductType_Name = productTypeModel.ProductType_Name
+                ProductType_Name = productTypeModel.ProductType_Name,
+                Products = productTypeModel.Products.Select(c => c.ToProductDto()).ToList()
             };
         }
         public static ProductType ToProductTypeFromCreateDto(this CreateProductTypeRequestDto productTypeDto)

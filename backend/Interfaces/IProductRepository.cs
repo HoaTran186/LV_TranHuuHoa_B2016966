@@ -8,7 +8,7 @@ namespace backend.Interfaces
         Task<List<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
         Task<Product> CreateAsync(Product productModel);
-        Task<Product?> UpdateAsync(int id, UpdateProductDto updateProductDto);
+        Task<Product?> UpdateAsync(int id, Product updateProductDto);
         Task<Product?> DeleteAsync(int id);
     }
 }
