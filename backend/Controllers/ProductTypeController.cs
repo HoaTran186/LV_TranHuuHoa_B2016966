@@ -3,6 +3,7 @@ using backend.Dtos.Product;
 using backend.Helpers;
 using backend.Interfaces;
 using backend.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,6 +47,7 @@ namespace backend.Controllers
             return Ok(producttype.ToProductDto());
         }
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateProductTypeRequestDto productTypeDto)
         {
             if(!ModelState.IsValid)
@@ -58,6 +60,7 @@ namespace backend.Controllers
         }
         [HttpPut]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductTypeRequestDto updateDto)
         {
             if(!ModelState.IsValid)
@@ -72,6 +75,7 @@ namespace backend.Controllers
         }
         [HttpDelete]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if(!ModelState.IsValid)

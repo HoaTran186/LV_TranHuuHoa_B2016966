@@ -2,6 +2,9 @@ using backend.Data;
 using backend.Dtos.Product;
 using backend.Interfaces;
 using backend.Mappers;
+using backend.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +16,12 @@ namespace backend.Controllers
     {
        private readonly IProductTypeRepository _productTypeRepo;
         private readonly IProductRepository _productRepo;
-       public ProductController(IProductRepository productRepo, IProductTypeRepository productTypeRepo)
+        private readonly UserManager<AppUser> _userManager;
+       public ProductController(IProductRepository productRepo, IProductTypeRepository productTypeRepo, UserManager<AppUser> userManager)
        {
           _productTypeRepo = productTypeRepo;
           _productRepo = productRepo;
+          _userManager = userManager;
        }
        [HttpGet]
        public async Task<IActionResult> GetAll()
@@ -45,6 +50,7 @@ namespace backend.Controllers
           return Ok(product.ToProductDto());
        }
        [HttpPost]
+       [Authorize]
        public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
        {
           if(!ModelState.IsValid)
@@ -58,6 +64,7 @@ namespace backend.Controllers
        }
        [HttpPut]
        [Route("{id:int}")]
+       [Authorize]
        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateProductDto updateDto)
        {
           if(!ModelState.IsValid)
@@ -73,6 +80,7 @@ namespace backend.Controllers
        }
        [HttpDelete]
        [Route("{id:int}")]
+       [Authorize]
        public async Task<IActionResult> Delete([FromRoute] int id)
        {
           if(!ModelState.IsValid)
