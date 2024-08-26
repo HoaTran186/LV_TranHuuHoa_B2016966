@@ -16,7 +16,8 @@ namespace backend.Mappers
                 Apply = productModel.Apply,
                 Result = productModel.Result,
                 Price = productModel.Price,
-                ProductTypeId = productModel.ProductTypeId
+                ProductTypeId = productModel.ProductTypeId,
+                Censor = productModel.Censor
             };
         }
         public static Product ToProductFromCreateDto(this CreateProductRequestDto productDto)
@@ -43,6 +44,14 @@ namespace backend.Mappers
                 Result = productDto.Result,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId
+            };
+        }
+        public static Product ToProductFromUpdateCensorDto(this UpdateCensorDto productDto)
+        {
+            return new Product
+            {
+                Censor = productDto.Censor
+                
             };
         }
     }

@@ -31,6 +31,7 @@ namespace backend.Controllers
                return BadRequest(ModelState);
           }
         var products =await _productRepo.GetAllAsync();
+        
 
         return Ok(products);
        }
@@ -50,7 +51,7 @@ namespace backend.Controllers
           return Ok(product.ToProductDto());
        }
        [HttpPost]
-       [Authorize]
+       [Authorize(Roles = "Creator")]
        public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
        {
           if(!ModelState.IsValid)
@@ -64,7 +65,7 @@ namespace backend.Controllers
        }
        [HttpPut]
        [Route("{id:int}")]
-       [Authorize]
+       [Authorize(Roles = "Creator")]
        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateProductDto updateDto)
        {
           if(!ModelState.IsValid)
@@ -78,9 +79,25 @@ namespace backend.Controllers
           }
           return Ok(productModel.ToProductDto());
        }
+       [HttpPost]
+       [Route("{id:int}")]
+       [Authorize(Roles = "Admin")]
+       public async Task<IActionResult> UpdateCensor([FromRoute]int id, [FromBody] UpdateCensorDto updateCensorDto)
+       {
+          if(!ModelState.IsValid)
+          {
+               return BadRequest(ModelState);
+          }
+          var productCensor = await _productRepo.UpdateCensor(id, updateCensorDto.ToProductFromUpdateCensorDto());
+          if(productCensor == null)
+          {
+               return NotFound();
+          }
+          return Ok(productCensor.ToProductDto());
+       }
        [HttpDelete]
        [Route("{id:int}")]
-       [Authorize]
+       [Authorize()]
        public async Task<IActionResult> Delete([FromRoute] int id)
        {
           if(!ModelState.IsValid)

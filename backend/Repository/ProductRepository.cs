@@ -35,7 +35,7 @@ namespace backend.Repository
 
         public async Task<List<Product>> GetAllAsync()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Products.Where(p => p.Censor == true).ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
@@ -57,10 +57,24 @@ namespace backend.Repository
             existingProduct.Result = productDto.Result;
             existingProduct.Price = productDto.Price;
             existingProduct.ProductTypeId = productDto.ProductTypeId;
+            existingProduct.Censor = productDto.Censor;
 
             await _context.SaveChangesAsync();
 
             return existingProduct;
+        }
+
+        public async Task<Product?> UpdateCensor(int id, Product updateCensorDto)
+        {
+            var existingCensor = await _context.Products.FindAsync(id);
+            if(existingCensor == null)
+            {
+                return null;
+            }
+            existingCensor.Censor = updateCensorDto.Censor;
+            await _context.SaveChangesAsync();
+
+            return existingCensor;
         }
     }
 }

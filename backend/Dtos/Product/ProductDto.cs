@@ -10,5 +10,6 @@ namespace backend.Dtos.Product
         public string Result { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int? ProductTypeId {get;set;}
+        public bool Censor { get; set; }
     }
 }

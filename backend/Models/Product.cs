@@ -13,6 +13,7 @@ namespace backend.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
         public int? ProductTypeId {get;set;}
+        public bool Censor { get; set; }
         public ProductType? ProductType {get; set;}
         public List<ProductImages> productImages {get; set;} = new List<ProductImages>();
     }

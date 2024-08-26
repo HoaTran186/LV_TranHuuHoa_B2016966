@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1346171e-2231-4895-88eb-c82de55eddfa",
+                            Id = "2434eb8a-1ab0-4f13-b695-7b94ae76234b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "2f4215f3-9ac0-4ed8-a036-b69acd6f7c62",
+                            Id = "85e257dc-c65f-4df6-ad4e-cf0b0e828a50",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "f99ff6a6-3e79-4c3b-84fc-a85e6c853853",
+                            Id = "9f2b6274-5820-4667-a3af-89b0e89b09dc",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -251,6 +251,9 @@ namespace backend.Migrations
                     b.Property<string>("Apply")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Censor")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Origin")
                         .IsRequired()
