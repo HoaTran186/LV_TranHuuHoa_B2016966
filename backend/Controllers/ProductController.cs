@@ -14,9 +14,10 @@ namespace backend.Controllers
      [ApiController]
     public class ProductController : ControllerBase
     {
-       private readonly IProductTypeRepository _productTypeRepo;
+        private readonly IProductTypeRepository _productTypeRepo;
         private readonly IProductRepository _productRepo;
         private readonly UserManager<AppUser> _userManager;
+
        public ProductController(IProductRepository productRepo, IProductTypeRepository productTypeRepo, UserManager<AppUser> userManager)
        {
           _productTypeRepo = productTypeRepo;
@@ -31,7 +32,7 @@ namespace backend.Controllers
                return BadRequest(ModelState);
           }
         var products =await _productRepo.GetAllAsync();
-        
+        var productDto = products.Select(s => s.ToProductDto());
 
         return Ok(products);
        }

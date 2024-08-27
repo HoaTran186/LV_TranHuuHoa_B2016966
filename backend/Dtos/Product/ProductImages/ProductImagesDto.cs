@@ -1,13 +1,9 @@
-
-namespace backend.Models
+namespace backend.Dtos.Product.ProductImages
 {
-    public class ProductImages
+    public class ProductImagesDto
     {
         public int Id {get; set;}
         public string ImagesName { get; set; } = string.Empty;
         public int? ProductId { get; set; }
-        public Product? Product { get; set; }
-
-
     }
 }

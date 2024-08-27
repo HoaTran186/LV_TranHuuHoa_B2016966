@@ -35,12 +35,17 @@ namespace backend.Repository
 
         public async Task<List<Product>> GetAllAsync()
         {
-            return await _context.Products.Where(p => p.Censor == true).ToListAsync();
+            return await _context.Products.Include(c =>c.productImages).ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products.Include(c => c.productImages).FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public Task<bool> ProductExists(int id)
+        {
+            return _context.Products.AnyAsync(s => s.Id == id);
         }
 
         public async Task<Product?> UpdateAsync(int id, Product productDto)

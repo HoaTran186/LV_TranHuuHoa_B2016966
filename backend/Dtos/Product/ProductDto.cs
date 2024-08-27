@@ -1,3 +1,5 @@
+using backend.Dtos.Product.ProductImages;
+
 namespace backend.Dtos.Product
 {
     public class ProductDto
@@ -11,5 +13,6 @@ namespace backend.Dtos.Product
         public decimal Price { get; set; }
         public int? ProductTypeId {get;set;}
         public bool Censor { get; set; }
+        public List<ProductImagesDto> ProductImages { get; set; }
     }
 }

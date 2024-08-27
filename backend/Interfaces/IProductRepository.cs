@@ -1,4 +1,3 @@
-using backend.Dtos.Product;
 using backend.Models;
 
 namespace backend.Interfaces
@@ -11,5 +10,6 @@ namespace backend.Interfaces
         Task<Product?> UpdateAsync(int id, Product updateProductDto);
         Task<Product?> DeleteAsync(int id);
         Task<Product?> UpdateCensor(int id, Product updateCensorDto);
+        Task<bool> ProductExists(int id);
     }
 }

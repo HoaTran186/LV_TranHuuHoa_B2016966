@@ -17,7 +17,8 @@ namespace backend.Mappers
                 Result = productModel.Result,
                 Price = productModel.Price,
                 ProductTypeId = productModel.ProductTypeId,
-                Censor = productModel.Censor
+                Censor = productModel.Censor,
+                ProductImages = productModel.productImages.Select(c =>c.ToProductImagesDto()).ToList()
             };
         }
         public static Product ToProductFromCreateDto(this CreateProductRequestDto productDto)
