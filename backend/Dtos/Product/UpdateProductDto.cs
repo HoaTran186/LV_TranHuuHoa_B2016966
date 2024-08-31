@@ -24,6 +24,8 @@ namespace backend.Dtos.Product
         [Required]
         public decimal Price { get; set; }
         [Required]
+        public string UserName {get; set;} = string.Empty;
+        [Required]
         public int? ProductTypeId {get;set;}
         public bool Censor { get; set; }
     }

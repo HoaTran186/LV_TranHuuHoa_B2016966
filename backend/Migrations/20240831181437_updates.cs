@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class CensorProduct : Migration
+    public partial class updates : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -184,7 +184,8 @@ namespace backend.Migrations
                     Result = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProductTypeId = table.Column<int>(type: "int", nullable: true),
-                    Censor = table.Column<bool>(type: "bit", nullable: false)
+                    Censor = table.Column<bool>(type: "bit", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -193,6 +194,26 @@ namespace backend.Migrations
                         name: "FK_Products_ProductType_ProductTypeId",
                         column: x => x.ProductTypeId,
                         principalTable: "ProductType",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    productId = table.Column<int>(type: "int", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_Products_productId",
+                        column: x => x.productId,
+                        principalTable: "Products",
                         principalColumn: "Id");
                 });
 
@@ -220,9 +241,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "2434eb8a-1ab0-4f13-b695-7b94ae76234b", null, "Admin", "ADMIN" },
-                    { "85e257dc-c65f-4df6-ad4e-cf0b0e828a50", null, "User", "USER" },
-                    { "9f2b6274-5820-4667-a3af-89b0e89b09dc", null, "Creator", "CREATOR" }
+                    { "0780d999-3531-490f-9e98-bcd909889125", null, "Admin", "ADMIN" },
+                    { "7f6dc039-c933-4abf-a4f1-b250017ccabc", null, "User", "USER" },
+                    { "f066d4b4-baa4-4d49-84d7-2b232dcf810c", null, "Creator", "CREATOR" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -265,6 +286,11 @@ namespace backend.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_productId",
+                table: "Comments",
+                column: "productId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_ProductId",
                 table: "ProductImages",
                 column: "ProductId");
@@ -292,6 +318,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "ProductImages");

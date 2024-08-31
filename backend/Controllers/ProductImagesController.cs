@@ -1,3 +1,4 @@
+using System.Data;
 using backend.Dtos.Product.ProductImages;
 using backend.Interfaces;
 using backend.Mappers;
@@ -60,6 +61,20 @@ namespace backend.Controllers
             
             return Ok(productImagesModel);
         }
-
+        [HttpDelete]
+        [Route("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var productImages = await _productImagesRepo.DeleteAsync(id);
+            if(productImages == null)
+            {
+                return NotFound();
+            }
+            return Ok("Deleted product images");
+        }
     }
 }

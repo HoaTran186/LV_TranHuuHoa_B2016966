@@ -1,3 +1,4 @@
+using backend.Dtos.Comment;
 using backend.Dtos.Product.ProductImages;
 
 namespace backend.Dtos.Product
@@ -13,6 +14,8 @@ namespace backend.Dtos.Product
         public decimal Price { get; set; }
         public int? ProductTypeId {get;set;}
         public bool Censor { get; set; }
+        public string UserName {get; set;} = string.Empty;
         public List<ProductImagesDto> ProductImages { get; set; }
+        public List<CommentsDto> Comments {get; set;}
     }
 }

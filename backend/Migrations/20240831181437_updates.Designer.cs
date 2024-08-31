@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240826063056_CensorProduct")]
-    partial class CensorProduct
+    [Migration("20240831181437_updates")]
+    partial class updates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,19 +54,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2434eb8a-1ab0-4f13-b695-7b94ae76234b",
+                            Id = "0780d999-3531-490f-9e98-bcd909889125",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "85e257dc-c65f-4df6-ad4e-cf0b0e828a50",
+                            Id = "7f6dc039-c933-4abf-a4f1-b250017ccabc",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "9f2b6274-5820-4667-a3af-89b0e89b09dc",
+                            Id = "f066d4b4-baa4-4d49-84d7-2b232dcf810c",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -243,6 +243,31 @@ namespace backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("backend.Models.Comments", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("productId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("productId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("backend.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -277,6 +302,10 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Unique")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -375,6 +404,15 @@ namespace backend.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("backend.Models.Comments", b =>
+                {
+                    b.HasOne("backend.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("productId");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("backend.Models.Product", b =>

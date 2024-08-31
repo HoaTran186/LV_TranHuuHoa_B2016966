@@ -20,11 +20,17 @@ namespace backend.Repository
             return productImagesModel;
         }
 
-        public Task<ProductImages?> DeleteAsync(int id)
+        public async Task<ProductImages?> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var productImagesModel = await _context.ProductImages.FirstOrDefaultAsync(i => i.Id == id);
+            if(productImagesModel == null)
+            {
+                return null;
+            }
+            _context.ProductImages.Remove(productImagesModel);
+            await _context.SaveChangesAsync();
+            return productImagesModel;
         }
-
         public async Task<List<ProductImages>> GetAllAsync()
         {
             return await _context.ProductImages.ToListAsync();
@@ -33,10 +39,6 @@ namespace backend.Repository
         public async Task<ProductImages?> GetByIdAsync(int id)
         {
             return await _context.ProductImages.FindAsync(id);
-        }
-        public Task<ProductImages?> UpdateAsync(int id, ProductImages updateProductImagesDto)
-        {
-            throw new NotImplementedException();
         }
     }
 }
