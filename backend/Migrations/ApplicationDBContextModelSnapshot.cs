@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0780d999-3531-490f-9e98-bcd909889125",
+                            Id = "1043e5b5-be7c-4ec4-9f91-9bc5db9dec9c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "7f6dc039-c933-4abf-a4f1-b250017ccabc",
+                            Id = "03e8d0dc-7339-4e89-bac8-ecc1c788b788",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "f066d4b4-baa4-4d49-84d7-2b232dcf810c",
+                            Id = "26e2885b-ee39-44ea-a584-ff32bce503df",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -302,10 +302,6 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ProductTypeId");
@@ -332,7 +328,7 @@ namespace backend.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("Product Images");
                 });
 
             modelBuilder.Entity("backend.Models.ProductType", b =>
@@ -349,7 +345,22 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductType");
+                    b.ToTable("Product Types");
+                });
+
+            modelBuilder.Entity("backend.Models.UserProduct", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("productId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "productId");
+
+                    b.HasIndex("productId");
+
+                    b.ToTable("User Product");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -406,7 +417,7 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.Comments", b =>
                 {
                     b.HasOne("backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("comments")
                         .HasForeignKey("productId");
 
                     b.Navigation("Product");
@@ -430,8 +441,36 @@ namespace backend.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("backend.Models.UserProduct", b =>
+                {
+                    b.HasOne("backend.Models.AppUser", "AppUser")
+                        .WithMany("UserProducts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.Product", "Product")
+                        .WithMany("UserProducts")
+                        .HasForeignKey("productId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("backend.Models.AppUser", b =>
+                {
+                    b.Navigation("UserProducts");
+                });
+
             modelBuilder.Entity("backend.Models.Product", b =>
                 {
+                    b.Navigation("UserProducts");
+
+                    b.Navigation("comments");
+
                     b.Navigation("productImages");
                 });
 

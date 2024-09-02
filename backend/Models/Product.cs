@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
 {
+    [Table("Products")]
     public class Product
     {
         public int Id { get; set; }
@@ -14,8 +15,9 @@ namespace backend.Models
         public decimal Price { get; set; }
         public int? ProductTypeId {get;set;}
         public bool Censor { get; set; }
-        public string UserName {get; set;} = string.Empty;
         public ProductType? ProductType {get; set;}
         public List<ProductImages> productImages {get; set;} = new List<ProductImages>();
+        public List<Comments> comments {get; set;} = new List<Comments>();
+        public List<UserProduct> UserProducts {get; set;} = new List<UserProduct>();
     }
 }

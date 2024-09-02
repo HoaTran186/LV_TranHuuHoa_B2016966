@@ -16,11 +16,10 @@ namespace backend.Mappers
                 Apply = productModel.Apply,
                 Result = productModel.Result,
                 Price = productModel.Price,
-                UserName = productModel.UserName,
                 ProductTypeId = productModel.ProductTypeId,
                 Censor = productModel.Censor,
-                
-                ProductImages = productModel.productImages.Select(c =>c.ToProductImagesDto()).ToList()
+                Comments = productModel.comments.Select(c => c.ToCommentDto()).ToList(),
+                ProductImages = productModel.productImages.Select(i => i.ToProductImagesDto()).ToList()
             };
         }
         public static Product ToProductFromCreateDto(this CreateProductRequestDto productDto)
@@ -33,7 +32,6 @@ namespace backend.Mappers
                 Apply = productDto.Apply,
                 Result = productDto.Result,
                 Price = productDto.Price,
-                UserName = productDto.UserName,
                 ProductTypeId = productDto.ProductTypeId
             };
         }
@@ -47,7 +45,6 @@ namespace backend.Mappers
                 Apply = productDto.Apply,
                 Result = productDto.Result,
                 Price = productDto.Price,
-                UserName = productDto.UserName,
                 ProductTypeId = productDto.ProductTypeId
             };
         }

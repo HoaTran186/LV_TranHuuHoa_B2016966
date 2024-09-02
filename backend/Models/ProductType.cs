@@ -1,5 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models
 {
+    [Table("Product Types")]
     public class ProductType
     {
         public int Id {get; set;}

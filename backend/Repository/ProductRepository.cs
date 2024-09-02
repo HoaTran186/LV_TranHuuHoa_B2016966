@@ -35,7 +35,10 @@ namespace backend.Repository
 
         public async Task<List<Product>> GetAllAsync()
         {
-            return await _context.Products.Include(c =>c.productImages).ToListAsync();
+            return await _context.Products
+                .Include(c =>c.productImages)
+                .Include(c => c.comments)
+                .ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)

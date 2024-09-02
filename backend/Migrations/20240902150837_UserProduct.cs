@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class updates : Migration
+    public partial class UserProduct : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,7 +53,7 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductType",
+                name: "Product Types",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -62,7 +62,7 @@ namespace backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductType", x => x.Id);
+                    table.PrimaryKey("PK_Product Types", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -184,16 +184,15 @@ namespace backend.Migrations
                     Result = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProductTypeId = table.Column<int>(type: "int", nullable: true),
-                    Censor = table.Column<bool>(type: "bit", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Censor = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_ProductType_ProductTypeId",
+                        name: "FK_Products_Product Types_ProductTypeId",
                         column: x => x.ProductTypeId,
-                        principalTable: "ProductType",
+                        principalTable: "Product Types",
                         principalColumn: "Id");
                 });
 
@@ -218,7 +217,7 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductImages",
+                name: "Product Images",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -228,12 +227,36 @@ namespace backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductImages", x => x.Id);
+                    table.PrimaryKey("PK_Product Images", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductImages_Products_ProductId",
+                        name: "FK_Product Images_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "User Product",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    productId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User Product", x => new { x.UserId, x.productId });
+                    table.ForeignKey(
+                        name: "FK_User Product_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User Product_Products_productId",
+                        column: x => x.productId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -241,9 +264,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "0780d999-3531-490f-9e98-bcd909889125", null, "Admin", "ADMIN" },
-                    { "7f6dc039-c933-4abf-a4f1-b250017ccabc", null, "User", "USER" },
-                    { "f066d4b4-baa4-4d49-84d7-2b232dcf810c", null, "Creator", "CREATOR" }
+                    { "03e8d0dc-7339-4e89-bac8-ecc1c788b788", null, "User", "USER" },
+                    { "1043e5b5-be7c-4ec4-9f91-9bc5db9dec9c", null, "Admin", "ADMIN" },
+                    { "26e2885b-ee39-44ea-a584-ff32bce503df", null, "Creator", "CREATOR" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -291,14 +314,19 @@ namespace backend.Migrations
                 column: "productId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductImages_ProductId",
-                table: "ProductImages",
+                name: "IX_Product Images_ProductId",
+                table: "Product Images",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_ProductTypeId",
                 table: "Products",
                 column: "ProductTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User Product_productId",
+                table: "User Product",
+                column: "productId");
         }
 
         /// <inheritdoc />
@@ -323,7 +351,10 @@ namespace backend.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "ProductImages");
+                name: "Product Images");
+
+            migrationBuilder.DropTable(
+                name: "User Product");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -335,7 +366,7 @@ namespace backend.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "ProductType");
+                name: "Product Types");
         }
     }
 }

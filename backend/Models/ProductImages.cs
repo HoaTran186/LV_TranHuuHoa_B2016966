@@ -1,6 +1,9 @@
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models
 {
+    [Table("Product Images")]
     public class ProductImages
     {
         public int Id {get; set;}
