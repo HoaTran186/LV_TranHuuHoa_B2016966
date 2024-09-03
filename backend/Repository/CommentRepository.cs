@@ -38,10 +38,11 @@ namespace backend.Repository
         {
             return await _context.Comments.ToListAsync();
         }
-
-        public async Task<Comments?> GetByIdAsync(int id)
+        public async Task<List<Comments?>> GetByProductIdAsync(int productId)
         {
-            return await _context.Comments.FindAsync(id);
+            return await _context.Comments
+            .Where(comment => comment.productId == productId)
+            .ToListAsync();
         }
     }
 }

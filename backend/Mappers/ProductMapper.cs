@@ -18,11 +18,26 @@ namespace backend.Mappers
                 Price = productModel.Price,
                 ProductTypeId = productModel.ProductTypeId,
                 Censor = productModel.Censor,
+                UserId = productModel.UserId,
                 Comments = productModel.Comments.Select(c => c.ToCommentDto()).ToList(),
                 ProductImages = productModel.ProductImages.Select(i => i.ToProductImagesDto()).ToList()
             };
         }
         public static Product ToProductFromCreateDto(this CreateProductRequestDto productDto, string UserId)
+        {
+            return new Product
+            {
+                Product_Name = productDto.Product_Name,
+                Origin = productDto.Origin,
+                Unique = productDto.Unique,
+                Apply = productDto.Apply,
+                Result = productDto.Result,
+                Price = productDto.Price,
+                ProductTypeId = productDto.ProductTypeId,
+                UserId = UserId
+            };
+        }
+        public static Product ToUserProductFromUpdateDto(this UpdateProductDto productDto, string UserId)
         {
             return new Product
             {
@@ -46,7 +61,7 @@ namespace backend.Mappers
                 Apply = productDto.Apply,
                 Result = productDto.Result,
                 Price = productDto.Price,
-                ProductTypeId = productDto.ProductTypeId
+                ProductTypeId = productDto.ProductTypeId,
             };
         }
         public static Product ToProductFromUpdateCensorDto(this UpdateCensorDto productDto)

@@ -1,6 +1,10 @@
 using backend.Dtos.Comment;
+using backend.Extensions;
 using backend.Interfaces;
 using backend.Mappers;
+using backend.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers
 {
@@ -10,10 +14,12 @@ namespace backend.Controllers
     {
         private readonly IProductRepository _productRepo;
         private readonly ICommentRepository _commentRepo;
-        public CommentController(IProductRepository productRepo, ICommentRepository commentRepo)
+        private readonly UserManager<AppUser> _userManager;
+        public CommentController(IProductRepository productRepo, ICommentRepository commentRepo, UserManager<AppUser> userManager)
         {
             _productRepo = productRepo;
             _commentRepo = commentRepo;
+            _userManager = userManager;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -25,14 +31,14 @@ namespace backend.Controllers
             var comments = await _commentRepo.GetAllAsync();
             return Ok(comments);
         }
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        [HttpGet("{productId:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int productId)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var comments = await _commentRepo.GetByIdAsync(id);
+            var comments = await _commentRepo.GetByProductIdAsync(productId);
             if(comments == null)
             {
                 return NotFound();
@@ -40,6 +46,7 @@ namespace backend.Controllers
             return Ok(comments);
         }
         [HttpPost("{productId:int}")]
+        [Authorize]
         public async Task<IActionResult> Create([FromRoute] int productId, CreateCommentDto commentDto)
         {
             if(!ModelState.IsValid)
@@ -50,7 +57,9 @@ namespace backend.Controllers
             {
                 return BadRequest("Product does not exist");
             }
-            var commentModel = commentDto.ToCommentFromCreateDto(productId);
+            var username = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(username);
+            var commentModel = commentDto.ToCommentFromCreateDto(productId, appUser.Id);
             await _commentRepo.CreateAsync(commentModel);
 
             return Ok(commentModel);

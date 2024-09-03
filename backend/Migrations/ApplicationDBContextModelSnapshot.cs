@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "cfddbd17-5ef8-43da-bd81-86cef8d03f71",
+                            Id = "bcd0f66c-07f0-4fa0-8f2a-ede7685778db",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "ab5c2020-5096-42da-a40b-06f452c16917",
+                            Id = "64a38ae6-c140-4e46-8c77-f848c531db8e",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "aabc04bf-684c-4462-a565-f1fb6b7df06f",
+                            Id = "56ee2170-4245-455e-b847-614ea428ca16",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -248,17 +248,30 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserName")
+                    b.Property<int>("Star")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("productId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
 
                     b.HasIndex("productId");
 
@@ -425,9 +438,15 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Comments", b =>
                 {
+                    b.HasOne("backend.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
                     b.HasOne("backend.Models.Product", "Product")
                         .WithMany("Comments")
                         .HasForeignKey("productId");
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Product");
                 });

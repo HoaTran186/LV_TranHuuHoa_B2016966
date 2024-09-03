@@ -209,13 +209,21 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Star = table.Column<int>(type: "int", nullable: false),
                     productId = table.Column<int>(type: "int", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comments_Products_productId",
                         column: x => x.productId,
@@ -271,9 +279,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "aabc04bf-684c-4462-a565-f1fb6b7df06f", null, "Creator", "CREATOR" },
-                    { "ab5c2020-5096-42da-a40b-06f452c16917", null, "User", "USER" },
-                    { "cfddbd17-5ef8-43da-bd81-86cef8d03f71", null, "Admin", "ADMIN" }
+                    { "56ee2170-4245-455e-b847-614ea428ca16", null, "Creator", "CREATOR" },
+                    { "64a38ae6-c140-4e46-8c77-f848c531db8e", null, "User", "USER" },
+                    { "bcd0f66c-07f0-4fa0-8f2a-ede7685778db", null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -314,6 +322,11 @@ namespace backend.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_AppUserId",
+                table: "Comments",
+                column: "AppUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_productId",

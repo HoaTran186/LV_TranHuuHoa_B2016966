@@ -10,18 +10,22 @@ namespace backend.Mappers
             return new CommentsDto
             {
                 Id = commentsModel.Id,
+                Title = commentsModel.Title,
                 Comment = commentsModel.Comment,
+                Star = commentsModel.Star,
                 productId = commentsModel.productId,
-                UserName = commentsModel.UserName
+                UserId = commentsModel.UserId
             };
         }
-        public static Comments ToCommentFromCreateDto(this CreateCommentDto commentModel, int productId)
+        public static Comments ToCommentFromCreateDto(this CreateCommentDto commentModel, int productId, string UserId)
         {
             return new Comments
             {
+                Title = commentModel.Title,
                 Comment = commentModel.Comment,
+                Star = commentModel.Star,
                 productId = productId,
-                UserName = commentModel.UserName
+                UserId = UserId
             };
         }
     }

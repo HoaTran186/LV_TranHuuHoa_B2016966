@@ -6,6 +6,7 @@ namespace backend.Interfaces
     {
         Task<List<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
+        Task<List<Product>> GetUserProduct(AppUser appUser);
         Task<Product?> GetByProductNameAsync(string productname);
         Task<Product> CreateAsync(Product productModel);
         Task<Product?> UpdateAsync(int id, Product updateProductDto);

@@ -53,7 +53,7 @@ namespace backend.Controllers
           return Ok(product.ToProductDto());
        }
        [HttpPost]
-       [Authorize]
+       [Authorize(Roles = "Admin")]
        public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
        {
           if(!ModelState.IsValid)
@@ -69,7 +69,7 @@ namespace backend.Controllers
        }
        [HttpPut]
        [Route("{id:int}")]
-       [Authorize(Roles = "Creator")]
+       [Authorize(Roles = "Admin")]
        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateProductDto updateDto)
        {
           if(!ModelState.IsValid)
@@ -101,7 +101,7 @@ namespace backend.Controllers
        }
        [HttpDelete]
        [Route("{id:int}")]
-       [Authorize()]
+       [Authorize(Roles = "Admin")]
        public async Task<IActionResult> Delete([FromRoute] int id)
        {
           if(!ModelState.IsValid)
