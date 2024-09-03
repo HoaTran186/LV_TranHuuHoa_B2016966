@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class UserProduct : Migration
+    public partial class updates : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -184,11 +184,18 @@ namespace backend.Migrations
                     Result = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProductTypeId = table.Column<int>(type: "int", nullable: true),
-                    Censor = table.Column<bool>(type: "bit", nullable: false)
+                    Censor = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Products_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Products_Product Types_ProductTypeId",
                         column: x => x.ProductTypeId,
@@ -264,9 +271,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "03e8d0dc-7339-4e89-bac8-ecc1c788b788", null, "User", "USER" },
-                    { "1043e5b5-be7c-4ec4-9f91-9bc5db9dec9c", null, "Admin", "ADMIN" },
-                    { "26e2885b-ee39-44ea-a584-ff32bce503df", null, "Creator", "CREATOR" }
+                    { "aabc04bf-684c-4462-a565-f1fb6b7df06f", null, "Creator", "CREATOR" },
+                    { "ab5c2020-5096-42da-a40b-06f452c16917", null, "User", "USER" },
+                    { "cfddbd17-5ef8-43da-bd81-86cef8d03f71", null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -319,6 +326,11 @@ namespace backend.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_AppUserId",
+                table: "Products",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_ProductTypeId",
                 table: "Products",
                 column: "ProductTypeId");
@@ -360,10 +372,10 @@ namespace backend.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Products");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Product Types");

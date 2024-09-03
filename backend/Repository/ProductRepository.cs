@@ -36,14 +36,19 @@ namespace backend.Repository
         public async Task<List<Product>> GetAllAsync()
         {
             return await _context.Products
-                .Include(c =>c.productImages)
-                .Include(c => c.comments)
+                .Include(c =>c.ProductImages)
+                .Include(c => c.Comments)
                 .ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
         {
-            return await _context.Products.Include(c => c.productImages).FirstOrDefaultAsync(s => s.Id == id);
+            return await _context.Products.Include(c => c.ProductImages).FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<Product?> GetByProductNameAsync(string productname)
+        {
+            return await _context.Products.FirstOrDefaultAsync(s => s.Product_Name == productname);
         }
 
         public Task<bool> ProductExists(int id)

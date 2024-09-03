@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240902150837_UserProduct")]
-    partial class UserProduct
+    [Migration("20240902175405_updates")]
+    partial class updates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,19 +54,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1043e5b5-be7c-4ec4-9f91-9bc5db9dec9c",
+                            Id = "cfddbd17-5ef8-43da-bd81-86cef8d03f71",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "03e8d0dc-7339-4e89-bac8-ecc1c788b788",
+                            Id = "ab5c2020-5096-42da-a40b-06f452c16917",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "26e2885b-ee39-44ea-a584-ff32bce503df",
+                            Id = "aabc04bf-684c-4462-a565-f1fb6b7df06f",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -276,6 +276,9 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Apply")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -305,7 +308,13 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
 
                     b.HasIndex("ProductTypeId");
 
@@ -420,7 +429,7 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.Comments", b =>
                 {
                     b.HasOne("backend.Models.Product", "Product")
-                        .WithMany("comments")
+                        .WithMany("Comments")
                         .HasForeignKey("productId");
 
                     b.Navigation("Product");
@@ -428,9 +437,15 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Product", b =>
                 {
+                    b.HasOne("backend.Models.AppUser", "AppUser")
+                        .WithMany("Products")
+                        .HasForeignKey("AppUserId");
+
                     b.HasOne("backend.Models.ProductType", "ProductType")
                         .WithMany("Products")
                         .HasForeignKey("ProductTypeId");
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("ProductType");
                 });
@@ -438,7 +453,7 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.ProductImages", b =>
                 {
                     b.HasOne("backend.Models.Product", "Product")
-                        .WithMany("productImages")
+                        .WithMany("ProductImages")
                         .HasForeignKey("ProductId");
 
                     b.Navigation("Product");
@@ -465,16 +480,18 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.AppUser", b =>
                 {
+                    b.Navigation("Products");
+
                     b.Navigation("UserProducts");
                 });
 
             modelBuilder.Entity("backend.Models.Product", b =>
                 {
+                    b.Navigation("Comments");
+
+                    b.Navigation("ProductImages");
+
                     b.Navigation("UserProducts");
-
-                    b.Navigation("comments");
-
-                    b.Navigation("productImages");
                 });
 
             modelBuilder.Entity("backend.Models.ProductType", b =>

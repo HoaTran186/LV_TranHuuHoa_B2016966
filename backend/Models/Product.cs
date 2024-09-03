@@ -16,8 +16,12 @@ namespace backend.Models
         public int? ProductTypeId {get;set;}
         public bool Censor { get; set; }
         public ProductType? ProductType {get; set;}
-        public List<ProductImages> productImages {get; set;} = new List<ProductImages>();
-        public List<Comments> comments {get; set;} = new List<Comments>();
+        public string UserId { get; set; }
+        public List<ProductImages> ProductImages {get; set;} = new List<ProductImages>();
+        public List<Comments> Comments {get; set;} = new List<Comments>();
         public List<UserProduct> UserProducts {get; set;} = new List<UserProduct>();
+
+
+        public AppUser AppUser { get; set; }
     }
 }

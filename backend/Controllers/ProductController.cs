@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Dtos.Product;
+using backend.Extensions;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
@@ -52,14 +53,16 @@ namespace backend.Controllers
           return Ok(product.ToProductDto());
        }
        [HttpPost]
-       [Authorize(Roles = "Creator")]
+       [Authorize]
        public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
        {
           if(!ModelState.IsValid)
           {
                return BadRequest(ModelState);
           }
-          var productModel = productDto.ToProductFromCreateDto();
+          var username = User.GetUserName();
+          var appUser = await _userManager.FindByNameAsync(username);
+          var productModel = productDto.ToProductFromCreateDto(appUser.Id);
           await _productRepo.CreateAsync(productModel);
 
           return Ok(productModel);
