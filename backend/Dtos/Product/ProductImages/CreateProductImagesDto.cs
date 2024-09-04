@@ -2,6 +2,7 @@ namespace backend.Dtos.Product.ProductImages
 {
     public class CreateProductImagesDto
     {
-        public string ImagesName { get; set; } = string.Empty;
+        public IFormFile? Images { get; set; }
+        public int? ProductId { get; set; }
     }
 }

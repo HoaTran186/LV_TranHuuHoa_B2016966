@@ -40,5 +40,12 @@ namespace backend.Repository
         {
             return await _context.ProductImages.FindAsync(id);
         }
+
+        public async Task<List<ProductImages>> GetByProductId(int productId)
+        {
+            return await _context.ProductImages
+                    .Where(i => i.ProductId == productId)
+                    .ToListAsync();
+        }
     }
 }

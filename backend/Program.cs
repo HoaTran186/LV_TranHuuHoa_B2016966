@@ -6,6 +6,7 @@ using backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -92,6 +93,17 @@ builder.Services.AddScoped<IProductImagesRepository, ProductImagesRepository>();
 builder.Services.AddScoped<ICommentRepository,CommentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
+builder.Services.AddScoped<IFileService, FileService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy => 
+        {
+            policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 
@@ -103,6 +115,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath,"Uploads")
+    ),
+    RequestPath = "/Resources"
+});
+
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

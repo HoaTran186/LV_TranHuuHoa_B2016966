@@ -10,7 +10,7 @@ namespace backend.Mappers
             return new ProductImagesDto
             {
                 Id = productImagesModel.Id,
-                ImagesName = productImagesModel.ImagesName,
+                ImagesName = productImagesModel.Images,
                 ProductId = productImagesModel.ProductId
             };
         }
@@ -18,7 +18,7 @@ namespace backend.Mappers
         {
             return new ProductImages
             {
-                ImagesName = productImagesModel.ImagesName,
+                Images = productImagesModel.Images.ToString(),
                 ProductId = productId
             };
         }

@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240903213158_updates")]
+    [Migration("20240904160908_updates")]
     partial class updates
     {
         /// <inheritdoc />
@@ -54,19 +54,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "bcd0f66c-07f0-4fa0-8f2a-ede7685778db",
+                            Id = "2146f6ab-8a6a-4bc6-9ec4-bd83fc0ae815",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "64a38ae6-c140-4e46-8c77-f848c531db8e",
+                            Id = "19cad5ef-10e9-49bb-aef3-abdc623b5384",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "56ee2170-4245-455e-b847-614ea428ca16",
+                            Id = "32faea72-226a-48cb-9b18-9eed0b9ba86e",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -342,8 +342,7 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ImagesName")
-                        .IsRequired()
+                    b.Property<string>("Images")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ProductId")

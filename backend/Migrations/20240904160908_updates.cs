@@ -237,7 +237,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImagesName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Images = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -279,9 +279,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "56ee2170-4245-455e-b847-614ea428ca16", null, "Creator", "CREATOR" },
-                    { "64a38ae6-c140-4e46-8c77-f848c531db8e", null, "User", "USER" },
-                    { "bcd0f66c-07f0-4fa0-8f2a-ede7685778db", null, "Admin", "ADMIN" }
+                    { "19cad5ef-10e9-49bb-aef3-abdc623b5384", null, "User", "USER" },
+                    { "2146f6ab-8a6a-4bc6-9ec4-bd83fc0ae815", null, "Admin", "ADMIN" },
+                    { "32faea72-226a-48cb-9b18-9eed0b9ba86e", null, "Creator", "CREATOR" }
                 });
 
             migrationBuilder.CreateIndex(
