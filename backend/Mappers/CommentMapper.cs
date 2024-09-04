@@ -28,5 +28,14 @@ namespace backend.Mappers
                 UserId = UserId
             };
         }
+        public static Comments ToCommentFromUpdateDto(this UpdateCommentDto commentModel)
+        {
+            return new Comments
+            {
+                Title = commentModel.Title,
+                Comment = commentModel.Comment,
+                Star = commentModel.Star
+            };
+        }
     }
 }

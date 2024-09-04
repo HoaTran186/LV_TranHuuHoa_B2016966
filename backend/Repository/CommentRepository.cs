@@ -38,11 +38,33 @@ namespace backend.Repository
         {
             return await _context.Comments.ToListAsync();
         }
+
+        public async Task<Comments?> GetByIdAsync(int id)
+        {
+            return await _context.Comments.FindAsync(id);
+        }
+
         public async Task<List<Comments?>> GetByProductIdAsync(int productId)
         {
             return await _context.Comments
             .Where(comment => comment.productId == productId)
             .ToListAsync();
+        }
+
+        public async Task<Comments?> UpdateAsync(int id, Comments updateCommentDto)
+        {
+            var existingComment = await _context.Comments.FindAsync(id);
+            if(existingComment == null)
+            {
+                return null;
+            }
+            existingComment.Title = updateCommentDto.Title;
+            existingComment.Comment = updateCommentDto.Comment;
+            existingComment.Star = updateCommentDto.Star;
+
+            await _context.SaveChangesAsync();
+
+            return existingComment;
         }
     }
 }
