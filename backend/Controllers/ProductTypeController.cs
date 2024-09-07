@@ -47,7 +47,7 @@ namespace backend.Controllers
             return Ok(producttype.ToProductDto());
         }
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateProductTypeRequestDto productTypeDto)
         {
             if(!ModelState.IsValid)
@@ -75,7 +75,7 @@ namespace backend.Controllers
         }
         [HttpDelete]
         [Route("{id:int}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if(!ModelState.IsValid)

@@ -50,7 +50,7 @@ namespace backend.Controllers
        }
        [HttpPut]
        [Route("{id:int}")]
-       [Authorize(Roles = "Admin")]
+       [Authorize(Roles = "Creator")]
        public async Task<IActionResult> Update([FromRoute] int id,[FromBody] UpdateProductDto updateDto)
        {
           if(!ModelState.IsValid)
