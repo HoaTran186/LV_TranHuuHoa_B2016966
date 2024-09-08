@@ -94,7 +94,8 @@ builder.Services.AddScoped<ICommentRepository,CommentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
 builder.Services.AddScoped<IFileService, FileService>();
-
+builder.Services.AddScoped<IEmailSender, EmailSenderService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(

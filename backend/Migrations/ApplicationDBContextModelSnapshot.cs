@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2146f6ab-8a6a-4bc6-9ec4-bd83fc0ae815",
+                            Id = "532ea0f2-bc0e-41f0-a01c-059c75801645",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "19cad5ef-10e9-49bb-aef3-abdc623b5384",
+                            Id = "19fb680c-f35f-4811-b5c6-313cabfa9179",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "32faea72-226a-48cb-9b18-9eed0b9ba86e",
+                            Id = "cc188e55-4266-4a7b-9d49-32ef975814a1",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -342,7 +342,7 @@ namespace backend.Migrations
                     b.Property<string>("Images")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -469,7 +469,9 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Models.Product", "Product")
                         .WithMany("ProductImages")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Product");
                 });
