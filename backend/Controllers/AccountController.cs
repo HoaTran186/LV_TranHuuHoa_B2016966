@@ -14,16 +14,12 @@ namespace backend.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IEmailSender _emailSender;
-        private readonly IOtpService _otpService;
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
-        SignInManager<AppUser> signInManager, IEmailSender emailSender, IOtpService otpService)
+        SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
-            _emailSender = emailSender;
-            _otpService = otpService;
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
@@ -55,7 +51,7 @@ namespace backend.Controllers
         [HttpPost("registeruser")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterDto registerDto)
         {
-            try
+                        try
             {
                 if (!ModelState.IsValid)
                 {
@@ -66,19 +62,32 @@ namespace backend.Controllers
                     UserName = registerDto.Username,
                     Email = registerDto.Email
                 };
-                var rng = new Random();
-                var otpCode = rng.Next(100000, 999999).ToString();
 
-                var emailSent = await _emailSender.SendEmailAsync(appUser.Email, "Xác nhận tài khoản",
-                    $"Mã OTP của bạn là: {otpCode}");
-                if (!emailSent)
+                var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
+                if (createdUser.Succeeded)
                 {
-                    return StatusCode(500, "Không thể gửi OTP.");
+                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+                    if (roleResult.Succeeded)
+                    {
+                        return Ok(
+                            new NewCreatorDto
+                            {
+                                Username = appUser.UserName,
+                                Email = appUser.Email,
+                                Token = await _tokenService.CreateToken(appUser),
+                                Roles = ["User"]
+                            }
+                        );
+                    }
+                    else
+                    {
+                        return StatusCode(500, roleResult.Errors);
+                    }
                 }
-                await _otpService.SaveOtpAsync(appUser, registerDto.Password, otpCode);
-                
-                Console.WriteLine($"Generated OTP: {otpCode}");
-                return Ok("Đã gửi mã OTP đến email của bạn. Vui lòng kiểm tra và xác nhận OTP.");
+                else
+                {
+                    return StatusCode(500, createdUser.Errors);
+                }
             }
             catch (Exception e)
             {
@@ -131,52 +140,6 @@ namespace backend.Controllers
             {
 
                 return StatusCode(500, e);
-            }
-        }
-        [HttpPost("verifyotp")]
-        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto verifyOtpDto)
-        {
-            try
-            {
-                var otpInfo = await _otpService.GetOtpInfoAsync(verifyOtpDto.Email.ToLower());
-                Console.WriteLine($"Email from VerifyOtpDto: {verifyOtpDto.Email.ToLower()}");
-                if (otpInfo.Item1 == null || otpInfo.Item3.Trim() != verifyOtpDto.Otp.Trim())
-                {
-                    return BadRequest("OTP không hợp lệ.");
-                }
-
-                var appUser = otpInfo.Item1;
-                var password = otpInfo.Item2;
-
-                var createdUser = await _userManager.CreateAsync(appUser, password);
-                if (createdUser.Succeeded)
-                {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-                    if (roleResult.Succeeded)
-                    {
-                        await _otpService.RemoveOtpInfoAsync(appUser.Email);
-
-                        return Ok(new NewUserDto
-                        {
-                            Username = appUser.UserName,
-                            Email = appUser.Email,
-                            Token = await _tokenService.CreateToken(appUser),
-                            Roles = new[] { "User" }
-                        });
-                    }
-                    else
-                    {
-                        return StatusCode(500, roleResult.Errors);
-                    }
-                }
-                else
-                {
-                    return StatusCode(500, createdUser.Errors);
-                }
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
             }
         }
     }

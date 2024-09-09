@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "532ea0f2-bc0e-41f0-a01c-059c75801645",
+                            Id = "6dd91551-7e28-4906-a429-1f41788e9e85",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "19fb680c-f35f-4811-b5c6-313cabfa9179",
+                            Id = "ef02539d-96bd-402a-9c82-5ef639082a8e",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "cc188e55-4266-4a7b-9d49-32ef975814a1",
+                            Id = "f6b5543c-1d7c-4219-82dd-938b28e5d43d",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });

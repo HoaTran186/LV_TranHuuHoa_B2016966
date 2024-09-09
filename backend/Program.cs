@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.WebHost.UseUrls("http://localhost:5126", "https://localhost:7146");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -94,8 +94,6 @@ builder.Services.AddScoped<ICommentRepository,CommentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
 builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<IEmailSender, EmailSenderService>();
-builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -123,7 +121,7 @@ app.UseStaticFiles(new StaticFileOptions
     ),
     RequestPath = "/Resources"
 });
-
+app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
