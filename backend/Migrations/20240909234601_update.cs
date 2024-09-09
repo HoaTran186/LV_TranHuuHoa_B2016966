@@ -304,9 +304,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "2481993d-33ed-47c8-a849-5d3d5094758d", null, "Creator", "CREATOR" },
-                    { "396443de-f1a5-40f8-8e97-d2ac5cf6c01f", null, "User", "USER" },
-                    { "c8538890-0fc3-4744-81bd-fb827b1911f2", null, "Admin", "ADMIN" }
+                    { "b9e17b5f-58f2-4183-8fa9-979d497ca6bc", null, "Admin", "ADMIN" },
+                    { "bd2ffec7-81bb-451b-8879-9bc39bf91f32", null, "User", "USER" },
+                    { "d5cfae01-eea6-46cc-a2d4-24495f2d3018", null, "Creator", "CREATOR" }
                 });
 
             migrationBuilder.CreateIndex(

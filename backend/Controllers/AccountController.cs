@@ -171,7 +171,7 @@ namespace backend.Controllers
             <body>
                 <div class='email-container'>
                     <div class='email-header'>
-                        <img src='C:/Users/Admin/Documents/GitHub/LV_TranHuuHoa_B2016966/frontend/public/images/Logo/logo.png' alt='Inno Trade Logo'>
+                        <img src='https://drive.google.com/uc?export=view&id=1QFGIVQyn9mkNitNeQy1w9YuxIyy3F9zh' alt='Inno Trade Logo'>
                     </div>
                     <div class='email-body'>
                         <h3>Chào bạn,</h3>
@@ -308,6 +308,36 @@ namespace backend.Controllers
                 return StatusCode(500, $"An error occurred: {e.Message}");
             }
         }
+        [HttpDelete("deleteuser/{identifier}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] string identifier)
+        {
+            try
+            {
+                // Tìm người dùng theo ID hoặc Username
+                AppUser user = await _userManager.FindByIdAsync(identifier);
 
+                if (user == null)
+                {
+                    user = await _userManager.FindByNameAsync(identifier);
+                    if (user == null)
+                    {
+                        return NotFound("User not found.");
+                    }
+                }
+
+                // Xóa người dùng
+                var result = await _userManager.DeleteAsync(user);
+                if (!result.Succeeded)
+                {
+                    return StatusCode(500, "Error deleting user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+
+                return Ok(new { message = "User deleted successfully." });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"An error occurred: {e.Message}");
+            }
+        }
     }
 }

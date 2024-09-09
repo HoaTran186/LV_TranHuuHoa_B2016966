@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240909232435_update")]
+    [Migration("20240909234601_update")]
     partial class update
     {
         /// <inheritdoc />
@@ -54,19 +54,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c8538890-0fc3-4744-81bd-fb827b1911f2",
+                            Id = "b9e17b5f-58f2-4183-8fa9-979d497ca6bc",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "396443de-f1a5-40f8-8e97-d2ac5cf6c01f",
+                            Id = "bd2ffec7-81bb-451b-8879-9bc39bf91f32",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "2481993d-33ed-47c8-a849-5d3d5094758d",
+                            Id = "d5cfae01-eea6-46cc-a2d4-24495f2d3018",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
