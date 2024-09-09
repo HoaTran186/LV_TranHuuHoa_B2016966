@@ -18,6 +18,7 @@ namespace backend.Data
         public DbSet<ProductImages> ProductImages {get; set;}
         public DbSet<Comments> Comments {get; set;}
         public DbSet<UserProduct> UserProducts {get; set;}
+        public DbSet<UserInformation> UserInformation {get; set;}
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

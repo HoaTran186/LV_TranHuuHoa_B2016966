@@ -4,53 +4,46 @@ using backend.Interfaces;
 
 namespace backend.Service
 {
-   public class EmailSenderService : IEmailSender
+    public class EmailSenderService : IEmailSender
     {
-        private readonly IConfiguration _configuration;
+        private readonly string _email;
+        private readonly string _password;
+        private readonly string _host;
+        private readonly int _port;
 
         public EmailSenderService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            var emailSettings = configuration.GetSection("EmailSettings");
+            _email = emailSettings["Email"] ?? throw new ArgumentNullException("Email configuration is missing");
+            _password = emailSettings["Password"] ?? throw new ArgumentNullException("Email password is missing");
+            _host = emailSettings["Host"] ?? throw new ArgumentNullException("SMTP Host is missing");
+            _port = int.TryParse(emailSettings["Port"], out int port) ? port : throw new ArgumentNullException("SMTP Port is missing or invalid");
         }
 
-        public async Task<bool> SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string to, string subject, string body)
         {
-            var mail = _configuration["EmailSettings:SenderEmail"];
-            var pw = _configuration["EmailSettings:SenderPassword"];
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            if (string.IsNullOrEmpty(to)) throw new ArgumentNullException(nameof(to), "Recipient email is missing");
+            if (string.IsNullOrEmpty(subject)) throw new ArgumentNullException(nameof(subject), "Email subject is missing");
+            if (string.IsNullOrEmpty(body)) throw new ArgumentNullException(nameof(body), "Email body is missing");
 
-            using (var mailMessage = new MailMessage(from: mail, to: email, subject: subject, body: message))
+            var smtpClient = new SmtpClient(_host)
             {
-                mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
-                mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
-                mailMessage.IsBodyHtml = true;
-                mailMessage.ReplyToList.Add(new MailAddress(mail));
-                mailMessage.Sender = new MailAddress(mail);
+                Port = _port,
+                Credentials = new NetworkCredential(_email, _password),
+                EnableSsl = true
+            };
 
-                using (SmtpClient client = new SmtpClient(smtpServer))
-                {
-                    client.Port = smtpPort;
-                    client.Credentials = new NetworkCredential(mail, pw);
-                    client.EnableSsl = true;
-
-                    return await SendMail(mailMessage, client);
-                }
-            }
-        }
-
-        private static async Task<bool> SendMail(MailMessage message, SmtpClient client)
-        {
-            try
+            var mailMessage = new MailMessage
             {
-                await client.SendMailAsync(message);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
+                From = new MailAddress(_email),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(to);
+
+            await smtpClient.SendMailAsync(mailMessage);
         }
     }
 }

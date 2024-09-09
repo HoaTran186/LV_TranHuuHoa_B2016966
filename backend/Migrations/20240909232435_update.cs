@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class updates : Migration
+    public partial class update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -172,6 +172,30 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "User Information",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Age = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Job = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User Information", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_User Information_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -280,9 +304,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "6dd91551-7e28-4906-a429-1f41788e9e85", null, "Admin", "ADMIN" },
-                    { "ef02539d-96bd-402a-9c82-5ef639082a8e", null, "User", "USER" },
-                    { "f6b5543c-1d7c-4219-82dd-938b28e5d43d", null, "Creator", "CREATOR" }
+                    { "2481993d-33ed-47c8-a849-5d3d5094758d", null, "Creator", "CREATOR" },
+                    { "396443de-f1a5-40f8-8e97-d2ac5cf6c01f", null, "User", "USER" },
+                    { "c8538890-0fc3-4744-81bd-fb827b1911f2", null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -350,6 +374,11 @@ namespace backend.Migrations
                 column: "ProductTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_User Information_AppUserId",
+                table: "User Information",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_User Product_productId",
                 table: "User Product",
                 column: "productId");
@@ -378,6 +407,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Product Images");
+
+            migrationBuilder.DropTable(
+                name: "User Information");
 
             migrationBuilder.DropTable(
                 name: "User Product");

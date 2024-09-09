@@ -46,17 +46,25 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+builder.Services.AddMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("Redis");
+        options.InstanceName = "SampleInstance";
+    });
 
-
-builder.Services.AddControllers().AddNewtonsoftJson(options => {
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 });
 
-builder.Services.AddDbContext<ApplicationDBContext>(options =>{
+builder.Services.AddDbContext<ApplicationDBContext>(options =>
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddIdentity<AppUser, IdentityRole>(options =>{
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
@@ -65,14 +73,16 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>{
 })
 .AddEntityFrameworkStores<ApplicationDBContext>();
 
-builder.Services.AddAuthentication(options =>{
-    options.DefaultAuthenticateScheme = 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme =
     options.DefaultChallengeScheme =
     options.DefaultForbidScheme =
     options.DefaultScheme =
     options.DefaultSignInScheme =
-    options.DefaultSignOutScheme =JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
+    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -90,19 +100,20 @@ builder.Services.AddAuthentication(options =>{
 builder.Services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImagesRepository, ProductImagesRepository>();
-builder.Services.AddScoped<ICommentRepository,CommentRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IEmailSender, EmailSenderService>();
+builder.Services.AddScoped<IUserInformationRepository, UserInformationRepository>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
-        policy => 
+        policy =>
         {
             policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
         });
 });
-
 var app = builder.Build();
 
 
@@ -117,7 +128,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath,"Uploads")
+        Path.Combine(builder.Environment.ContentRootPath, "Uploads")
     ),
     RequestPath = "/Resources"
 });

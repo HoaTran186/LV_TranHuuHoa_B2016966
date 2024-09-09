@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "6dd91551-7e28-4906-a429-1f41788e9e85",
+                            Id = "c8538890-0fc3-4744-81bd-fb827b1911f2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "ef02539d-96bd-402a-9c82-5ef639082a8e",
+                            Id = "396443de-f1a5-40f8-8e97-d2ac5cf6c01f",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "f6b5543c-1d7c-4219-82dd-938b28e5d43d",
+                            Id = "2481993d-33ed-47c8-a849-5d3d5094758d",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -369,6 +369,48 @@ namespace backend.Migrations
                     b.ToTable("Product Types");
                 });
 
+            modelBuilder.Entity("backend.Models.UserInformation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Age")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Job")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("User Information");
+                });
+
             modelBuilder.Entity("backend.Models.UserProduct", b =>
                 {
                     b.Property<string>("UserId")
@@ -474,6 +516,15 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("backend.Models.UserInformation", b =>
+                {
+                    b.HasOne("backend.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("backend.Models.UserProduct", b =>
