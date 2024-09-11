@@ -43,11 +43,12 @@ namespace backend.Repository
             return await _context.UserInformation.FindAsync(id);
         }
 
-        public async Task<UserInformation?> GetByUserIdAsync(AppUser appUser)
+        public async Task<UserInformation?> GetByUserIdAsync(string userId)
         {
             return await _context.UserInformation
-                             .FirstOrDefaultAsync(u => u.UserId == appUser.Id);
+                                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
+
 
         public async Task<UserInformation?> UpddateAsync(int id, UserInformation updateUserInformation)
         {

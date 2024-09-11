@@ -20,7 +20,6 @@ namespace backend.Repository
 
            return userProduct;
         }
-
         public async Task<List<Product>> GetUserProduct(AppUser user)
         {
             return await _context.UserProducts.Where(u => u.UserId == user.Id)

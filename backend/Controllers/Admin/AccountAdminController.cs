@@ -17,6 +17,7 @@ namespace backend.Controllers.Admin
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IProductRepository _productRepo;
         public AccountAdminController(UserManager<AppUser> userManager, ITokenService tokenService,
         SignInManager<AppUser> signInManager, IEmailSender emailSender)
         {
@@ -61,6 +62,7 @@ namespace backend.Controllers.Admin
             );
         }
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -85,6 +87,7 @@ namespace backend.Controllers.Admin
             return Ok(userList);
         }
         [HttpDelete("deleteuser/{identifier}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] string identifier)
         {
             try

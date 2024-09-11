@@ -21,10 +21,17 @@ namespace backend.Repository
             return commentsModel;
         }
 
+        public async Task DeleteAllAsync()
+        {
+            var comments = _context.Comments;
+            _context.Comments.RemoveRange(comments);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<Comments?> DeleteAsync(int id)
         {
             var commentModel = await _context.Comments.FirstOrDefaultAsync(i => i.Id == id);
-            if(commentModel == null)
+            if (commentModel == null)
             {
                 return null;
             }
@@ -54,7 +61,7 @@ namespace backend.Repository
         public async Task<Comments?> UpdateAsync(int id, Comments updateCommentDto)
         {
             var existingComment = await _context.Comments.FindAsync(id);
-            if(existingComment == null)
+            if (existingComment == null)
             {
                 return null;
             }

@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Controllers
+namespace backend.Controllers.Admin
 {
-    [Route("api/producttype")]
+    [Route("api/product-type")]
     [ApiController]
     public class ProductTypeController : ControllerBase
     {
@@ -60,7 +60,7 @@ namespace backend.Controllers
         }
         [HttpPut]
         [Route("{id:int}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductTypeRequestDto updateDto)
         {
             if(!ModelState.IsValid)
