@@ -1,8 +1,10 @@
 using backend.Data;
+using backend.Hubs;
 using backend.Interfaces;
 using backend.Models;
 using backend.Repository;
 using backend.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -96,7 +98,17 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true
     };
 });
-
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "MyAppCookie";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Secure cookies
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+        options.LoginPath = "/"; // Redirect to login page
+    });
 builder.Services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImagesRepository, ProductImagesRepository>();
@@ -114,7 +126,16 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
         });
 });
+builder.Services.AddSignalR();
+
+
+
 var app = builder.Build();
+app.UseCors(policy =>
+    policy.WithOrigins("http://localhost:3000")
+          .AllowCredentials()
+          .AllowAnyHeader()
+          .AllowAnyMethod());
 
 
 if (app.Environment.IsDevelopment())
@@ -132,10 +153,20 @@ app.UseStaticFiles(new StaticFileOptions
     ),
     RequestPath = "/Resources"
 });
+
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Lax,
+});
+
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseRouting();
+
+app.MapHub<ChatHub>("/chathub");
 
 app.Run();

@@ -155,3 +155,4 @@ C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\
 C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
 C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\StackExchange.Redis.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\System.Net.WebSockets.WebSocketProtocol.dll

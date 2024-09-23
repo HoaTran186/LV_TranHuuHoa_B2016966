@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240909234601_update")]
-    partial class update
+    [Migration("20240922090417_new")]
+    partial class @new
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,19 +54,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b9e17b5f-58f2-4183-8fa9-979d497ca6bc",
+                            Id = "6e5b599b-da73-4a0e-a8f2-62a7316bf68d",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "bd2ffec7-81bb-451b-8879-9bc39bf91f32",
+                            Id = "d142d1a2-c00d-4359-8812-02eea75fefab",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "d5cfae01-eea6-46cc-a2d4-24495f2d3018",
+                            Id = "ad8b5a2f-d524-4d95-83bc-b963d09864a6",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -281,6 +281,37 @@ namespace backend.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("backend.Models.Messages", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDelivered")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Receiver")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("backend.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -384,9 +415,8 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Age")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
 
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");

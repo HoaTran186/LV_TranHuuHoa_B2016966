@@ -62,7 +62,7 @@ namespace backend.Controllers.Admin
             );
         }
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userManager.Users.ToListAsync();

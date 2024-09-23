@@ -1,11 +1,18 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using backend.Container;
 using backend.Dtos.Account;
 using backend.Interfaces;
 using backend.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Controllers.Account
 {
@@ -18,14 +25,16 @@ namespace backend.Controllers.Account
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _config;
         public AccountController(IMemoryCache cache, UserManager<AppUser> userManager, ITokenService tokenService,
-        SignInManager<AppUser> signInManager, IEmailSender emailSender)
+        SignInManager<AppUser> signInManager, IEmailSender emailSender, IConfiguration config)
         {
             _cache = cache;
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _config = config;
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
@@ -49,13 +58,20 @@ namespace backend.Controllers.Account
             {
                 return Unauthorized("Access restricted to Users and Creators only.");
             }
-
+            var token = await _tokenService.CreateToken(user);
+            Response.Cookies.Append("Token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.Now.AddHours(1),
+                SameSite = SameSiteMode.None
+            });
             return Ok(
                 new NewUserDto
                 {
                     Username = user.UserName,
                     Email = user.Email,
-                    Token = await _tokenService.CreateToken(user),
+                    Token = token,
                     Roles = roles
                 }
             );

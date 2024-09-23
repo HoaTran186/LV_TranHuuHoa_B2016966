@@ -6,7 +6,7 @@ using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-namespace backend.Controllers
+namespace backend.Controllers.Account
 {
     [Route("api/account/comment")]
     [ApiController]

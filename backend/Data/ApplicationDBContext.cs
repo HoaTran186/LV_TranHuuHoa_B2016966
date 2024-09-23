@@ -1,4 +1,3 @@
-using backend.Dtos.Account;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -9,21 +8,22 @@ namespace backend.Data
     public class ApplicationDBContext : IdentityDbContext<AppUser>
     {
         public ApplicationDBContext(DbContextOptions dbContextOptions)
-        :base(dbContextOptions)
+        : base(dbContextOptions)
         {
-            
+
         }
-        public DbSet<ProductType> ProductType {get; set;}
-        public DbSet<Product> Products {get; set;}
-        public DbSet<ProductImages> ProductImages {get; set;}
-        public DbSet<Comments> Comments {get; set;}
-        public DbSet<UserProduct> UserProducts {get; set;}
-        public DbSet<UserInformation> UserInformation {get; set;}
+        public DbSet<ProductType> ProductType { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductImages> ProductImages { get; set; }
+        public DbSet<Comments> Comments { get; set; }
+        public DbSet<UserProduct> UserProducts { get; set; }
+        public DbSet<UserInformation> UserInformation { get; set; }
+        public DbSet<Messages> Messages { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<UserProduct>(x => x.HasKey(p => new {p.UserId, p.productId}));
+            builder.Entity<UserProduct>(x => x.HasKey(p => new { p.UserId, p.productId }));
 
             builder.Entity<UserProduct>()
             .HasOne(u => u.AppUser)

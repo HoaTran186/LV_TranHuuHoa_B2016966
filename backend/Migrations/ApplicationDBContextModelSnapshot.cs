@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c2f7976b-8f3e-4d77-8435-894e72db4f43",
+                            Id = "6e5b599b-da73-4a0e-a8f2-62a7316bf68d",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "cf4418f4-8419-4a8c-afc0-74c55cd4c8e1",
+                            Id = "d142d1a2-c00d-4359-8812-02eea75fefab",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "b40d44b6-4ef4-444f-ab6d-2a1a6fef4911",
+                            Id = "ad8b5a2f-d524-4d95-83bc-b963d09864a6",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -276,6 +276,37 @@ namespace backend.Migrations
                     b.HasIndex("productId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("backend.Models.Messages", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDelivered")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Receiver")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("backend.Models.Product", b =>
