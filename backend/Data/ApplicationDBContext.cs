@@ -19,6 +19,8 @@ namespace backend.Data
         public DbSet<UserProduct> UserProducts { get; set; }
         public DbSet<UserInformation> UserInformation { get; set; }
         public DbSet<Messages> Messages { get; set; }
+        public DbSet<Orders> Orders { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -34,6 +36,19 @@ namespace backend.Data
             .HasOne(u => u.Product)
             .WithMany(u => u.UserProducts)
             .HasForeignKey(p => p.productId);
+
+            builder.Entity<OrderDetails>()
+           .HasOne(od => od.Orders)
+           .WithMany(o => o.OrderDetails)
+           .HasForeignKey(od => od.OrderId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<OrderDetails>()
+                .HasOne(od => od.Product)
+                .WithMany(p => p.OrderDetails)
+                .HasForeignKey(od => od.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             List<IdentityRole> roles = new List<IdentityRole>
             {

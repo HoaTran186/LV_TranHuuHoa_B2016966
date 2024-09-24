@@ -24,7 +24,7 @@ namespace backend.Repository
         public async Task<Product?> DeleteAsync(int id)
         {
             var productModel = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
-            if(productModel == null)
+            if (productModel == null)
             {
                 return null;
             }
@@ -36,7 +36,7 @@ namespace backend.Repository
         public async Task<List<Product>> GetAllAsync()
         {
             return await _context.Products
-                .Include(c =>c.ProductImages)
+                .Include(c => c.ProductImages)
                 .Include(c => c.Comments)
                 .ToListAsync();
         }
@@ -54,7 +54,8 @@ namespace backend.Repository
         public async Task<List<Product>> GetUserProduct(AppUser appUser)
         {
             return await _context.Products.Where(u => u.UserId == appUser.Id)
-            .Select(products => new Product{
+            .Select(products => new Product
+            {
                 Id = products.Id,
                 Product_Name = products.Product_Name,
                 Origin = products.Origin,
@@ -74,7 +75,7 @@ namespace backend.Repository
         public async Task<Product?> UpdateAsync(int id, Product productDto)
         {
             var existingProduct = await _context.Products.FindAsync(id);
-            if(existingProduct == null)
+            if (existingProduct == null)
             {
                 return null;
             }
@@ -95,7 +96,7 @@ namespace backend.Repository
         public async Task<Product?> UpdateCensor(int id, Product updateCensorDto)
         {
             var existingCensor = await _context.Products.FindAsync(id);
-            if(existingCensor == null)
+            if (existingCensor == null)
             {
                 return null;
             }

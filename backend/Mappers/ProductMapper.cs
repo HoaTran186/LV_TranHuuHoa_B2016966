@@ -15,6 +15,7 @@ namespace backend.Mappers
                 Unique = productModel.Unique,
                 Apply = productModel.Apply,
                 Result = productModel.Result,
+                Quantity = productModel.Quantity,
                 Price = productModel.Price,
                 ProductTypeId = productModel.ProductTypeId,
                 Censor = productModel.Censor,
@@ -32,9 +33,11 @@ namespace backend.Mappers
                 Unique = productDto.Unique,
                 Apply = productDto.Apply,
                 Result = productDto.Result,
+                Quantity = productDto.Quantity,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId,
-                UserId = UserId
+                UserId = UserId,
+                Censor = false
             };
         }
         public static Product ToUserProductFromUpdateDto(this UpdateProductDto productDto, string UserId)
@@ -46,6 +49,7 @@ namespace backend.Mappers
                 Unique = productDto.Unique,
                 Apply = productDto.Apply,
                 Result = productDto.Result,
+                Quantity = productDto.Quantity,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId,
                 UserId = UserId
@@ -60,6 +64,7 @@ namespace backend.Mappers
                 Unique = productDto.Unique,
                 Apply = productDto.Apply,
                 Result = productDto.Result,
+                Quantity = productDto.Quantity,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId,
             };
@@ -69,7 +74,7 @@ namespace backend.Mappers
             return new Product
             {
                 Censor = productDto.Censor
-                
+
             };
         }
     }

@@ -189,6 +189,29 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ShippedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "User Information",
                 columns: table => new
                 {
@@ -223,6 +246,7 @@ namespace backend.Migrations
                     Unique = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Apply = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Result = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProductTypeId = table.Column<int>(type: "int", nullable: true),
                     Censor = table.Column<bool>(type: "bit", nullable: false),
@@ -270,6 +294,40 @@ namespace backend.Migrations
                         column: x => x.productId,
                         principalTable: "Products",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Order Details",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OrdersId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Order Details", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Order Details_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Order Details_Orders_OrdersId",
+                        column: x => x.OrdersId,
+                        principalTable: "Orders",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Order Details_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -321,9 +379,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "6e5b599b-da73-4a0e-a8f2-62a7316bf68d", null, "Admin", "ADMIN" },
-                    { "ad8b5a2f-d524-4d95-83bc-b963d09864a6", null, "Creator", "CREATOR" },
-                    { "d142d1a2-c00d-4359-8812-02eea75fefab", null, "User", "USER" }
+                    { "27c6ebc0-27bb-4b08-a710-aa92c2d05f9c", null, "Creator", "CREATOR" },
+                    { "4e262901-c2ee-45ca-a715-75133e518823", null, "User", "USER" },
+                    { "835c250a-3b4d-45ac-bde1-a402d418db9b", null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -376,6 +434,26 @@ namespace backend.Migrations
                 column: "productId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order Details_OrderId",
+                table: "Order Details",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order Details_OrdersId",
+                table: "Order Details",
+                column: "OrdersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order Details_ProductId",
+                table: "Order Details",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_AppUserId",
+                table: "Orders",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Product Images_ProductId",
                 table: "Product Images",
                 column: "ProductId");
@@ -426,6 +504,9 @@ namespace backend.Migrations
                 name: "Messages");
 
             migrationBuilder.DropTable(
+                name: "Order Details");
+
+            migrationBuilder.DropTable(
                 name: "Product Images");
 
             migrationBuilder.DropTable(
@@ -436,6 +517,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "Products");
