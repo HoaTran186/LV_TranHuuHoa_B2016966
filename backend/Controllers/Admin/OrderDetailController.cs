@@ -7,7 +7,7 @@ using Org.BouncyCastle.Crypto.Modes;
 
 namespace backend.Controllers.Admin
 {
-    [Route("api/user/orders-details")]
+    [Route("api/admin/orders-details")]
     public class OrderDetailController : ControllerBase
     {
         private readonly IOrdersRepository _ordersRepo;
@@ -120,13 +120,18 @@ namespace backend.Controllers.Admin
             return Ok(orderdetailsModel.ToOrderDetailsDto());
         }
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("delete/{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var orderdetail = await _ordersDetailsRepo.GetByIdAsync(id);
+            var product = await _product.GetByIdAsync(orderdetail.ProductId);
+            var quantity = product.Quantity + orderdetail.Quantity;
+            product.Quantity = quantity;
+            await _product.UpdateAsync(orderdetail.ProductId, product);
             var orderdetailsModel = await _ordersDetailsRepo.DeleteAsync(id);
             if (orderdetailsModel == null)
             {
@@ -134,5 +139,37 @@ namespace backend.Controllers.Admin
             }
             return Ok("Deleted Order details");
         }
+        [HttpDelete]
+        [Route("delete-all/{orderId:int}")]
+        public async Task<IActionResult> DeleteOrderId([FromRoute] int orderId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var orderDetails = await _ordersDetailsRepo.GetByOrderIdAsync(orderId);
+            if (orderDetails == null || !orderDetails.Any())
+            {
+                return NotFound();
+            }
+
+            foreach (var orderDetail in orderDetails)
+            {
+                var product = await _product.GetByIdAsync(orderDetail.ProductId);
+                var quantity = product.Quantity + orderDetail.Quantity;
+                product.Quantity = quantity;
+                await _product.UpdateAsync(orderDetail.ProductId, product);
+            }
+
+            var result = await _ordersDetailsRepo.DeleteOrdersAsync(orderId);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok("Deleted all order details with the given order ID");
+        }
+
     }
 }

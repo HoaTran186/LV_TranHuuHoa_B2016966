@@ -33,6 +33,21 @@ namespace backend.Repository
             return orderDetailsModel;
         }
 
+        public async Task<List<OrderDetails?>> DeleteOrdersAsync(int orderId)
+        {
+            var orderDetails = await _context.OrderDetails.Where(i => i.OrderId == orderId).ToListAsync();
+
+            if (!orderDetails.Any())
+            {
+                return null;
+            }
+
+            _context.OrderDetails.RemoveRange(orderDetails);
+            await _context.SaveChangesAsync();
+
+            return orderDetails;
+        }
+
         public async Task<List<OrderDetails>> GetAllAsync()
         {
             return await _context.OrderDetails.ToListAsync();
@@ -59,7 +74,7 @@ namespace backend.Repository
         {
             return await _context.OrderDetails
                 .Where(o => o.OrderId == orderId)
-                .SumAsync(o => o.UnitPrice * o.Quantity);
+                .SumAsync(o => o.UnitPrice);
         }
 
         public async Task<OrderDetails> UpdateAsync(int id, OrderDetails updateDto)
@@ -76,5 +91,7 @@ namespace backend.Repository
 
             return existingOrderDetail;
         }
+
+
     }
 }

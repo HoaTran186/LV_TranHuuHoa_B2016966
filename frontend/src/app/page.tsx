@@ -1,16 +1,5 @@
-// File: pages/index.tsx or app/page.tsx (server-side component)
-import React from "react";
-import { cookies } from "next/headers";
-import Chat from "@/Components/Chat";
+import Search from "@/components/Search";
 
-const HomePage = () => {
-  const tokenCookie = cookies().get("Token")?.value || "";
-
-  return (
-    <div>
-      <Chat Token={tokenCookie} />
-    </div>
-  );
-};
-
-export default HomePage;
+export default function HomePage() {
+  return <Search />;
+}

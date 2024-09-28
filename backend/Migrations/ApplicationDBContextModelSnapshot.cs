@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "835c250a-3b4d-45ac-bde1-a402d418db9b",
+                            Id = "2f1aa29a-5f2e-48ca-bd5a-eb1e7a6a8c60",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "4e262901-c2ee-45ca-a715-75133e518823",
+                            Id = "99eb69b1-3e4d-4c30-9c37-c7aaf5cc1ba5",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "27c6ebc0-27bb-4b08-a710-aa92c2d05f9c",
+                            Id = "34131bf6-3b15-4f10-bfd0-f49e57aa2661",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -320,9 +320,6 @@ namespace backend.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OrdersId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -335,8 +332,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
-
-                    b.HasIndex("OrdersId");
 
                     b.HasIndex("ProductId");
 
@@ -602,10 +597,6 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Orders", null)
-                        .WithMany("orderDetails")
-                        .HasForeignKey("OrdersId");
-
                     b.HasOne("backend.Models.Product", "Product")
                         .WithMany("OrderDetails")
                         .HasForeignKey("ProductId")
@@ -690,8 +681,6 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.Orders", b =>
                 {
                     b.Navigation("OrderDetails");
-
-                    b.Navigation("orderDetails");
                 });
 
             modelBuilder.Entity("backend.Models.Product", b =>
