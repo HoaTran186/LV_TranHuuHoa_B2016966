@@ -16,6 +16,7 @@ namespace backend.Mappers
                 Apply = productModel.Apply,
                 Result = productModel.Result,
                 Quantity = productModel.Quantity,
+                Rating = productModel.Rating,
                 Price = productModel.Price,
                 ProductTypeId = productModel.ProductTypeId,
                 Censor = productModel.Censor,
@@ -34,6 +35,7 @@ namespace backend.Mappers
                 Apply = productDto.Apply,
                 Result = productDto.Result,
                 Quantity = productDto.Quantity,
+                Rating = productDto.Rating,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId,
                 UserId = UserId,
@@ -50,6 +52,7 @@ namespace backend.Mappers
                 Apply = productDto.Apply,
                 Result = productDto.Result,
                 Quantity = productDto.Quantity,
+                Rating = productDto.Rating,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId,
                 UserId = UserId
@@ -65,6 +68,7 @@ namespace backend.Mappers
                 Apply = productDto.Apply,
                 Result = productDto.Result,
                 Quantity = productDto.Quantity,
+                Rating = productDto.Rating,
                 Price = productDto.Price,
                 ProductTypeId = productDto.ProductTypeId,
             };

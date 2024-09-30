@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers.Account
 {
-    [Route("api/user-information")]
+    [Route("api/user/user-information")]
     [ApiController]
     public class UserInformationController : ControllerBase
     {

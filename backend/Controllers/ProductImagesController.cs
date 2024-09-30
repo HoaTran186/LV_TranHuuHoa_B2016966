@@ -34,19 +34,19 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
             var productImages = await _productImagesRepo.GetAllAsync();
-            
+
             return Ok(productImages);
         }
         [HttpGet("{productId:int}")]
         public async Task<IActionResult> GetByProductId([FromRoute] int productId)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
             var productImages = await _productImagesRepo.GetByProductId(productId);
-            if(productImages == null)
+            if (productImages == null)
             {
                 return NotFound();
             }

@@ -61,6 +61,8 @@ namespace backend.Repository
                 Origin = products.Origin,
                 Unique = products.Unique,
                 Apply = products.Apply,
+                Quantity = products.Quantity,
+                Rating = products.Rating,
                 Result = products.Result,
                 Price = products.Price,
                 ProductTypeId = products.ProductTypeId
@@ -84,6 +86,8 @@ namespace backend.Repository
             existingProduct.Unique = productDto.Unique;
             existingProduct.Apply = productDto.Apply;
             existingProduct.Result = productDto.Result;
+            existingProduct.Quantity = productDto.Quantity;
+            existingProduct.Rating = productDto.Rating;
             existingProduct.Price = productDto.Price;
             existingProduct.ProductTypeId = productDto.ProductTypeId;
             existingProduct.Censor = productDto.Censor;

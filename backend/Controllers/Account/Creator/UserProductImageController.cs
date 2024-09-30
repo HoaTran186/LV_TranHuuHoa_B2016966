@@ -44,7 +44,7 @@ namespace backend.Controllers
             {
                 return BadRequest("You are not authorized to upload images for this product.");
             }
-            string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
+            string[] allowedFileExtentions = { ".jpg", ".jpeg", ".png" };
             string createdImageName = await _fileService.SaveFileAsync(productImages.Images, allowedFileExtentions);
             var productModel = new ProductImages
             {

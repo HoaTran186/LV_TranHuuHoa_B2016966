@@ -51,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "2f1aa29a-5f2e-48ca-bd5a-eb1e7a6a8c60",
+                            Id = "2a80e3aa-cb83-4848-a997-1580d51b0296",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "99eb69b1-3e4d-4c30-9c37-c7aaf5cc1ba5",
+                            Id = "02d8ba19-4b4e-427f-b718-1ecadd46031d",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "34131bf6-3b15-4f10-bfd0-f49e57aa2661",
+                            Id = "973ae06a-6013-4caa-aa0f-f19201b1af29",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -406,6 +406,9 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
                         .HasColumnType("int");
 
                     b.Property<string>("Result")

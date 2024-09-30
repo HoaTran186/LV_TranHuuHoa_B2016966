@@ -1,5 +1,5 @@
-import LogoutButton from "@/components/LogoutButton";
-import SignInSignUpForm from "@/components/SignInSignUpForm";
+import LogoutButton from "@/components/Login/LogoutButton";
+import SignInSignUpForm from "@/components/Login/SignInSignUpForm";
 import { cookies } from "next/headers";
 
 export default function Login() {

@@ -13,6 +13,7 @@ namespace backend.Dtos.Product
         public string Apply { get; set; } = string.Empty;
         public string Result { get; set; } = string.Empty;
         public int Quantity { get; set; }
+        public int Rating { get; set; }
         public decimal Price { get; set; }
         public int? ProductTypeId { get; set; }
         public bool Censor { get; set; }

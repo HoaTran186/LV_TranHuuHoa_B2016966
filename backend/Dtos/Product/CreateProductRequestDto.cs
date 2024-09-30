@@ -23,6 +23,8 @@ namespace backend.Dtos.Product
         [Required]
         public int Quantity { get; set; }
         [Required]
+        public int Rating { get; set; }
+        [Required]
         public decimal Price { get; set; }
         [Required]
         public int? ProductTypeId { get; set; }
