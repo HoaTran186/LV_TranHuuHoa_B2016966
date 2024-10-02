@@ -9,8 +9,7 @@ const LogoutButton = () => {
   const handleLogout = async () => {
     const response = await fetch("/api/logout", { method: "GET" });
     if (response.ok) {
-      router.refresh(); // Làm mới trang để cập nhật trạng thái đăng nhập
-    } else {
+      router.refresh();
       console.error("Failed to logout");
     }
   };

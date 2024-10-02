@@ -14,7 +14,8 @@ namespace backend.Models
         public int Quantity { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
-        public int Rating { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Rating { get; set; }
         public int? ProductTypeId { get; set; }
         public bool Censor { get; set; }
         public ProductType? ProductType { get; set; }

@@ -22,14 +22,17 @@ const NavBar = () => {
 
         <ul className="flex space-x-8 ml-40">
           <li>
-            <a href="#" className="text-gray-700 hover:text-teal-500">
+            <Link href={"/"} className="text-gray-700 hover:text-teal-500">
               Trang chủ
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#" className="text-gray-700 hover:text-teal-500">
+            <Link
+              href={"/product"}
+              className="text-gray-700 hover:text-teal-500"
+            >
               Sản phẩm
-            </a>
+            </Link>
           </li>
           <li>
             <a href="#" className="text-gray-700 hover:text-teal-500">

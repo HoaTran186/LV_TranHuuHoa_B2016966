@@ -2,37 +2,64 @@
 import { useState, useEffect } from "react";
 import { FaRegCommentDots } from "react-icons/fa";
 
-const reviews = {
-  "Chị Thu Hà":
-    "Cảm ơn team đã cho mình trải nghiệm quá ưng ý. Đi đúng hôm thời tiết đẹp, ngắm cảnh vịnh Hạ Long tuyệt vời. Phục vụ chu đáo, phòng ốc đẹp!",
-  "Anh Khánh":
-    "Tôi rất hài lòng với chuyến đi. Tư vấn viên rất nhiệt tình và có nhiều kinh nghiệm. Tôi sẽ quay lại lần nữa!",
-  "Chị Linh - Anh Dũng":
-    "Chuyến đi quá tuyệt vời! Buffet hải sản ngon, phong cảnh đẹp. Mọi thứ đều hoàn hảo!",
-  "Bạn Minh Hoàng":
-    "Đi đúng hôm thời tiết đẹp, ngắm cảnh vịnh Hạ Long đẹp tuyệt vời. Nhân viên phục vụ chu đáo, phòng ốc đẹp. Tuyệt vời lắm!",
-  "Cô Thanh Hằng và bạn":
-    "Chuyến đi rất thú vị. Hải sản tươi ngon, dịch vụ chu đáo. Mình sẽ giới thiệu cho bạn bè!",
-} as const;
+interface Comment {
+  id: number;
+  title: string;
+  comment: string;
+  star: number;
+  productId: number;
+  userId: string;
+  product: null;
+  appUser: null;
+}
 
-type Reviewer = keyof typeof reviews;
+interface User {
+  id: number;
+  fullName: string;
+  age: number;
+  job: string;
+  address: string;
+  phone: string;
+  userId: string;
+}
 
 export default function Comments() {
-  const [selectedReviewer, setSelectedReviewer] =
-    useState<Reviewer>("Bạn Minh Hoàng");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [users, setUsers] = useState<Record<string, string>>({});
+  const [selectedCommentIndex, setSelectedCommentIndex] = useState(0);
 
-  const reviewers = Object.keys(reviews) as Reviewer[];
+  useEffect(() => {
+    // Fetch comments
+    fetch("http://localhost:5126/api/account/comment")
+      .then((response) => response.json())
+      .then((data) => setComments(data.slice(0, 5))); // Limit to 5 comments
+
+    // Fetch user information
+    fetch("http://localhost:5126/api/users-information")
+      .then((response) => response.json())
+      .then((data) => {
+        const userMap: Record<string, string> = {};
+        data.forEach((user: User) => {
+          userMap[user.userId] = user.fullName; // Map userId to fullName
+        });
+        setUsers(userMap);
+      });
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      const currentIndex = reviewers.indexOf(selectedReviewer);
-
-      const nextIndex = (currentIndex + 1) % reviewers.length;
-      setSelectedReviewer(reviewers[nextIndex]);
+      setSelectedCommentIndex((prevIndex) => (prevIndex + 1) % comments.length);
     }, 5000);
 
     return () => clearInterval(intervalId);
-  }, [selectedReviewer, reviewers]);
+  }, [comments]);
+
+  if (comments.length === 0) {
+    return <div>Loading comments...</div>;
+  }
+
+  const selectedComment = comments[selectedCommentIndex];
+  const reviewerName = users[selectedComment.userId] || "Unknown user";
 
   return (
     <div className="flex items-center justify-center bg-gray-50 p-4">
@@ -47,25 +74,27 @@ export default function Comments() {
         </p>
 
         <div className="mb-8">
+          {/* Display the title before the comment */}
+          <p className="text-xl font-semibold text-gray-900 mb-2">
+            {selectedComment.title}
+          </p>
           <p className="text-lg italic text-gray-700 mb-4 flex">
-            <FaRegCommentDots className=" mr-1 text-3xl text-teal-500" />
-            {reviews[selectedReviewer]}
+            <FaRegCommentDots className="mr-1 text-3xl text-teal-500" />
+            {selectedComment.comment}
           </p>
-          <p className="text-left font-bold text-gray-800">
-            {selectedReviewer}
-          </p>
+          <p className="text-left font-bold text-gray-800">{reviewerName}</p>
         </div>
 
         <div className="flex flex-wrap gap-4">
-          {reviewers.map((reviewer) => (
+          {comments.map((comment, index) => (
             <span
-              key={reviewer}
-              onClick={() => setSelectedReviewer(reviewer)}
+              key={comment.id}
+              onClick={() => setSelectedCommentIndex(index)}
               className={`bg-gray-100 border rounded-full px-4 py-2 text-gray-800 cursor-pointer hover:bg-gray-200 transition ${
-                selectedReviewer === reviewer ? "bg-gray-300" : ""
+                selectedCommentIndex === index ? "bg-gray-300" : ""
               }`}
             >
-              {reviewer}
+              {users[comment.userId] || "Unknown user"}
             </span>
           ))}
         </div>

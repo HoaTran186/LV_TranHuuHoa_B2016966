@@ -59,7 +59,18 @@ namespace backend.Controllers.Account
             }
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
+            var product = await _productRepo.GetByIdAsync(productId);
+            if (product.Rating == 0)
+            {
+                product.Rating = commentDto.Star;
+            }
+            else
+            {
+                product.Rating = (product.Rating + commentDto.Star) / 2;
+            }
+            await _productRepo.UpdateAsync(productId, product);
             var commentModel = commentDto.ToCommentFromCreateDto(productId, appUser.Id);
+
             await _commentRepo.CreateAsync(commentModel);
 
             return Ok(commentModel);

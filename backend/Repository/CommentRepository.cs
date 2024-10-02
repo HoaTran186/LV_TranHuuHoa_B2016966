@@ -41,6 +41,18 @@ namespace backend.Repository
             return commentModel;
         }
 
+        public async Task<IEnumerable<Comments>?> DeleteByProductId(int productId)
+        {
+            var commentModel = await _context.Comments.Where(i => i.productId == productId).ToListAsync();
+            if (commentModel == null)
+            {
+                return null;
+            }
+            _context.Comments.RemoveRange(commentModel);
+            await _context.SaveChangesAsync();
+            return commentModel;
+        }
+
         public async Task<List<Comments>> GetAllAsync()
         {
             return await _context.Comments.ToListAsync();

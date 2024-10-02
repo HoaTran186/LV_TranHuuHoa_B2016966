@@ -26,7 +26,6 @@ namespace backend.Controllers.Admin
             _product = product;
         }
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllOrders()
         {
             if (!ModelState.IsValid)

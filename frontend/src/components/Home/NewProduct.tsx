@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { FaAngleDoubleRight, FaSearchLocation } from "react-icons/fa";
@@ -19,6 +20,7 @@ interface Product {
   productTypeId: number;
   productImages: ProductImage[];
   comments: string[];
+  censor: boolean;
 }
 
 interface ProductType {
@@ -63,10 +65,11 @@ const NewProduct = () => {
         const productData = await productResponse.json();
         const productTypeData = await productTypeResponse.json();
         const userInfoData = await userInfoResponse.json();
-
-        setProducts(productData);
-        setProductTypes(productTypeData);
-        setUserInfo(userInfoData);
+        if (productData.censor != false) {
+          setProducts(productData);
+          setProductTypes(productTypeData);
+          setUserInfo(userInfoData);
+        }
       } catch (error: any) {
         setError(error.message);
       } finally {
@@ -154,13 +157,13 @@ const NewProduct = () => {
                   <p className="text-gray-500 text-sm">
                     Loại sản phẩm: {getProductTypeName(product.productTypeId)}
                   </p>
-                  <div className="flex mt-2">
+                  <div className="flex mt-2 justify-between mx-4">
                     <p className="text-teal-500 font-bold text-lg mt-2">
-                      {product.price.toLocaleString()}đ
+                      {product.price.toLocaleString("en-US")}đ
                     </p>
-                    <button className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600">
+                    <Button className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600">
                       Đặt ngay
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -169,9 +172,11 @@ const NewProduct = () => {
         })}
       </div>
       <div className="flex justify-center mt-8">
-        <button className="border flex bg-white text-black py-2 px-4 rounded-full hover:bg-gray-100">
-          Xem tất cả <FaAngleDoubleRight className="mt-1 ml-2" />
-        </button>
+        <Link href={"/product"}>
+          <button className="border flex bg-white text-black py-2 px-4 rounded-full hover:bg-gray-100">
+            Xem tất cả <FaAngleDoubleRight className="mt-1 ml-2" />
+          </button>
+        </Link>
       </div>
     </div>
   );

@@ -9,14 +9,33 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { IoIosSearch } from "react-icons/io";
 import ProductInfoCard from "@/components/Product/ProductInfoCard";
+import Pagination from "@/components/Product/Pagination";
 
+interface Comment {
+  id: number;
+  title: string;
+  comment: string;
+  star: number;
+  rating: number;
+  productId: number;
+  userId: string;
+}
+interface UserInfo {
+  id: number;
+  fullName: string;
+  userId: string;
+}
 const GetProductId = () => {
   const [productId, setProductId] = useState<number | null>(null);
   const [productData, setProductData] = useState<any>(null);
   const [productTypeId, setProductTypeId] = useState<number | null>(null);
   const [productTypeName, setProductTypeName] = useState<string | null>(null);
   const [loadingProductType, setLoadingProductType] = useState<boolean>(true);
+  const [userInfo, setUserInfo] = useState<UserInfo[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
@@ -66,12 +85,56 @@ const GetProductId = () => {
           setLoadingProductType(false);
         }
       };
+      const fetchComments = async () => {
+        if (productId !== null) {
+          try {
+            const response = await fetch(
+              `http://localhost:5126/api/account/comment/${productId}`
+            );
+            if (!response.ok) {
+              throw new Error("Failed to fetch comments");
+            }
+            const commentsData = await response.json();
+            setComments(commentsData);
+            const total = commentsData.length;
+            const starsSum = commentsData.reduce(
+              (sum: number, comment: Comment) => sum + comment.star,
+              0
+            );
+            const average = total > 0 ? (starsSum / total).toFixed(1) : "0";
 
+            setTotalRatings(total);
+            setAverageRating(Number(average));
+          } catch (error) {
+            console.error("Error fetching comments:", error);
+          }
+        }
+      };
+      const fetchUserInfor = async () => {
+        try {
+          const userInfoResponse = await fetch(
+            `http://localhost:5126/api/users-information`
+          );
+          if (!userInfoResponse.ok) {
+            throw new Error("Failed to fetch user information");
+          }
+          const userInforData = await userInfoResponse.json();
+          setUserInfo(userInforData);
+        } catch (error) {
+          console.error("Error fetching user info:", error);
+        }
+      };
       if (productId !== null) {
         fetchProductData();
+        fetchComments();
+        fetchUserInfor();
       }
     }
   }, [productId]);
+  const getFullName = (userId: string): string => {
+    const user = userInfo.find((user) => user.userId == userId);
+    return user ? user.fullName : "Unknown user";
+  };
   const handleDecrease = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -83,18 +146,29 @@ const GetProductId = () => {
       setQuantity(quantity + 1);
     }
   };
-  const totalRatings = 11;
-  const averageRating = 4.91;
+  const starCounts = comments.reduce(
+    (counts, comment) => {
+      const star = comment.star as 1 | 2 | 3 | 4 | 5;
+      counts[star] = (counts[star] || 0) + 1;
+      return counts;
+    },
+    { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  );
   const ratingCounts: { [key: string]: number } = {
-    "5": 10,
-    "4": 1,
-    "3": 0,
-    "2": 0,
-    "1": 0,
+    "5": starCounts[5],
+    "4": starCounts[4],
+    "3": starCounts[3],
+    "2": starCounts[2],
+    "1": starCounts[1],
   };
 
   const getPercentage = (count: number) => {
     return (count / totalRatings) * 100;
+  };
+  const totalItems = totalRatings;
+  const itemsPerPage = 5;
+  const handlePageChange = (page: number) => {
+    console.log("Trang hiện tại:", page);
   };
   return (
     <div>
@@ -126,7 +200,7 @@ const GetProductId = () => {
                 <div className="flex flex-row rounded-full bg-yellow-200 text-sm mt-10 items-center">
                   <FiStar className="text-yellow-500 text-[0.7rem] ml-1" />
                   <div className="mx-1">
-                    {productData.rating}({productData.comments.length} đánh giá)
+                    {productData.rating}({totalRatings} đánh giá)
                   </div>
                 </div>
                 <div className="ml-5 rounded-full bg-gray-200 mt-10 items-center">
@@ -258,7 +332,7 @@ const GetProductId = () => {
               <Label className="flex">
                 Đánh giá{" "}
                 <div className="ml-1 rounded-full bg-slate-300 w-4">
-                  {productData.comments.length}
+                  {totalRatings}
                 </div>
               </Label>
             )}
@@ -307,7 +381,7 @@ const GetProductId = () => {
           <div className="space-y-5 max-w-3xl" id="comment">
             <div className="flex flex-row justify-between">
               <h1 className="flex text-4xl font-bold">
-                Đánh giá (<div>{productData.comments.length}</div>)
+                Đánh giá (<div>{totalRatings}</div>)
               </h1>
               <div className="flex space-x-5">
                 <div className="relative flex items-center">
@@ -330,7 +404,7 @@ const GetProductId = () => {
             <div className="w-full max-w-3xl border rounded-3xl p-6 bg-white shadow">
               <div className="flex items-center">
                 <span className="text-4xl font-bold text-orange-500">
-                  {averageRating.toFixed(1)}
+                  {productData.rating}
                 </span>
                 <span className="ml-4 text-gray-500">/ 5</span>
               </div>
@@ -357,24 +431,33 @@ const GetProductId = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full max-w-3xl border rounded-3xl p-6 bg-white shadow">
-              <div className="flex items-center">
-                <span className="flex space-x-1 text-2xl font-bold text-orange-500">
-                  <FiStar />
-                  <FiStar />
-                  <FiStar />
-                </span>
-              </div>
-              <div className="flex mt-6 max-w-3xl">
-                <div className=" space-y-2">
-                  <p className="font-bold">Tran Van A</p>
-                  <p>
-                    Trải nghiệm tuyệt vời và môi trường xung quanh thật đẹp. Tàu
-                    đẹp, nhân viên chuyên nghiệp, rất chu đáo.
-                  </p>
-                  <p>1/10/2024</p>
+            {comments.slice(0, 5).map((comment) => (
+              <div
+                key={comment.id}
+                className="w-full max-w-3xl border rounded-3xl p-6 bg-white shadow"
+              >
+                <div className="flex items-center">
+                  <span className="flex space-x-1 text-2xl font-bold text-orange-500">
+                    {[...Array(comment.star)].map((_, index) => (
+                      <FiStar key={index} />
+                    ))}
+                  </span>
+                </div>
+                <div className="flex flex-col mt-6 max-w-3xl space-y-3">
+                  <div className="text-xl font-bold">{comment.title}</div>
+                  <div className=" space-y-1">
+                    <p className="font-bold">{getFullName(comment.userId)}</p>
+                    <p>{comment.comment}</p>
+                  </div>
                 </div>
               </div>
+            ))}
+            <div className="container max-w-3xl">
+              <Pagination
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+              />
             </div>
           </div>
         </div>

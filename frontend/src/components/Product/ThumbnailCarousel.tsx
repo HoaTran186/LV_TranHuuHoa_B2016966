@@ -59,7 +59,7 @@ const ThumbnailCarousel: React.FC<ThumbnailCarouselProps> = ({ productId }) => {
   return (
     <div className="relative">
       {/* Main Image */}
-      <div className="overflow-hidden h-[30rem] mx-">
+      <div className="overflow-hidden h-auto mx-">
         {images.length > 0 ? (
           <img
             src={images[currentIndex]}

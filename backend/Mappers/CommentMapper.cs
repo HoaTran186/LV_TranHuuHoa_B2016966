@@ -13,6 +13,7 @@ namespace backend.Mappers
                 Title = commentsModel.Title,
                 Comment = commentsModel.Comment,
                 Star = commentsModel.Star,
+                DateComment = DateTime.Now,
                 productId = commentsModel.productId,
                 UserId = commentsModel.UserId
             };
@@ -24,6 +25,7 @@ namespace backend.Mappers
                 Title = commentModel.Title,
                 Comment = commentModel.Comment,
                 Star = commentModel.Star,
+                DateComment = DateTime.Now,
                 productId = productId,
                 UserId = UserId
             };
@@ -34,7 +36,8 @@ namespace backend.Mappers
             {
                 Title = commentModel.Title,
                 Comment = commentModel.Comment,
-                Star = commentModel.Star
+                Star = commentModel.Star,
+                DateComment = DateTime.Now
             };
         }
     }
