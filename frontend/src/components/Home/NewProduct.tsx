@@ -45,13 +45,13 @@ const NewProduct = () => {
     const fetchData = async () => {
       try {
         const productResponse = await fetch(
-          "http://localhost:5126/api/product"
+          "https://localhost:7146/api/product"
         );
         const productTypeResponse = await fetch(
-          "http://localhost:5126/api/product-type"
+          "https://localhost:7146/api/product-type"
         );
         const userInfoResponse = await fetch(
-          "http://localhost:5126/api/users-information"
+          "https://localhost:7146/api/users-information"
         );
 
         if (
@@ -107,9 +107,8 @@ const NewProduct = () => {
         </div>
         <div className="text-left text-gray-500 mb-12 w-2/5 text-lg">
           <p>
-            Tận hưởng sự xa hoa và đẳng cấp tối đa trên du thuyền mới nhất và
-            phổ biến nhất. Khám phá một hành trình tuyệt vời đưa bạn vào thế
-            giới của sự sang trọng, tiện nghi và trải nghiệm không thể quên.
+            Giúp người tiêu dùng cập nhật sản phẩm mới nhất một cách nhanh
+            chóng.
           </p>
         </div>
       </div>
@@ -131,7 +130,7 @@ const NewProduct = () => {
               <div className="bg-white border shadow-inner shadow-gray-200 rounded-2xl overflow-hidden">
                 <div className="p-8">
                   <img
-                    src={`http://localhost:5126/Resources/${product.productImages[0]?.images}`}
+                    src={`https://localhost:7146/Resources/${product.productImages[0]?.images}`}
                     alt={product.product_Name}
                     className="w-[350px] h-[200px]"
                   />
@@ -161,9 +160,11 @@ const NewProduct = () => {
                     <p className="text-teal-500 font-bold text-lg mt-2">
                       {product.price.toLocaleString("en-US")}đ
                     </p>
-                    <Button className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600">
-                      Đặt ngay
-                    </Button>
+                    <Link href={"/cart"}>
+                      <Button className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600">
+                        Đặt ngay
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -1,3 +1,10 @@
 {
-  "extends": "next/core-web-vitals"
+  "parser": "@babel/eslint-parser",
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended"
+  ],
+  "rules": {
+    "no-unused-vars": "warn"
+  }
 }

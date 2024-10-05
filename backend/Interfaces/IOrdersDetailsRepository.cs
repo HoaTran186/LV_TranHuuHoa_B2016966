@@ -11,6 +11,7 @@ namespace backend.Interfaces
         Task<OrderDetails?> DeleteAsync(int id);
         Task<List<OrderDetails?>> DeleteOrdersAsync(int orderId);
         Task<List<OrderDetails>> GetByOrderIdAsync(int orderId);
+        Task<OrderDetails> GetByProductIdAndOrderIdAsync(int productId, int orderId);
         Task<decimal> GetTotalPriceByOrderIdAsync(int orderId);
 
     }

@@ -41,7 +41,7 @@ const UserOTP: React.FC<OTPProps> = ({ email }) => {
       otp: otpString,
     };
     const res = await fetch(
-      "http://localhost:5126/api/users/account/verify-otp",
+      "https://localhost:7146/api/users/account/verify-otp",
       {
         method: "POST",
         headers: {

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,7 +16,6 @@ using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://localhost:5126", "https://localhost:7146");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -48,6 +48,15 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(7146, listenOptions =>
+    {
+        listenOptions.UseHttps("C:/Users/Admin/Documents/GitHub/LV_TranHuuHoa_B2016966/backend/localhost.pfx", "hoa19691973");
+    });
+});
+
+
 builder.Services.AddMemoryCache();
 builder.Services.AddStackExchangeRedisCache(options =>
     {
@@ -134,7 +143,7 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 app.UseCors(policy =>
-    policy.WithOrigins("http://localhost:3000")
+    policy.WithOrigins("https://localhost:3000")
           .AllowCredentials()
           .AllowAnyHeader()
           .AllowAnyMethod());

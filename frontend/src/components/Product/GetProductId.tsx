@@ -234,9 +234,11 @@ const GetProductId = () => {
                 </div>
               </div>
               <p className="text-right">
-                <Button className="rounded-full bg-teal-500 hover:bg-teal-700 text-lg">
-                  <FaCartPlus className="mr-1" /> Đặt hàng
-                </Button>
+                <Link href={"/cart"}>
+                  <Button className="rounded-full bg-teal-500 hover:bg-teal-700 text-lg">
+                    <FaCartPlus className="mr-1" /> Đặt hàng
+                  </Button>
+                </Link>
               </p>
             </div>
           </div>

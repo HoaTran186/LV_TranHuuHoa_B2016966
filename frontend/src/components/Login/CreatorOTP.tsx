@@ -41,7 +41,7 @@ const CreatorOTP: React.FC<OTPProps> = ({ email }) => {
       otp: otpString,
     };
     const res = await fetch(
-      "http://localhost:5126/api/creator/account/verifyotp",
+      "https://localhost:7146/api/creator/account/verifyotp",
       {
         method: "POST",
         headers: {

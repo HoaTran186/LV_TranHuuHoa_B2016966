@@ -10,9 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { truncateSync } from "fs";
 
 import Link from "next/link";
+
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { FaBoxOpen, FaCartPlus, FaMoneyCheckAlt } from "react-icons/fa";
 
@@ -61,6 +61,7 @@ const SearchBar = () => {
   );
   const [selectedPriceRange, setSelectedPriceRange] = useState<number>(0);
   const [selectedPriceRangeString, setSelectedPriceRangeString] = useState("");
+
   useEffect(() => {
     const fetchProductType = async () => {
       try {
@@ -285,6 +286,10 @@ const SearchBar = () => {
           </Link>
         </div>
       </div>
+      <div className="flex flex-col">
+        <div className="font-bold text-4xl">Có {productCount} sản phẩm</div>
+        <div className="mt-3 font-bold text-2xl text-teal-500">---------</div>
+      </div>
 
       <div className="flex space-x-6">
         <div className="w-1/4 border shadow-ful rounded-3xl text-[1rem] mb-10 h-[1200px]">
@@ -392,9 +397,11 @@ const SearchBar = () => {
                         {product.price.toLocaleString("en-US")}đ
                       </div>
                       <div>
-                        <Button className="rounded-full bg-teal-500 hover:bg-teal-700">
-                          Đặt hàng
-                        </Button>
+                        <Link href={"/cart"}>
+                          <Button className="rounded-full bg-teal-500 hover:bg-teal-700">
+                            Đặt hàng
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>

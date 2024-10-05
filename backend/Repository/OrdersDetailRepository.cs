@@ -70,6 +70,13 @@ namespace backend.Repository
             }).ToListAsync();
         }
 
+        public async Task<OrderDetails> GetByProductIdAndOrderIdAsync(int productId, int orderId)
+        {
+            return await _context.OrderDetails
+                .FirstOrDefaultAsync(od => od.ProductId == productId && od.OrderId == orderId);
+        }
+
+
         public async Task<decimal> GetTotalPriceByOrderIdAsync(int orderId)
         {
             return await _context.OrderDetails

@@ -34,7 +34,7 @@ const SignInSignUpForm = () => {
       username: UserName,
       password: Password,
     };
-    const res = await fetch("http://localhost:5126/api/account/login", {
+    const res = await fetch("https://localhost:7146/api/account/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const SignInSignUpForm = () => {
     try {
       if (isSignUpRolesCreator == true) {
         const res = await fetch(
-          "http://localhost:5126/api/creator/account/register-creator",
+          "https://localhost:7146/api/creator/account/register-creator",
           {
             method: "POST",
             headers: {
@@ -75,7 +75,7 @@ const SignInSignUpForm = () => {
         alert("OTP has been sent to your email");
       } else if (isSignUpRolesUser == true) {
         const res = await fetch(
-          "http://localhost:5126/api/users/account/register-user",
+          "https://localhost:7146/api/users/account/register-user",
           {
             method: "POST",
             headers: {

@@ -27,9 +27,8 @@ const Suggested = () => {
         </div>
         <div className="text-left text-gray-500 mb-12 w-2/5 text-lg">
           <p>
-            Tận hưởng sự xa hoa và đẳng cấp tối đa trên du thuyền mới nhất và
-            phổ biến nhất. Khám phá một hành trình tuyệt vời đưa bạn vào thế
-            giới của sự sang trọng, tiện nghi và trải nghiệm không thể quên.
+            Gợi ý sản phẩm là một công cụ hữu ích giúp người tiêu dùng tìm kiếm
+            và lựa chọn sản phẩm một cách nhanh chóng và dễ dàng.
           </p>
         </div>
       </div>

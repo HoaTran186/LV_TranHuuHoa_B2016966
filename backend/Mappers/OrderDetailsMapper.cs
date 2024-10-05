@@ -26,11 +26,11 @@ namespace backend.Mappers
                 UnitPrice = unitPrice
             };
         }
-        public static OrderDetails ToOrderFromUpdateDto(this UpdateOrderDetailsDto orderDetailsDto, decimal unitPrice)
+        public static OrderDetails ToOrderFromUpdateDto(this UpdateOrderDetailsDto orderDetailsDto, int productId, decimal unitPrice)
         {
             return new OrderDetails
             {
-                ProductId = orderDetailsDto.ProductId,
+                ProductId = productId,
                 Quantity = orderDetailsDto.Quantity,
                 UnitPrice = unitPrice
             };

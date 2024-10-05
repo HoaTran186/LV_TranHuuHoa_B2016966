@@ -9,14 +9,12 @@ const Footer = () => {
             alt="Logo InnoTrade"
             className="w-24 mb-4"
           />
-          <p>Công ty TNHH Du Lịch và Dịch Vụ Mixivivu</p>
+          <p>--------------------------------------------------------</p>
           <p>
-            Tầng 7, số nhà 25, ngõ 38 phố Yên Lãng, phường Láng Hạ, quận Đống
-            Đa, TP. Hà Nội
+            ----------------------------------------------------------------------
           </p>
           <p>
-            Mã số doanh nghiệp: 0110376372 do Sở Kế hoạch và Đầu tư Thành phố Hà
-            Nội cấp ngày 05/06/2023
+            -----------------------------------------------------------------------------------------------------
           </p>
         </div>
 
@@ -54,28 +52,28 @@ const Footer = () => {
                 Liên hệ
               </a>
             </li>
-            <li>Hotline: 0922222016</li>
-            <li>Email: info@mixivivu.com</li>
+            <li>Hotline: ***********</li>
+            <li>Email: *************.com</li>
           </ul>
         </div>
 
         {/* Điểm đến */}
         <div>
-          <h4 className="font-bold mb-4">ĐIỂM ĐẾN</h4>
+          <h4 className="font-bold mb-4">**********</h4>
           <ul className="space-y-2">
             <li>
               <a href="#" className="hover:underline">
-                Vịnh Hạ Long
+                **************
               </a>
             </li>
             <li>
               <a href="#" className="hover:underline">
-                Vịnh Lan Hạ
+                **********
               </a>
             </li>
             <li>
               <a href="#" className="hover:underline">
-                Đảo Cát Bà
+                ***********
               </a>
             </li>
           </ul>
@@ -83,21 +81,21 @@ const Footer = () => {
 
         {/* Du thuyền */}
         <div>
-          <h4 className="font-bold mb-4">DU THUYỀN</h4>
+          <h4 className="font-bold mb-4">++++++++</h4>
           <ul className="space-y-2">
             <li>
               <a href="#" className="hover:underline">
-                Blog
+                ++
               </a>
             </li>
             <li>
               <a href="#" className="hover:underline">
-                Quy định chung và lưu ý
+                +++++++++++++++++++
               </a>
             </li>
             <li>
               <a href="#" className="hover:underline">
-                Câu hỏi thường gặp
+                +++++++++++++++++++++
               </a>
             </li>
           </ul>

@@ -53,35 +53,82 @@ namespace backend.Controllers.Admin
             {
                 return NotFound();
             }
-            var unitPrice = product.Price * quantity;
-            var quantityProduct = product.Quantity - createOrderDetails.Quantity;
-            if (quantityProduct >= 0)
+
+            // Kiểm tra xem Order có tồn tại không
+            var order = await _ordersRepo.GetByIdAsync(createOrderDetails.OrderId);
+
+            if (order == null || string.IsNullOrEmpty(order.OrderStatus))
             {
-                product.Quantity = quantityProduct;
-                await _product.UpdateAsync(createOrderDetails.ProductId, product);
+                // Nếu không tồn tại, tạo một Order mới
+                var newOrder = new Orders
+                {
+                    OrderStatus = "Pending"
+                };
+
+                // Tạo order mới
+                var createdOrder = await _ordersRepo.CreateAsync(newOrder);
+
+                // Gán OrderId cho chi tiết đơn hàng mới
+                createOrderDetails.OrderId = createdOrder.Id;
+            }
+
+            // Kiểm tra xem OrderDetail cho sản phẩm này đã tồn tại trong Order chưa
+            var existingOrderDetail = await _ordersDetailsRepo.GetByProductIdAndOrderIdAsync(createOrderDetails.ProductId, createOrderDetails.OrderId);
+
+            if (existingOrderDetail != null)
+            {
+                // Nếu chi tiết đơn hàng đã tồn tại, cộng thêm số lượng
+                existingOrderDetail.Quantity += createOrderDetails.Quantity;
+
+                var newQuantityProduct = product.Quantity - createOrderDetails.Quantity;
+                if (newQuantityProduct >= 0)
+                {
+                    product.Quantity = newQuantityProduct;
+                    await _product.UpdateAsync(createOrderDetails.ProductId, product);
+                }
+                else
+                {
+                    return Ok("Product quantity is not enough");
+                }
+
+                existingOrderDetail.UnitPrice = product.Price * existingOrderDetail.Quantity;
+                await _ordersDetailsRepo.UpdateAsync(existingOrderDetail.Id, existingOrderDetail);
             }
             else
             {
-                return Ok("Product quantity is not enough");
+                // Nếu chưa tồn tại, tạo mới chi tiết đơn hàng
+                var unitPrice = product.Price * quantity;
+                var quantityProduct = product.Quantity - createOrderDetails.Quantity;
+
+                if (quantityProduct >= 0)
+                {
+                    product.Quantity = quantityProduct;
+                    await _product.UpdateAsync(createOrderDetails.ProductId, product);
+                }
+                else
+                {
+                    return Ok("Product quantity is not enough");
+                }
+
+                var createOrderDetailsModel = createOrderDetails.ToOrderFromCreateDto(unitPrice);
+                await _ordersDetailsRepo.CreateAsync(createOrderDetailsModel);
             }
-            var createOrderDetailsModel = createOrderDetails.ToOrderFromCreateDto(unitPrice);
 
-            await _ordersDetailsRepo.CreateAsync(createOrderDetailsModel);
-
+            // Cập nhật tổng giá trị của đơn hàng
             var totalPrice = await _ordersDetailsRepo.GetTotalPriceByOrderIdAsync(createOrderDetails.OrderId);
-
-            var order = await _ordersRepo.GetByIdAsync(createOrderDetails.OrderId);
-            if (order == null)
+            var orderToUpdate = await _ordersRepo.GetByIdAsync(createOrderDetails.OrderId);
+            if (orderToUpdate == null)
             {
                 return NotFound("Order not found.");
             }
 
-            order.TotalAmount = totalPrice;
+            orderToUpdate.TotalAmount = totalPrice;
+            await _ordersRepo.UpdateAsync(orderToUpdate.Id, orderToUpdate);
 
-            await _ordersRepo.UpdateAsync(order.Id, order);
-
-            return Ok(createOrderDetailsModel);
+            return Ok();
         }
+
+
 
 
         [HttpPut]
@@ -112,7 +159,7 @@ namespace backend.Controllers.Admin
             {
                 return Ok("Product quantity is not enough");
             }
-            var orderdetailsModel = await _ordersDetailsRepo.UpdateAsync(id, updateOrderDetails.ToOrderFromUpdateDto(unitPrice));
+            var orderdetailsModel = await _ordersDetailsRepo.UpdateAsync(id, updateOrderDetails.ToOrderFromUpdateDto(updateOrderDetails.ProductId, unitPrice));
             if (orderdetailsModel == null)
             {
                 return NotFound();

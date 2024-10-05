@@ -30,12 +30,12 @@ export default function Comments() {
 
   useEffect(() => {
     // Fetch comments
-    fetch("http://localhost:5126/api/account/comment")
+    fetch("https://localhost:7146/api/account/comment")
       .then((response) => response.json())
       .then((data) => setComments(data.slice(0, 5))); // Limit to 5 comments
 
     // Fetch user information
-    fetch("http://localhost:5126/api/users-information")
+    fetch("https://localhost:7146/api/users-information")
       .then((response) => response.json())
       .then((data) => {
         const userMap: Record<string, string> = {};

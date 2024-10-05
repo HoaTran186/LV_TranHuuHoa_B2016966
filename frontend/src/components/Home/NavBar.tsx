@@ -47,7 +47,7 @@ const NavBar = () => {
         </ul>
       </div>
       <div className="flex items-center space-x-6 font-bold">
-        <a href="#">
+        <a href="/cart">
           <IoCartOutline className="text-[25px] text-gray-700 hover:text-gray-900" />
         </a>
         <a href="tel:0922222016" className="text-gray-700 hover:text-gray-900">

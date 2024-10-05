@@ -59,6 +59,15 @@
           }
         }
       },
+      "FuzzySharp/2.0.2": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp2.1/FuzzySharp.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/FuzzySharp.dll": {}
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -2500,6 +2509,26 @@
         "lib/netstandard2.0/BouncyCastle.Cryptography.dll",
         "lib/netstandard2.0/BouncyCastle.Cryptography.xml",
         "packageIcon.png"
+      ]
+    },
+    "FuzzySharp/2.0.2": {
+      "sha512": "sBKqWxw3g//peYxDZ8JipRlyPbIyBtgzqBVA5GqwHVeqtIrw75maGXAllztf+1aJhchD+drcQIgf2mFho8ZV8A==",
+      "type": "package",
+      "path": "fuzzysharp/2.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "fuzzysharp.2.0.2.nupkg.sha512",
+        "fuzzysharp.nuspec",
+        "lib/net45/FuzzySharp.dll",
+        "lib/net46/FuzzySharp.dll",
+        "lib/net461/FuzzySharp.dll",
+        "lib/netcoreapp2.0/FuzzySharp.dll",
+        "lib/netcoreapp2.1/FuzzySharp.dll",
+        "lib/netstandard1.6/FuzzySharp.dll",
+        "lib/netstandard2.0/FuzzySharp.dll",
+        "lib/netstandard2.1/FuzzySharp.dll"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -6515,6 +6544,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "FuzzySharp >= 2.0.2",
       "MailKit >= 4.7.1.1",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.8",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 8.0.8",
@@ -6537,11 +6567,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\Admin\\Documents\\GitHub\\LV_TranHuuHoa_B2016966\\backend\\backend.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\LV_TranHuuHoa_B2016966\\backend\\backend.csproj",
       "projectName": "backend",
-      "projectPath": "c:\\Users\\Admin\\Documents\\GitHub\\LV_TranHuuHoa_B2016966\\backend\\backend.csproj",
+      "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\LV_TranHuuHoa_B2016966\\backend\\backend.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\Admin\\Documents\\GitHub\\LV_TranHuuHoa_B2016966\\backend\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\LV_TranHuuHoa_B2016966\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6580,6 +6610,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "FuzzySharp": {
+            "target": "Package",
+            "version": "[2.0.2, )"
+          },
           "MailKit": {
             "target": "Package",
             "version": "[4.7.1.1, )"

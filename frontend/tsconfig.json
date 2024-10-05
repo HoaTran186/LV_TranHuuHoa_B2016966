@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "node",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -21,6 +23,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "server.mjs"],
   "exclude": ["node_modules"]
 }
