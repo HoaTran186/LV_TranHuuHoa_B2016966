@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using backend.Container;
 using backend.Dtos.Account;
+using backend.Extensions;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -36,6 +37,33 @@ namespace backend.Controllers.Account
             _emailSender = emailSender;
             _config = config;
         }
+        [HttpGet]
+        public async Task<IActionResult> GetUser()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var username = User.GetUserName();
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = roles
+            });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
