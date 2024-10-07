@@ -72,7 +72,6 @@ namespace backend.Controllers
             {
                 return BadRequest(ModelState);
             }
-
             await _commentRepo.DeleteAllAsync();
 
             return Ok("All comments have been deleted.");

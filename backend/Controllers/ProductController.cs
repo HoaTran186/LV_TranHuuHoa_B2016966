@@ -5,6 +5,8 @@ using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FuzzySharp;
+using Microsoft.EntityFrameworkCore;
+using backend.Helpers;
 namespace backend.Controllers
 {
      [Route("api/product")]
@@ -24,13 +26,13 @@ namespace backend.Controllers
                _context = context;
           }
           [HttpGet]
-          public async Task<IActionResult> GetAll()
+          public async Task<IActionResult> GetAll([FromQuery] QueryProduct queryProduct)
           {
                if (!ModelState.IsValid)
                {
                     return BadRequest(ModelState);
                }
-               var products = await _productRepo.GetAllAsync();
+               var products = await _productRepo.GetAllAsync(queryProduct);
                var productDto = products.Select(s => s.ToProductDto());
 
                return Ok(productDto);
@@ -51,20 +53,41 @@ namespace backend.Controllers
                return Ok(product.ToProductDto());
           }
           [HttpGet("search-product")]
-          public ActionResult<IEnumerable<Product>> FuzzySearch(string query, int threshold = 80)
+          public ActionResult<IEnumerable<Product>> FuzzySearch(string productName = "", int? productTypeId = null, decimal? maxPrice = null)
           {
-               if (string.IsNullOrEmpty(query))
+               // Bước 1: Lọc sơ bộ các sản phẩm trên database
+               var query = _context.Products
+                              .Include(c => c.ProductImages)
+                              .Include(c => c.Comments)
+                              .AsQueryable();
+
+               if (productTypeId.HasValue)
                {
-                    return BadRequest("Search query cannot be empty.");
+                    query = query.Where(p => p.ProductTypeId == productTypeId.Value);
                }
 
-               var products = _context.Products.AsEnumerable()
-        .Where(p => Fuzz.PartialRatio(p.Product_Name.ToLower(), query.ToLower()) >= threshold ||
-                    Fuzz.PartialRatio(p.Origin.ToLower(), query.ToLower()) >= threshold)
-        .ToList();
+               if (maxPrice.HasValue)
+               {
+                    query = query.Where(p => p.Price <= maxPrice.Value);
+               }
 
+               // Bước 2: Chuyển dữ liệu từ database lên bộ nhớ để áp dụng Fuzzy Matching nếu có từ khóa
+               var products = query.AsEnumerable();
 
-               return Ok(products);
+               if (!string.IsNullOrEmpty(productName))
+               {
+                    // Áp dụng Fuzzy Matching khi có từ khóa
+                    products = products
+                        .Where(p =>
+                            Fuzz.PartialRatio(p.Product_Name.ToLower(), productName.ToLower()) >= 70 ||
+                            Fuzz.PartialRatio(p.Origin.ToLower(), productName.ToLower()) >= 70
+                        );
+               }
+
+               // Bước 3: Trả về danh sách sản phẩm sau khi áp dụng các điều kiện
+               return Ok(products.ToList());
           }
+
+
      }
 }

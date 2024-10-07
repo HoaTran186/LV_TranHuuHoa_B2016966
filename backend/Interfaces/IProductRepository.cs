@@ -1,10 +1,11 @@
+using backend.Helpers;
 using backend.Models;
 
 namespace backend.Interfaces
 {
     public interface IProductRepository
     {
-        Task<List<Product>> GetAllAsync();
+        Task<List<Product>> GetAllAsync(QueryProduct queryProduct);
         Task<Product?> GetByIdAsync(int id);
         Task<List<Product>> GetUserProduct(AppUser appUser);
         Task<Product?> GetByProductNameAsync(string productname);

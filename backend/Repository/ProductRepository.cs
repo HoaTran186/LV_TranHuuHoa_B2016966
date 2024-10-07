@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Dtos.Product;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -33,17 +34,26 @@ namespace backend.Repository
             return productModel;
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<List<Product>> GetAllAsync(QueryProduct queryProduct)
         {
-            return await _context.Products
-                // .Include(c => c.ProductImages)
-                // .Include(c => c.Comments)
-                .ToListAsync();
+            var product = _context.Products
+                .Include(c => c.ProductImages)
+                .Include(c => c.Comments)
+                .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(queryProduct.Product_Name))
+            {
+                product = product.Where(s => s.Product_Name.Contains(queryProduct.Product_Name));
+            }
+            var skipNumber = (queryProduct.PageNumber - 1) * queryProduct.PageSize;
+            return await product.Skip(skipNumber).Take(queryProduct.PageSize).ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
         {
-            return await _context.Products.Include(c => c.ProductImages).FirstOrDefaultAsync(s => s.Id == id);
+            return await _context.Products
+                            .Include(c => c.ProductImages)
+                            .Include(c => c.Comments)
+                            .FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task<Product?> GetByProductNameAsync(string productname)

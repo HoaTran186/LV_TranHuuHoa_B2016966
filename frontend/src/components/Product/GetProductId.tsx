@@ -34,8 +34,10 @@ const GetProductId = () => {
   const [userInfo, setUserInfo] = useState<UserInfo[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsall, setCommentsAll] = useState<Comment[]>([]);
   const [totalRatings, setTotalRatings] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
@@ -85,7 +87,7 @@ const GetProductId = () => {
           setLoadingProductType(false);
         }
       };
-      const fetchComments = async () => {
+      const fetchCommentsAll = async () => {
         if (productId !== null) {
           try {
             const response = await fetch(
@@ -94,10 +96,10 @@ const GetProductId = () => {
             if (!response.ok) {
               throw new Error("Failed to fetch comments");
             }
-            const commentsData = await response.json();
-            setComments(commentsData);
-            const total = commentsData.length;
-            const starsSum = commentsData.reduce(
+            const comments = await response.json();
+            setCommentsAll(comments);
+            const total = comments.length;
+            const starsSum = comments.reduce(
               (sum: number, comment: Comment) => sum + comment.star,
               0
             );
@@ -105,6 +107,22 @@ const GetProductId = () => {
 
             setTotalRatings(total);
             setAverageRating(Number(average));
+          } catch (error) {
+            console.error("Error fetching comments:", error);
+          }
+        }
+      };
+      const fetchComments = async () => {
+        if (productId !== null) {
+          try {
+            const response = await fetch(
+              `http://localhost:5126/api/account/comment/${productId}?PageNumber=${pageNumber}&PageSize=5`
+            );
+            if (!response.ok) {
+              throw new Error("Failed to fetch comments");
+            }
+            const commentsData = await response.json();
+            setComments(commentsData);
           } catch (error) {
             console.error("Error fetching comments:", error);
           }
@@ -128,9 +146,10 @@ const GetProductId = () => {
         fetchProductData();
         fetchComments();
         fetchUserInfor();
+        fetchCommentsAll();
       }
     }
-  }, [productId]);
+  }, [productId, pageNumber]);
   const getFullName = (userId: string): string => {
     const user = userInfo.find((user) => user.userId == userId);
     return user ? user.fullName : "Unknown user";
@@ -146,7 +165,7 @@ const GetProductId = () => {
       setQuantity(quantity + 1);
     }
   };
-  const starCounts = comments.reduce(
+  const starCounts = commentsall.reduce(
     (counts, comment) => {
       const star = comment.star as 1 | 2 | 3 | 4 | 5;
       counts[star] = (counts[star] || 0) + 1;
@@ -168,7 +187,7 @@ const GetProductId = () => {
   const totalItems = totalRatings;
   const itemsPerPage = 5;
   const handlePageChange = (page: number) => {
-    console.log("Trang hiện tại:", page);
+    setPageNumber(page);
   };
   return (
     <div>

@@ -33,28 +33,40 @@ namespace backend.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             var product = await _productRepo.GetByIdAsync(productId);
-            if (!await _productRepo.ProductExists(productId))
+            if (product == null)
             {
                 return BadRequest("Product does not exist");
             }
+
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
             if (product.UserId != appUser.Id)
             {
                 return BadRequest("You are not authorized to upload images for this product.");
             }
-            string[] allowedFileExtentions = { ".jpg", ".jpeg", ".png" };
-            string createdImageName = await _fileService.SaveFileAsync(productImages.Images, allowedFileExtentions);
-            var productModel = new ProductImages
-            {
-                Images = createdImageName,
-                ProductId = productId
-            };
-            await _productImagesRepo.CreateAsync(productModel);
 
-            return Ok(productModel);
+            string[] allowedFileExtensions = { ".jpg", ".jpeg", ".png" };
+            var createdImageNames = new List<string>();
+
+            // Lưu từng hình ảnh
+            foreach (var image in productImages.Images)
+            {
+                var createdImageName = await _fileService.SaveFileAsync(image, allowedFileExtensions);
+                createdImageNames.Add(createdImageName);
+
+                var productModel = new ProductImages
+                {
+                    Images = createdImageName,
+                    ProductId = productId
+                };
+                await _productImagesRepo.CreateAsync(productModel);
+            }
+
+            return Ok(createdImageNames);
         }
+
         [HttpDelete]
         [Route("{id:int}")]
         [Authorize(Roles = "Creator")]

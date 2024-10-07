@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -53,9 +54,15 @@ namespace backend.Repository
             return commentModel;
         }
 
-        public async Task<List<Comments>> GetAllAsync()
+        public async Task<List<Comments>> GetAllAsync(QueryComment queryComment)
         {
-            return await _context.Comments.ToListAsync();
+            var comment = _context.Comments.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(queryComment.Comment))
+            {
+                comment = comment.Where(s => s.Comment.Contains(queryComment.Comment));
+            }
+            var skipNumber = (queryComment.PageNumber - 1) * queryComment.PageSize;
+            return await comment.Skip(skipNumber).Take(queryComment.PageSize).ToListAsync();
         }
 
         public async Task<Comments?> GetByIdAsync(int id)
@@ -63,11 +70,17 @@ namespace backend.Repository
             return await _context.Comments.FindAsync(id);
         }
 
-        public async Task<List<Comments?>> GetByProductIdAsync(int productId)
+        public async Task<List<Comments?>> GetByProductIdAsync(int productId, QueryComment queryComment)
         {
-            return await _context.Comments
+            var comment = _context.Comments
             .Where(comment => comment.productId == productId)
-            .ToListAsync();
+            .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(queryComment.Comment))
+            {
+                comment = comment.Where(s => s.Comment.Contains(queryComment.Comment));
+            }
+            var skipNumber = (queryComment.PageNumber - 1) * queryComment.PageSize;
+            return await comment.Skip(skipNumber).Take(queryComment.PageSize).ToListAsync();
         }
 
         public async Task<Comments?> UpdateAsync(int id, Comments updateCommentDto)

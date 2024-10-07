@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 interface ProductImage {
   id: number;
-  images: string;
+  imagesName: string;
   productId: number;
 }
 
@@ -204,56 +204,60 @@ const NewProductToken = ({ Token }: NewProductProps) => {
             : "Unknown User";
 
           return (
-            // <Link
-            //   key={product.id}
-            //   href={`/product/search-product/${product.product_Name.replaceAll(
-            //     " ",
-            //     "-"
-            //   )}?Id=${product.id}`}
-            // >
-            <div className="bg-white border shadow-inner shadow-gray-200 rounded-2xl overflow-hidden">
-              <div className="p-8">
-                <img
-                  src={`https://localhost:7146/Resources/${product.productImages[0]?.images}`}
-                  alt={product.product_Name}
-                  className="w-[350px] h-[200px]"
-                />
-              </div>
+            <Link
+              key={product.id}
+              href={`/product/search-product/${product.product_Name.replaceAll(
+                " ",
+                "-"
+              )}?Id=${product.id}`}
+            >
+              <div className="bg-white border shadow-inner shadow-gray-200 rounded-2xl overflow-hidden">
+                <div className="p-8">
+                  <img
+                    src={
+                      product.productImages && product.productImages.length > 0
+                        ? `https://localhost:7146/Resources/${product.productImages[0]?.imagesName}`
+                        : `/images/server/default.jpg`
+                    }
+                    alt={product.product_Name}
+                    className="w-[350px] h-[200px] rounded-2xl"
+                  />
+                </div>
 
-              <div className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center text-yellow-500">
-                    <FiStar />
-                    <span className="ml-1 font-bold">{product.rating}</span>
-                    <span className="text-gray-500 text-sm ml-2">
-                      ({product.comments.length} đánh giá)
-                    </span>
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center text-yellow-500">
+                      <FiStar />
+                      <span className="ml-1 font-bold">{product.rating}</span>
+                      <span className="text-gray-500 text-sm ml-2">
+                        ({product.comments.length} đánh giá)
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold mb-2">
+                    {product.product_Name}
+                  </h3>
+                  <p className="text-gray-500 flex">
+                    <FaSearchLocation className="mt-1 mr-1" />
+                    {userName}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Loại sản phẩm: {getProductTypeName(product.productTypeId)}
+                  </p>
+                  <div className="flex mt-2 justify-between mx-4">
+                    <p className="text-teal-500 font-bold text-lg mt-2">
+                      {product.price.toLocaleString("en-US")}đ
+                    </p>
+                    <Button
+                      onClick={() => handleAddToCart(product)}
+                      className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600"
+                    >
+                      Đặt ngay
+                    </Button>
                   </div>
                 </div>
-                <h3 className="text-lg font-bold mb-2">
-                  {product.product_Name}
-                </h3>
-                <p className="text-gray-500 flex">
-                  <FaSearchLocation className="mt-1 mr-1" />
-                  {userName}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  Loại sản phẩm: {getProductTypeName(product.productTypeId)}
-                </p>
-                <div className="flex mt-2 justify-between mx-4">
-                  <p className="text-teal-500 font-bold text-lg mt-2">
-                    {product.price.toLocaleString("en-US")}đ
-                  </p>
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600"
-                  >
-                    Đặt ngay
-                  </Button>
-                </div>
               </div>
-            </div>
-            // </Link>
+            </Link>
           );
         })}
       </div>

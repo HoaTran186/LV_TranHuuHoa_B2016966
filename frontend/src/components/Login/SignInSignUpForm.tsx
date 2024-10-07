@@ -131,17 +131,18 @@ const SignInSignUpForm = () => {
                 : "w-2/5 bg-green-500 text-white rounded-tl-2xl rounded-bl-2xl py-36 px-12"
             }`}
           >
-            <h2 className="text-3xl font-bold mb-2">Welcome Back!</h2>
+            <h2 className="text-3xl font-bold mb-2">Chào mừng trở lại!</h2>
             <div className="border-2 w-10 border-white inline-block mb-2"></div>
             <p className="mb-2">
-              To keep connected with us please login with your personal info
+              Để giữ liên lạc với chúng tôi, vui lòng đăng nhập bằng thông tin
+              cá nhân của bạn.
             </p>
             <a
               onClick={handleSignIn}
               href="#"
               className="mt-10 border-2 border-white rounded-full px-12 py-2 inline-block hover:bg-white hover:text-green-500"
             >
-              Sign In
+              Đăng nhập
             </a>
           </div>
           <div className={`${isSign ? "hidden" : "w-3/5 p-5"}`}>
@@ -155,7 +156,8 @@ const SignInSignUpForm = () => {
                 </Button>
               </div>
               <div className="text-right font-bold">
-                <span className="text-green-500">Company</span>Name
+                <span className="text-green-500">In</span>no
+                <span className="text-teal-500">Trade</span>
               </div>
             </div>
 
@@ -186,7 +188,6 @@ const SignInSignUpForm = () => {
               </div>
             </div>
 
-            {/* Hiển thị form đăng nhập khi isSignUpRoles là true */}
             <div className={`${isOtp && isSignUpRolesCreator ? "" : "hidden"}`}>
               <CreatorOTP email={Email} />
             </div>
@@ -199,7 +200,7 @@ const SignInSignUpForm = () => {
               } ${isOtp ? "hidden" : ""}`}
             >
               <h2 className="text-3xl font-bold text-green-500 mb-2">
-                Create Account
+                Tạo tài khoản
               </h2>
               <div className="border-2 w-10 border-green-500 inline-block mb-2"></div>
               <div className="flex justify-center my-2">
@@ -238,7 +239,7 @@ const SignInSignUpForm = () => {
                   <input
                     type="text"
                     name="username"
-                    placeholder="User name"
+                    placeholder="Tên người dùng"
                     className="bg-gray-100 outline-none text-sm flex-1"
                     onChange={(e) => setUserName(e.target.value)}
                   />
@@ -248,7 +249,7 @@ const SignInSignUpForm = () => {
                   <input
                     type="email"
                     name="email"
-                    placeholder="Email"
+                    placeholder="Địa chỉ email"
                     className="bg-gray-100 outline-none text-sm flex-1"
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -258,7 +259,7 @@ const SignInSignUpForm = () => {
                   <input
                     type="password"
                     name="password"
-                    placeholder="Password"
+                    placeholder="Mật khẩu"
                     className="bg-gray-100 outline-none text-sm flex-1"
                     onChange={(e) => setPassWord(e.target.value)}
                   />
@@ -268,18 +269,19 @@ const SignInSignUpForm = () => {
                   className="border-2 border-green-500 text-green-500 rounded-full px-12 py-2 inline-block mt-5 hover:bg-green-500 hover:text-white"
                   onClick={handleRegister}
                 >
-                  Sign Up
+                  Đăng kí
                 </a>
               </div>
             </div>
           </div>
           <div className={`${isSign ? "w-3/5 p-5" : "hidden"}`}>
             <div className="text-left font-bold">
-              <span className="text-green-500">Company</span>Name
+              <span className="text-green-500">In</span>no
+              <span className="text-teal-500">Trade</span>
             </div>
             <div className="py-10">
               <h2 className="text-3xl font-bold text-green-500 mb-2">
-                Sign in to Account
+                Đăng nhập vào tài khoản
               </h2>
               <div className="border-2 w-10 border-green-500 inline-block mb-2"></div>
               <div className="flex justify-center my-2">
@@ -315,7 +317,7 @@ const SignInSignUpForm = () => {
                   <input
                     type="text"
                     name="username"
-                    placeholder="User name"
+                    placeholder="Tên người dùng"
                     onChange={(e) => setUserName(e.target.value)}
                     className="bg-gray-100 outline-none text-sm flex-1"
                   />
@@ -325,7 +327,7 @@ const SignInSignUpForm = () => {
                   <input
                     type="password"
                     name="password"
-                    placeholder="Password"
+                    placeholder="Mật khẩu"
                     onChange={(e) => setPassWord(e.target.value)}
                     className="bg-gray-100 outline-none text-sm flex-1"
                   />
@@ -333,10 +335,10 @@ const SignInSignUpForm = () => {
                 <div className="flex justify-between w-64 mb-5">
                   <Label className="flex items-center text-xs">
                     <input type="checkbox" name="remember" className="mr-1" />
-                    Remember me
+                    Nhớ mật khẩu
                   </Label>
                   <a href="" className="text-xs">
-                    Forget Password?
+                    Quên mật khẩu?
                   </a>
                 </div>
                 <a
@@ -344,7 +346,7 @@ const SignInSignUpForm = () => {
                   href="#"
                   className="border-2 border-green-500 text-green-500 rounded-full px-12 py-2 inline-block hover:bg-green-500 hover:text-white"
                 >
-                  Sign In
+                  Đăng nhập
                 </a>
               </div>
             </div>
@@ -356,17 +358,17 @@ const SignInSignUpForm = () => {
                 : "hidden"
             }`}
           >
-            <h2 className="text-3xl font-bold mb-2">Hello, Friend!</h2>
+            <h2 className="text-3xl font-bold mb-2">Chào bạn!</h2>
             <div className="border-2 w-10 border-white inline-block mb-2"></div>
             <p className="mb-2">
-              Fill up persional information and start journey with us.
+              Điền thông tin cá nhân và bắt đầu hành trình cùng chúng tôi.
             </p>
             <a
               onClick={handleSignUp}
               href="#"
               className="border-2 border-white rounded-full px-12 py-2 inline-block hover:bg-white hover:text-green-500"
             >
-              Sign Up
+              Đăng kí
             </a>
           </div>
         </div>

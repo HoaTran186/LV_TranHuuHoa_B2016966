@@ -7,7 +7,7 @@ import { FiStar } from "react-icons/fi";
 
 interface ProductImage {
   id: number;
-  images: string;
+  imagesName: string;
   productId: number;
 }
 
@@ -79,7 +79,6 @@ const NewProduct = () => {
 
     fetchData();
   }, []);
-
   const getProductTypeName = (productTypeId: number) => {
     const productType = productTypes.find((type) => type.id === productTypeId);
     return productType ? productType.productType_Name : "Unknown";
@@ -114,6 +113,7 @@ const NewProduct = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.slice(0, 6).map((product) => {
+          console.log(product.productImages[0]);
           const matchingUser = findUserForProduct(product.userId);
           const userName = matchingUser
             ? matchingUser.fullName
@@ -130,9 +130,13 @@ const NewProduct = () => {
               <div className="bg-white border shadow-inner shadow-gray-200 rounded-2xl overflow-hidden">
                 <div className="p-8">
                   <img
-                    src={`https://localhost:7146/Resources/${product.productImages[0]?.images}`}
+                    src={
+                      product.productImages && product.productImages.length > 0
+                        ? `https://localhost:7146/Resources/${product.productImages[0]?.imagesName}`
+                        : `/images/server/default.jpg`
+                    }
                     alt={product.product_Name}
-                    className="w-[350px] h-[200px]"
+                    className="w-[350px] h-[200px] rounded-2xl"
                   />
                 </div>
 

@@ -1,8 +1,20 @@
+import LogoutButton from "@/components/Login/LogoutButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { IoCartOutline } from "react-icons/io5";
 
 const NavBar = () => {
+  const cookie = cookies().get("Token")?.value;
   return (
     <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center py-4 px-8 bg-white border-b border-gray-200 shadow-lg">
       <div className="flex items-center ml-20">
@@ -35,9 +47,12 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <a href="#" className="text-gray-700 hover:text-teal-500">
+            <Link
+              href={"/introduce"}
+              className="text-gray-700 hover:text-teal-500"
+            >
               Giới thiệu
-            </a>
+            </Link>
           </li>
           <li>
             <a href="#" className="text-gray-700 hover:text-teal-500">
@@ -56,6 +71,35 @@ const NavBar = () => {
         <button className="bg-teal-400 hover:bg-teal-500 text-white py-2 px-6 rounded-full">
           Liên hệ
         </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Avatar>
+              <AvatarImage src="/images/server/user.png" alt="@InnoTrade" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {cookie == null ? (
+              <DropdownMenuItem>
+                <Link href="/login">Đăng nhập</Link>
+              </DropdownMenuItem>
+            ) : (
+              <>
+                <DropdownMenuItem>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>Team</DropdownMenuItem>
+                <DropdownMenuItem>Subscription</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogoutButton />
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );

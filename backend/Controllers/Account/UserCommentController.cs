@@ -1,5 +1,6 @@
 using backend.Dtos.Comment;
 using backend.Extensions;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
@@ -22,23 +23,23 @@ namespace backend.Controllers.Account
             _userManager = userManager;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryComment queryComment)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var comments = await _commentRepo.GetAllAsync();
+            var comments = await _commentRepo.GetAllAsync(queryComment);
             return Ok(comments);
         }
         [HttpGet("{productId:int}")]
-        public async Task<IActionResult> GetById([FromRoute] int productId)
+        public async Task<IActionResult> GetById([FromRoute] int productId, [FromQuery] QueryComment queryComment)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var comments = await _commentRepo.GetByProductIdAsync(productId);
+            var comments = await _commentRepo.GetByProductIdAsync(productId, queryComment);
             if (comments == null)
             {
                 return NotFound();
