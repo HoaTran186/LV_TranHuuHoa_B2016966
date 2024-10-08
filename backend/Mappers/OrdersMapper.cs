@@ -26,7 +26,6 @@ namespace backend.Mappers
                 OrderStatus = orderDto.OrderStatus,
                 OrderDate = DateTime.Now,
                 ShippedDate = null,
-                TotalAmount = orderDto.TotalAmount
             };
         }
         public static Orders ToUserOrdersFromUpdateDto(this UpdateOrderDto updateOrder)

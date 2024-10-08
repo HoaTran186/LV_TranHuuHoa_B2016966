@@ -16,7 +16,7 @@ interface Order {
 }
 interface ProductImage {
   id: number;
-  images: string;
+  imagesName: string;
   productId: number;
 }
 interface Product {
@@ -229,14 +229,14 @@ export default function Cart({ Token }: OrderProps) {
       return updatedQuantities;
     });
   };
-
+  console.log(orderDetails);
   return (
     <div className="w-full">
       <div className="mx-56 border rounded-3xl space-y-5 mb-10 p-10">
         {orderDetails.map((detail) => {
           const product = products.find((p) => p.id === detail.productId);
+          console.log(product);
           if (!product) return null;
-
           return (
             <div key={detail.id}>
               <div className="flex m-5 rounded-3xl border justify-between">
@@ -246,7 +246,7 @@ export default function Cart({ Token }: OrderProps) {
                       <img
                         src={
                           product.productImages.length > 0
-                            ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
+                            ? `https://localhost:7146/Resources/${product.productImages[0].imagesName}`
                             : "/path-to-default-image.jpg"
                         }
                         alt={product.product_Name}

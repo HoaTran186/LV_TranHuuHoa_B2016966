@@ -160,11 +160,46 @@ const NewProductToken = ({ Token }: NewProductProps) => {
       router.push("/login");
       return;
     }
-
+    let orderId: number | null = null;
     const existingOrder = orders.find(
       (order) => order.orderStatus === "Pending"
     );
-    const orderId = existingOrder ? existingOrder.id : null;
+
+    if (existingOrder) {
+      orderId = existingOrder.id;
+    } else {
+      try {
+        const data = {
+          orderStatus: "Pending",
+          orderDate: Date.now,
+          totalAmount: 0,
+        };
+        const createOrderResponse = await fetch(
+          "https://localhost:7146/api/user/orders",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${Token}`,
+            },
+            body: JSON.stringify(data),
+          }
+        );
+        if (!createOrderResponse.ok) {
+          throw new Error(
+            `Failed to create new order: ${createOrderResponse.statusText}`
+          );
+        }
+
+        const newOrder = await createOrderResponse.json();
+        orderId = newOrder.id;
+        console.log(orderId);
+      } catch (error: any) {
+        console.error("Error creating new order:", error);
+        alert(error.message || "An error occurred while creating a new order.");
+        return;
+      }
+    }
     const orderDetailData = {
       orderId: orderId,
       productId: product.id,
@@ -184,9 +219,7 @@ const NewProductToken = ({ Token }: NewProductProps) => {
         }
       );
       if (!createOrderResponse.ok) {
-        throw new Error(
-          `Failed to register: ${createOrderResponse.statusText}`
-        );
+        throw new Error(`Failed : ${createOrderResponse.statusText}`);
       }
       alert("Add product success");
     } catch (error: any) {
@@ -277,12 +310,14 @@ const NewProductToken = ({ Token }: NewProductProps) => {
                         <p className="text-teal-500 font-bold text-lg mt-2">
                           {product.price.toLocaleString("en-US")}đ
                         </p>
-                        <Button
-                          onClick={() => handleAddToCart(product)}
-                          className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600"
-                        >
-                          Đặt ngay
-                        </Button>
+                        <Link href={"/cart"}>
+                          <Button
+                            onClick={() => handleAddToCart(product)}
+                            className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600"
+                          >
+                            Đặt ngay
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>

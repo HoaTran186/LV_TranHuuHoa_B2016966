@@ -29,6 +29,7 @@ const SignInSignUpForm = () => {
   const [isOtp, setIsOtp] = useState(false);
   const [isSign, setIsSign] = useState(true);
   const [error, setError] = useState<unknown>(null);
+  const [forgotPass, setForGotPass] = useState(false);
   const handleLogin = async () => {
     const data = {
       username: UserName,
@@ -120,6 +121,32 @@ const SignInSignUpForm = () => {
     }
     return <div>Error: {errorMessage}</div>;
   }
+  const handleForgotPass = async () => {
+    const data = {
+      email: Email,
+    };
+    try {
+      const res = await fetch(
+        "https://localhost:7146/api/account/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      if (!res.ok) {
+        throw new Error(`Failed: ${res.statusText}`);
+      }
+      setIsOtp(true);
+      alert("OTP has been sent to your email");
+    } catch (error) {
+      console.error("Error:", error);
+      setError(error);
+      alert("Error");
+    }
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100">
       <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
@@ -337,7 +364,11 @@ const SignInSignUpForm = () => {
                     <input type="checkbox" name="remember" className="mr-1" />
                     Nhớ mật khẩu
                   </Label>
-                  <a href="" className="text-xs">
+                  <a
+                    href="#"
+                    className="text-xs"
+                    onClick={() => setForGotPass(true)}
+                  >
                     Quên mật khẩu?
                   </a>
                 </div>

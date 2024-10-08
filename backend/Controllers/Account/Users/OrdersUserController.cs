@@ -128,7 +128,8 @@ namespace backend.Controllers.Account.Users
             var orderDetails = await _ordersDetailsRepo.GetByOrderIdAsync(id);
             if (orderDetails == null || !orderDetails.Any())
             {
-                return NotFound();
+                await _ordersRepo.DeleteAsync(id);
+                return Ok("Deleted Orders");
             }
             foreach (var orderDetail in orderDetails)
             {
@@ -143,7 +144,7 @@ namespace backend.Controllers.Account.Users
             {
                 return NotFound();
             }
-            return Ok("Deleted Orders");
+            return Ok("Deleted Orders and Order details");
         }
     }
 }
