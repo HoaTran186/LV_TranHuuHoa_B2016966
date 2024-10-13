@@ -1,4 +1,5 @@
 using backend.Models;
+using StackExchange.Redis;
 
 namespace backend.Interfaces
 {
@@ -13,6 +14,8 @@ namespace backend.Interfaces
         Task<List<OrderDetails>> GetByOrderIdAsync(int orderId);
         Task<OrderDetails> GetByProductIdAndOrderIdAsync(int productId, int orderId);
         Task<decimal> GetTotalPriceByOrderIdAsync(int orderId);
+        Task<List<OrderDetails>> GetByProductId(List<int> productId);
+
 
     }
 }

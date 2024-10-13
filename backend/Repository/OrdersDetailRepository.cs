@@ -70,6 +70,13 @@ namespace backend.Repository
             }).ToListAsync();
         }
 
+        public async Task<List<OrderDetails>> GetByProductId(List<int> productId)
+        {
+            return await _context.OrderDetails
+                        .Where(od => productId.Contains(od.ProductId))
+                        .ToListAsync();
+        }
+
         public async Task<OrderDetails> GetByProductIdAndOrderIdAsync(int productId, int orderId)
         {
             return await _context.OrderDetails

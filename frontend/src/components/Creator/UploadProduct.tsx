@@ -94,6 +94,7 @@ export default function UploadProduct({ Token }: UploadProductProps) {
       unique: unique,
       apply: apply,
       result: results,
+      rating: 0,
       quantity: quantity,
       price: price,
       productTypeId: selectedProductType,
@@ -107,7 +108,6 @@ export default function UploadProduct({ Token }: UploadProductProps) {
         },
         body: JSON.stringify(dataProduct),
       });
-
       if (!res.ok) {
         throw new Error(`Failed to register: ${res.statusText}`);
       }
@@ -117,6 +117,7 @@ export default function UploadProduct({ Token }: UploadProductProps) {
       selectedImages.forEach((image) => {
         formData.append("Images", image);
       });
+      console.log(formData);
       const imageUploadRes = await fetch(
         `https://localhost:7146/api/creator/product-images/${productId}`,
         {
@@ -140,13 +141,15 @@ export default function UploadProduct({ Token }: UploadProductProps) {
       alert(error.message);
     }
   };
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
       const updatedImages = [...selectedImages, ...newFiles];
       setSelectedImages(updatedImages);
     }
+  };
+  const handleRemoveAdditionalImage = (index: number) => {
+    setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -277,8 +280,10 @@ export default function UploadProduct({ Token }: UploadProductProps) {
                 type="file"
                 hidden
                 multiple
+                accept="image/*"
                 onChange={handleImageUpload}
                 ref={inputRef}
+                className="hidden"
               />
               <div className="grid grid-cols-3 gap-4 mt-4">
                 {selectedImages.length > 0 &&
@@ -289,6 +294,12 @@ export default function UploadProduct({ Token }: UploadProductProps) {
                         alt={`Preview ${index + 1}`}
                         className="object-cover h-40 w-40 rounded-lg"
                       />
+                      <button
+                        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full"
+                        onClick={() => handleRemoveAdditionalImage(index)}
+                      >
+                        X
+                      </button>
                     </div>
                   ))}
               </div>

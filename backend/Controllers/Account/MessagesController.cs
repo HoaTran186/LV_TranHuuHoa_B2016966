@@ -1,6 +1,8 @@
 using backend.Data;
+using backend.Dtos.Messages;
 using backend.Extensions;
 using backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,8 +22,19 @@ namespace backend.Controllers.Account
             _userManager = userManager;
         }
 
-        [HttpGet("{receiver}")]
-        public async Task<IActionResult> GetMessageHistory(string receiver)
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetMessageHistory()
+        {
+            var messages = await _context.Messages
+           .OrderBy(m => m.Timestamp)
+           .ToListAsync();
+
+            return Ok(messages);
+        }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> PostMessage(SendMessagesDto messageDto)
         {
             try
             {
@@ -37,24 +50,23 @@ namespace backend.Controllers.Account
                     return NotFound($"User '{username}' not found.");
                 }
 
-                Console.WriteLine($"Username: {appUser.UserName}, Receiver: {receiver}");
+                var message = new Messages
+                {
+                    UserId = appUser.Id,
+                    Content = messageDto.Content,
+                    Timestamp = DateTime.UtcNow
+                };
 
-                var messages = await _context.Messages
-                    .Where(m => m.Receiver.ToLower() == appUser.UserName.ToLower() || m.Receiver.ToLower() == receiver)
-                    .OrderBy(m => m.Timestamp)
-                    .ToListAsync();
+                _context.Messages.Add(message);
+                await _context.SaveChangesAsync();
 
-                Console.WriteLine($"Found {messages.Count} messages");
-
-                return Ok(messages);
+                return Ok(message);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                Console.Error.WriteLine($"Error in GetMessageHistory: {ex}");
+                Console.Error.WriteLine($"Error in PostMessage: {ex}");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
-
     }
 }

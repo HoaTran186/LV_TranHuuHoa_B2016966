@@ -1,257 +1,290 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
-import * as signalR from "@microsoft/signalr";
+import { useState, useEffect } from "react";
+import {
+  HubConnectionBuilder,
+  HubConnection,
+  LogLevel,
+} from "@microsoft/signalr";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { IoSendSharp } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
 
 interface Message {
+  user: string;
+  message: string;
+}
+interface Mess {
   id: number;
-  sender: string;
-  receiver: string;
+  userId: string;
   content: string;
-  timestamp: string;
-  isDelivered: boolean;
+  timestamp: Date;
 }
-
 interface User {
-  id: string;
-  username: string;
+  id: number;
+  fullName: string;
+  userId: string;
 }
-
-export default function Chat({ Token }: { Token: string }) {
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null
-  );
+interface ChatProps {
+  Token: string | undefined;
+}
+export default function Chat({ Token }: ChatProps) {
+  const [connection, setConnection] = useState<HubConnection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [message, setMessage] = useState("");
   const [user, setUser] = useState("");
-  const [targetUser, setTargetUser] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
+  const [message, setMessage] = useState("");
+  const [mess, setMess] = useState<Mess[]>([]);
+  const [userId, setUserId] = useState("");
+  const [allUser, setAllUser] = useState<User[]>([]);
+  const [visibleMessages, setVisibleMessages] = useState(10);
+  useEffect(() => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl("https://localhost:7146/chatHub")
+      .withAutomaticReconnect()
+      .configureLogging(LogLevel.Information)
+      .build();
 
-  const getDisplayName = (userId: string) => {
-    return userId.length > 8 ? userId.substring(0, 8) + "..." : userId;
-  };
+    newConnection
+      .start()
+      .then(() => {
+        console.log("Connected to SignalR hub");
+        setConnection(newConnection);
 
-  const fetchUsers = useCallback(async () => {
-    try {
-      const response = await fetch("http://localhost:5126/api/admin/account");
-      const data = await response.json();
-      console.log("Fetched users:", data);
-      setUsers(data);
-    } catch (error) {
-      console.error("Failed to fetch users: ", error);
-    }
+        newConnection.on("ReceiveMessage", (user: string, message: string) => {
+          console.log("Received message:", user, message);
+          setMessages((prevMessages) => [...prevMessages, { user, message }]);
+        });
+      })
+      .catch((error) =>
+        console.error("Error connecting to SignalR hub:", error)
+      );
+
+    return () => {
+      if (newConnection) {
+        newConnection.stop();
+      }
+    };
   }, []);
-
-  const fetchChatHistory = useCallback(
-    async (receiver: string) => {
+  useEffect(() => {
+    const fetchMessageHistory = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5126/api/messages/${receiver}`,
+        const response = await fetch("https://localhost:7146/api/messages", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+        });
+
+        if (response.ok) {
+          const messages: Mess[] = await response.json();
+          setMess(messages);
+        } else {
+          console.error("Error fetching message history:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching message history:", error);
+      }
+    };
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(
+          "https://localhost:7146/api/user/user-information",
           {
+            method: "GET",
             headers: {
               Authorization: `Bearer ${Token}`,
             },
           }
         );
-        if (!response.ok) {
-          throw new Error("Failed to fetch chat history");
+        if (!res.ok) {
+          throw new Error("Failed to fetch user");
         }
-        const data: Message[] = await response.json();
-        console.log("Fetched chat history:", data);
-        setMessages(data);
-      } catch (error) {
-        console.error("Error fetching chat history:", error);
-      }
-    },
-    [Token]
-  );
-
-  useEffect(() => {
-    let isMounted = true;
-    const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5126/chathub", {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
-        headers: {
-          Authorization: `Bearer ${Token}`,
-        },
-      })
-      .configureLogging(signalR.LogLevel.Debug)
-      .withAutomaticReconnect()
-      .build();
-
-    const startConnection = async () => {
+        const data = await res.json();
+        setUser(data.fullName);
+        setUserId(data.userId);
+      } catch (error) {}
+    };
+    const fetchAllUser = async () => {
       try {
-        await newConnection.start();
-        console.log("Connected to SignalR Hub");
-        if (isMounted) {
-          setConnection(newConnection);
-          setIsConnected(true);
+        const res = await fetch("https://localhost:7146/api/users-information");
+        if (!res.ok) {
+          throw new Error("Failed to fetch users");
         }
-
-        newConnection.on("ReceiveMessage", (sender, content) => {
-          console.log(`Received message from ${sender}: ${content}`);
-          if (isMounted) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              {
-                id: Date.now(),
-                sender,
-                receiver: user,
-                content,
-                timestamp: new Date().toISOString(),
-                isDelivered: true,
-              },
-            ]);
-          }
-        });
-
-        newConnection.on("UserConnected", (username) => {
-          console.log(`${username} connected`);
-          fetchUsers();
-        });
-
-        newConnection.on("UserDisconnected", (username) => {
-          console.log(`${username} disconnected`);
-          fetchUsers();
-        });
-
-        newConnection.on("MessageSent", (receiver, content) => {
-          console.log(`Message sent to ${receiver}: ${content}`);
-        });
-
-        newConnection.onreconnecting(() => {
-          console.log("Attempting to reconnect...");
-          if (isMounted) setIsConnected(false);
-        });
-
-        newConnection.onreconnected(() => {
-          console.log("Reconnected successfully");
-          if (isMounted) setIsConnected(true);
-        });
+        const data: User[] = await res.json();
+        setAllUser(data);
       } catch (error) {
-        console.error("Connection failed: ", error);
-        if (isMounted) setIsConnected(false);
+        console.error("Error fetching users:", error);
       }
     };
-
-    startConnection();
-
-    return () => {
-      isMounted = false;
-      if (newConnection.state === signalR.HubConnectionState.Connected) {
-        newConnection.stop();
-      }
-    };
-  }, [Token, user, fetchUsers]);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  useEffect(() => {
-    if (targetUser) {
-      fetchChatHistory(targetUser);
-    }
-  }, [targetUser, fetchChatHistory]);
-
-  const handleSendMessage = async () => {
-    if (connection && targetUser && message) {
+    fetchUser();
+    fetchAllUser();
+    fetchMessageHistory();
+  }, []);
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (connection && message && user) {
       try {
-        await connection.invoke("SendPrivateMessage", targetUser, message);
-        setMessage("");
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            id: Date.now(),
-            sender: user,
-            receiver: targetUser,
-            content: message,
-            timestamp: new Date().toISOString(),
-            isDelivered: false,
+        console.log("Sending message:", user, message);
+        await connection.invoke("SendMessage", user, message);
+        const response = await fetch("https://localhost:7146/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
           },
-        ]);
+          body: JSON.stringify({ content: message }),
+        });
+
+        if (response.ok) {
+          const savedMessage = await response.json();
+          console.log("Message saved:", savedMessage);
+          setMessage("");
+        } else {
+          console.error("Error saving message:", response.status);
+        }
       } catch (error) {
-        console.error("Error sending message: ", error);
-        alert("Failed to send message. Please try again.");
+        console.error("Error sending message:", error);
       }
     }
   };
-
+  const showMoreMessages = () => {
+    setVisibleMessages((prevVisible) => prevVisible + 10);
+  };
   return (
-    <div className="p-4 max-w-md mx-auto bg-white rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Chat Application</h1>
-
-      <div className="mb-4">
-        <label
-          htmlFor="user-name"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Enter your name
-        </label>
-        <input
-          id="user-name"
-          type="text"
-          placeholder="Your name"
-          value={user}
-          onChange={(e) => setUser(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="user-select"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Choose a user to chat with:
-        </label>
-        <select
-          id="user-select"
-          value={targetUser}
-          onChange={(e) => setTargetUser(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        >
-          <option value="">Select user</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.username}>
-              {getDisplayName(u.username)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mb-4 h-60 overflow-y-auto border border-gray-300 rounded-md p-2">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`mb-2 ${
-              msg.sender === user ? "text-right" : "text-left"
-            }`}
+    <div className="border-2 mx-[25rem] mb-10 rounded-3xl p-10">
+      <h1>Real-time Chat</h1>
+      <div className="flex flex-col items-start">
+        {visibleMessages < mess.length && (
+          <button
+            onClick={showMoreMessages}
+            className="text-blue-500 hover:underline"
           >
-            <span className="inline-block bg-gray-200 rounded px-2 py-1">
-              <strong>{getDisplayName(msg.sender)}: </strong>
-              {msg.content}
-            </span>
-          </div>
-        ))}
+            Xem thêm tin nhắn cũ
+          </button>
+        )}
+        {/* Hiển thị lịch sử tin nhắn */}
+        {mess.slice(-visibleMessages).map((mess) => {
+          const user = allUser.find((u) => u.userId === mess.userId);
+          const isCurrentUser = mess.userId === userId;
+          return (
+            <div
+              key={mess.id}
+              className={`flex items-center mb-[8px] ${
+                isCurrentUser ? "self-end" : "self-start"
+              }`}
+            >
+              {!isCurrentUser && (
+                <div className="mr-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+              <div
+                className={`flex flex-col ${
+                  isCurrentUser ? "items-end" : "items-start"
+                }`}
+              >
+                <small>{isCurrentUser ? "You" : user?.fullName}</small>
+                <div
+                  className={`py-[8px] px-[16px] rounded-[8px] ${
+                    isCurrentUser ? "bg-white" : "bg-[#39a7cb]"
+                  }`}
+                >
+                  <strong>{mess.content}</strong>
+                </div>
+              </div>
+              {isCurrentUser && (
+                <div className="ml-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+      <div className="flex flex-col items-start">
+        {/* Hiển thị tin nhắn mới từ SignalR */}
+        {messages.map((m, index) => {
+          const isCurrentUser = m.user === user;
 
-      <div className="flex">
-        <input
-          type="text"
-          placeholder="Enter your message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="flex-grow mr-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        />
-        <button
-          onClick={handleSendMessage}
-          disabled={!isConnected || !targetUser || !message}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-300"
-        >
-          Send
-        </button>
+          return (
+            <div
+              key={index}
+              className={`flex items-center mb-[8px] ${
+                isCurrentUser ? "self-end" : "self-start"
+              }`}
+            >
+              {!isCurrentUser && (
+                <div className="mr-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+              <div
+                className={`flex flex-col ${
+                  isCurrentUser ? "items-end" : "items-start"
+                }`}
+              >
+                <small>{isCurrentUser ? "You" : m.user}</small>
+                <div
+                  className={`py-[8px] px-[16px] rounded-[8px] ${
+                    isCurrentUser ? "bg-white" : "bg-[#39a7cb]"
+                  }`}
+                >
+                  <strong>{m.message}</strong>
+                </div>
+              </div>
+              {isCurrentUser && (
+                <div className="ml-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="text-right">
+        {" "}
+        <form onSubmit={sendMessage}>
+          <div className="flex space-x-4">
+            <Input
+              type="text"
+              placeholder="Type a message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="rounded-full"
+            />
+            <Button
+              type="submit"
+              className="rounded-full bg-white hover:bg-slate-200"
+            >
+              <IoSendSharp className="text-2xl text-blue-400" />
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

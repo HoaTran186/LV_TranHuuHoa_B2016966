@@ -1,7 +1,9 @@
 using backend.Dtos.Orders.Details;
+using backend.Extensions;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Crypto.Modes;
 
@@ -13,11 +15,14 @@ namespace backend.Controllers.Admin
         private readonly IOrdersRepository _ordersRepo;
         private readonly IOrdersDetailsRepository _ordersDetailsRepo;
         private readonly IProductRepository _product;
-        public OrderDetailController(IOrdersDetailsRepository ordersDetailsRepo, IOrdersRepository ordersRepo, IProductRepository product)
+        private readonly UserManager<AppUser> _userManager;
+        public OrderDetailController(IOrdersDetailsRepository ordersDetailsRepo, IOrdersRepository ordersRepo
+        , IProductRepository product, UserManager<AppUser> userManager)
         {
             _ordersRepo = ordersRepo;
             _ordersDetailsRepo = ordersDetailsRepo;
             _product = product;
+            _userManager = userManager;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -47,90 +52,54 @@ namespace backend.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOrderDetailsDto createOrderDetails)
         {
-            var quantity = createOrderDetails.Quantity;
             var product = await _product.GetByIdAsync(createOrderDetails.ProductId);
-            if (product == null)
+            if (product == null) return NotFound("Product not found.");
+
+            var username = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(username);
+            if (appUser == null) return NotFound("User not found.");
+
+            // Tìm đơn hàng đang chờ của người dùng và người bán (Truy vấn tối ưu)
+            var targetOrder = await _ordersRepo.GetPendingOrderByUserIdAndSellerIdAsync(appUser.Id, product.UserId);
+
+            if (targetOrder == null)
             {
-                return NotFound();
+                // Tạo đơn hàng mới nếu không tìm thấy đơn hàng phù hợp
+                targetOrder = new Orders { UserId = appUser.Id, OrderStatus = "Pending" };
+                await _ordersRepo.CreateAsync(targetOrder);
             }
 
-            // Kiểm tra xem Order có tồn tại không
-            var order = await _ordersRepo.GetByIdAsync(createOrderDetails.OrderId);
-
-            if (order == null || string.IsNullOrEmpty(order.OrderStatus))
-            {
-                // Nếu không tồn tại, tạo một Order mới
-                var newOrder = new Orders
-                {
-                    OrderStatus = "Pending"
-                };
-
-                // Tạo order mới
-                var createdOrder = await _ordersRepo.CreateAsync(newOrder);
-
-                // Gán OrderId cho chi tiết đơn hàng mới
-                createOrderDetails.OrderId = createdOrder.Id;
-            }
-
-            // Kiểm tra xem OrderDetail cho sản phẩm này đã tồn tại trong Order chưa
-            var existingOrderDetail = await _ordersDetailsRepo.GetByProductIdAndOrderIdAsync(createOrderDetails.ProductId, createOrderDetails.OrderId);
+            // Kiểm tra chi tiết đơn hàng cho sản phẩm này trong đơn hàng
+            var existingOrderDetail = await _ordersDetailsRepo.GetByProductIdAndOrderIdAsync(createOrderDetails.ProductId, targetOrder.Id);
 
             if (existingOrderDetail != null)
             {
-                // Nếu chi tiết đơn hàng đã tồn tại, cộng thêm số lượng
+                // Cập nhật chi tiết đơn hàng hiện tại
                 existingOrderDetail.Quantity += createOrderDetails.Quantity;
-
-                var newQuantityProduct = product.Quantity - createOrderDetails.Quantity;
-                if (newQuantityProduct >= 0)
-                {
-                    product.Quantity = newQuantityProduct;
-                    await _product.UpdateAsync(createOrderDetails.ProductId, product);
-                }
-                else
-                {
-                    return Ok("Product quantity is not enough");
-                }
-
                 existingOrderDetail.UnitPrice = product.Price * existingOrderDetail.Quantity;
                 await _ordersDetailsRepo.UpdateAsync(existingOrderDetail.Id, existingOrderDetail);
             }
             else
             {
-                // Nếu chưa tồn tại, tạo mới chi tiết đơn hàng
-                var unitPrice = product.Price * quantity;
-                var quantityProduct = product.Quantity - createOrderDetails.Quantity;
-
-                if (quantityProduct >= 0)
-                {
-                    product.Quantity = quantityProduct;
-                    await _product.UpdateAsync(createOrderDetails.ProductId, product);
-                }
-                else
-                {
-                    return Ok("Product quantity is not enough");
-                }
-
-                var createOrderDetailsModel = createOrderDetails.ToOrderFromCreateDto(unitPrice);
-                await _ordersDetailsRepo.CreateAsync(createOrderDetailsModel);
+                // Tạo mới chi tiết đơn hàng
+                var unitPrice = product.Price * createOrderDetails.Quantity;
+                var newOrderDetail = createOrderDetails.ToOrderFromCreateDto(unitPrice);
+                newOrderDetail.OrderId = targetOrder.Id; // Gán OrderId rõ ràng
+                await _ordersDetailsRepo.CreateAsync(newOrderDetail);
             }
 
-            // Cập nhật tổng giá trị của đơn hàng
-            var totalPrice = await _ordersDetailsRepo.GetTotalPriceByOrderIdAsync(createOrderDetails.OrderId);
-            var orderToUpdate = await _ordersRepo.GetByIdAsync(createOrderDetails.OrderId);
-            if (orderToUpdate == null)
-            {
-                return NotFound("Order not found.");
-            }
+            // Cập nhật số lượng sản phẩm (Đặt bên ngoài if/else để rõ ràng hơn)
+            var newQuantityProduct = product.Quantity - createOrderDetails.Quantity;
+            if (newQuantityProduct < 0) return BadRequest("Product quantity is not enough");
+            product.Quantity = newQuantityProduct;
+            await _product.UpdateAsync(createOrderDetails.ProductId, product);
 
-            orderToUpdate.TotalAmount = totalPrice;
-            await _ordersRepo.UpdateAsync(orderToUpdate.Id, orderToUpdate);
+            // Cập nhật tổng giá trị đơn hàng
+            targetOrder.TotalAmount = await _ordersDetailsRepo.GetTotalPriceByOrderIdAsync(targetOrder.Id);
+            await _ordersRepo.UpdateAsync(targetOrder.Id, targetOrder);
 
             return Ok();
         }
-
-
-
-
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateOrderDetailsDto updateOrderDetails)

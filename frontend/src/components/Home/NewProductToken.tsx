@@ -9,7 +9,7 @@ import NewProduct from "@/components/Home/NewProduct";
 
 interface ProductImage {
   id: number;
-  imagesName: string;
+  images: string;
   productId: number;
 }
 
@@ -193,7 +193,6 @@ const NewProductToken = ({ Token }: NewProductProps) => {
 
         const newOrder = await createOrderResponse.json();
         orderId = newOrder.id;
-        console.log(orderId);
       } catch (error: any) {
         console.error("Error creating new order:", error);
         alert(error.message || "An error occurred while creating a new order.");
@@ -275,7 +274,7 @@ const NewProductToken = ({ Token }: NewProductProps) => {
                         src={
                           product.productImages &&
                           product.productImages.length > 0
-                            ? `https://localhost:7146/Resources/${product.productImages[0]?.imagesName}`
+                            ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
                             : `/images/server/default.jpg`
                         }
                         alt={product.product_Name}

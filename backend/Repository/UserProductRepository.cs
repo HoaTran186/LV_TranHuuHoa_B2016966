@@ -15,15 +15,17 @@ namespace backend.Repository
 
         public async Task<UserProduct> CreateAsync(UserProduct userProduct)
         {
-           await _context.UserProducts.AddAsync(userProduct);
-           await _context.SaveChangesAsync();
+            await _context.UserProducts.AddAsync(userProduct);
+            await _context.SaveChangesAsync();
 
-           return userProduct;
+            return userProduct;
         }
         public async Task<List<Product>> GetUserProduct(AppUser user)
         {
-            return await _context.UserProducts.Where(u => u.UserId == user.Id)
-            .Select(product => new Product{
+            return await _context.UserProducts
+            .Where(u => u.UserId == user.Id)
+            .Select(product => new Product
+            {
                 Id = product.productId,
                 Product_Name = product.Product.Product_Name,
                 Origin = product.Product.Origin,

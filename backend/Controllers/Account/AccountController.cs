@@ -1,19 +1,16 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
 using backend.Container;
 using backend.Dtos.Account;
 using backend.Extensions;
 using backend.Interfaces;
 using backend.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
+
 
 namespace backend.Controllers.Account
 {

@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { FaRegTrashAlt } from "react-icons/fa";
 import { date } from "zod";
 
 interface OrderProps {
@@ -16,7 +17,7 @@ interface Order {
 }
 interface ProductImage {
   id: number;
-  imagesName: string;
+  images: string;
   productId: number;
 }
 interface Product {
@@ -229,7 +230,26 @@ export default function Cart({ Token }: OrderProps) {
       return updatedQuantities;
     });
   };
-  console.log(orderDetails);
+  const handleDelete = async (orderDetailId: number) => {
+    try {
+      const res = await fetch(
+        `https://localhost:7146/api/admin/orders-details/delete/${orderDetailId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Failed");
+      }
+      alert("Sucess");
+    } catch (error) {
+      console.error("Error");
+    }
+  };
   return (
     <div className="w-full">
       <div className="mx-56 border rounded-3xl space-y-5 mb-10 p-10">
@@ -246,8 +266,8 @@ export default function Cart({ Token }: OrderProps) {
                       <img
                         src={
                           product.productImages.length > 0
-                            ? `https://localhost:7146/Resources/${product.productImages[0].imagesName}`
-                            : "/path-to-default-image.jpg"
+                            ? `https://localhost:7146/Resources/${product.productImages[0].images}`
+                            : "/images/server/default.jpg"
                         }
                         alt={product.product_Name}
                         className="rounded-3xl h-[100px] w-[100px]"
@@ -255,7 +275,7 @@ export default function Cart({ Token }: OrderProps) {
                     </div>
 
                     <div className="mt-5 flex flex-col space-y-3">
-                      <div>{product.product_Name}</div>
+                      <div className="font-bold">{product.product_Name}</div>
                       <div>
                         {productTypes.find(
                           (type) => type.id === product.productTypeId
@@ -272,7 +292,7 @@ export default function Cart({ Token }: OrderProps) {
                     <div className="font-bold">/ sản phẩm</div>
                   </div>
 
-                  <div className="mt-5">
+                  <div className="flex items-center">
                     <Button
                       onClick={() => handleDecrease(product.id, detail.id)}
                     >
@@ -287,6 +307,14 @@ export default function Cart({ Token }: OrderProps) {
                       }
                     >
                       +
+                    </Button>
+                  </div>
+                  <div className="items-center flex">
+                    <Button
+                      className="bg-red-500 hover:bg-red-700"
+                      onClick={() => handleDelete(detail.id)}
+                    >
+                      <FaRegTrashAlt className="" />
                     </Button>
                   </div>
                 </div>

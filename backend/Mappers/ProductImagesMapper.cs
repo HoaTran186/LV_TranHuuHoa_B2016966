@@ -5,16 +5,16 @@ namespace backend.Mappers
 {
     public static class ProductImagesMapper
     {
-        public static ProductImagesDto ToProductImagesDto (this ProductImages productImagesModel)
+        public static ProductImagesDto ToProductImagesDto(this ProductImages productImagesModel)
         {
             return new ProductImagesDto
             {
                 Id = productImagesModel.Id,
-                ImagesName = productImagesModel.Images,
+                Images = productImagesModel.Images,
                 ProductId = productImagesModel.ProductId
             };
         }
-        public static ProductImages ToProductImagesFromCreate (this CreateProductImagesDto productImagesModel, int productId)
+        public static ProductImages ToProductImagesFromCreate(this CreateProductImagesDto productImagesModel, int productId)
         {
             return new ProductImages
             {

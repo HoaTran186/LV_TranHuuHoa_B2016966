@@ -191,7 +191,7 @@ const GetProductId = () => {
   };
   return (
     <div>
-      <nav className="w-full h-[3rem] border">
+      <nav className="w-full h-[3rem] border-2">
         <div className="flex flex-row space-x-3 ml-36">
           <Link href={"/"} className="text-2xl mt-3">
             <IoHomeOutline />

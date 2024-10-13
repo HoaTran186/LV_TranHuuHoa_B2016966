@@ -30,8 +30,21 @@ namespace backend.Controllers.Account.Creator
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
             var userProduct = await _productRepo.GetUserProduct(appUser);
-
             return Ok(userProduct);
+        }
+        [HttpGet]
+        [Route("{id:int}")]
+        [Authorize(Roles = "Creator")]
+        public async Task<IActionResult> GetUserProductId([FromRoute] int id)
+        {
+            var username = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(username);
+            var product = await _productRepo.GetUserProductById(appUser, id);
+            if (product == null)
+            {
+                return NotFound(new { Message = "Product is not found." });
+            }
+            return Ok(product);
         }
         [HttpPost]
         [Authorize(Roles = "Creator")]
@@ -98,11 +111,11 @@ namespace backend.Controllers.Account.Creator
                 return BadRequest("You do not have permission to delete this product.");
             }
             var userProductModel = await _productRepo.DeleteAsync(id);
-            if(userProductModel == null)
-          {
-               return NotFound();
-          }
-          return Ok("Deleted Product");
+            if (userProductModel == null)
+            {
+                return NotFound();
+            }
+            return Ok("Deleted Product");
         }
     }
 }

@@ -11,5 +11,8 @@ namespace backend.Interfaces
         Task<Orders> CreateAsync(Orders ordersModel);
         Task<Orders?> DeleteAsync(int id);
         Task<Orders> UpdateAsync(int id, Orders updateDto);
+        Task<List<Orders>> GetOrdersByIds(List<int> orderIds);
+        Task<List<Orders>> GetPendingOrdersByUserIdAsync(string userId);
+        Task<Orders> GetPendingOrderByUserIdAndSellerIdAsync(string userId, string sellerId);
     }
 }

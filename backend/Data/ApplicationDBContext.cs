@@ -2,6 +2,7 @@ using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MimeKit.Encodings;
 
 namespace backend.Data
 {
@@ -21,6 +22,9 @@ namespace backend.Data
         public DbSet<Messages> Messages { get; set; }
         public DbSet<Orders> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<Forum> Forums { get; set; }
+        public DbSet<ForumImages> ForumImages { get; set; }
+        public DbSet<CommentForum> CommentForums { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

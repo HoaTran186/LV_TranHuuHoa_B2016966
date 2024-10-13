@@ -48,6 +48,12 @@ namespace backend.Repository
             return await product.Skip(skipNumber).Take(queryProduct.PageSize).ToListAsync();
         }
 
+        public async Task<List<Product>> GetAllProducts()
+        {
+            return await _context.Products
+                            .ToListAsync();
+        }
+
         public async Task<Product?> GetByIdAsync(int id)
         {
             return await _context.Products
@@ -63,7 +69,10 @@ namespace backend.Repository
 
         public async Task<List<Product>> GetUserProduct(AppUser appUser)
         {
-            return await _context.Products.Where(u => u.UserId == appUser.Id)
+            return await _context.Products
+            .Include(c => c.ProductImages)
+            .Include(c => c.Comments)
+            .Where(u => u.UserId == appUser.Id)
             .Select(products => new Product
             {
                 Id = products.Id,
@@ -75,8 +84,19 @@ namespace backend.Repository
                 Rating = products.Rating,
                 Result = products.Result,
                 Price = products.Price,
-                ProductTypeId = products.ProductTypeId
+                ProductTypeId = products.ProductTypeId,
+                ProductImages = products.ProductImages,
+                Comments = products.Comments
             }).ToListAsync();
+        }
+
+        public async Task<Product> GetUserProductById(AppUser appUser, int id)
+        {
+            return await _context.Products
+                                    .Include(c => c.ProductImages)
+                                    .Include(c => c.Comments)
+                                    .Where(p => p.UserId == appUser.Id && p.Id == id)
+                                    .FirstOrDefaultAsync();
         }
 
         public Task<bool> ProductExists(int id)

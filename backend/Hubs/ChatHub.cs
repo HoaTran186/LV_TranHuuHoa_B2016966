@@ -15,6 +15,10 @@ namespace backend.Hubs
         {
             _context = context;
         }
+        public async Task SendMessage(string user, string message)
+        {
+            await Clients.All.SendAsync("ReceiveMessage", user, message);
+        }
 
         public override Task OnConnectedAsync()
         {
@@ -37,20 +41,22 @@ namespace backend.Hubs
                 var UserConnections = HubConnections.Users[UserId];
                 UserConnections.Remove(Context.ConnectionId);
 
-                HubConnections.Users.Remove(UserId);
-                if (UserConnections.Any())
-                    HubConnections.Users.Add(UserId, UserConnections);
+                // Chỉ xóa entry trong dictionary nếu không còn connection nào cho user đó
+                if (!UserConnections.Any())
+                {
+                    HubConnections.Users.Remove(UserId);
+                }
             }
 
-            if (!String.IsNullOrEmpty(UserId))
+            if (!string.IsNullOrEmpty(UserId))
             {
-                var userName = _context.Users.FirstOrDefault(u => u.Id == UserId).UserName;
+                var userName = _context.Users.FirstOrDefault(u => u.Id == UserId)?.UserName; //Thêm ?. để tránh null exception
                 Clients.Users(HubConnections.OnlineUsers()).SendAsync("ReceiveUserDisconnected", UserId, userName);
-                HubConnections.AddUserConnection(UserId, Context.ConnectionId);
+
+                // Không cần thêm lại connection ở đây vì connection đã bị đóng
             }
             return base.OnDisconnectedAsync(exception);
         }
-
         public async Task SendAddRoomMessage(int maxRoom, int roomId, string roomName)
         {
             var UserId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -66,35 +72,43 @@ namespace backend.Hubs
 
             await Clients.All.SendAsync("ReceiveDeleteRoomMessage", deleted, selected, roomName, userName);
         }
-
         public async Task SendPublicMessage(int roomId, string message, string roomName)
         {
-            var UserId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userName = _context.Users.FirstOrDefault(u => u.Id == UserId).UserName;
-
-            await Clients.All.SendAsync("ReceivePublicMessage", roomId, UserId, userName, message, roomName);
+            await Clients.Group(roomName).SendAsync("ReceivePublicMessage", roomId, Context.UserIdentifier, message, roomName);
         }
 
-        public async Task SendPrivateMessage(string receiverId, string message, string receiverName)
+        public async Task SendPrivateMessage(string receiverId, string message, string userName)
         {
-            var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var sender = _context.Users.FirstOrDefault(u => u.Id == senderId);
-            if (sender == null)
-            {
-                throw new Exception("Sender not found.");
-            }
-            var senderName = sender.UserName;
-
-            var receiver = _context.Users.FirstOrDefault(u => u.Id == receiverId);
-            if (receiver == null)
-            {
-                throw new Exception("Receiver not found.");
-            }
-
-            var users = new string[] { senderId, receiverId };
-
-            await Clients.Users(users).SendAsync("ReceivePrivateMessage", senderId, senderName, receiverId, message, Guid.NewGuid(), receiverName);
+            await Clients.User(receiverId).SendAsync("ReceivePrivateMessage", Context.UserIdentifier, userName, receiverId, message, userName);
         }
+        // public async Task SendPublicMessage(int roomId, string message, string roomName)
+        // {
+        //     var UserId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //     var userName = _context.Users.FirstOrDefault(u => u.Id == UserId).UserName;
+
+        //     await Clients.All.SendAsync("ReceivePublicMessage", roomId, UserId, userName, message, roomName);
+        // }
+
+        // public async Task SendPrivateMessage(string receiverId, string message, string receiverName)
+        // {
+        //     var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //     var sender = _context.Users.FirstOrDefault(u => u.Id == senderId);
+        //     if (sender == null)
+        //     {
+        //         throw new Exception("Sender not found.");
+        //     }
+        //     var senderName = sender.UserName;
+
+        //     var receiver = _context.Users.FirstOrDefault(u => u.Id == receiverId);
+        //     if (receiver == null)
+        //     {
+        //         throw new Exception("Receiver not found.");
+        //     }
+
+        //     var users = new string[] { senderId, receiverId };
+
+        //     await Clients.Users(users).SendAsync("ReceivePrivateMessage", senderId, senderName, receiverId, message, Guid.NewGuid(), receiverName);
+        // }
 
         public async Task SendOpenPrivateChat(string receiverId)
         {

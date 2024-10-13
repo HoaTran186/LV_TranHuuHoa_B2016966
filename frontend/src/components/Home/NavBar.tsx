@@ -1,5 +1,6 @@
 import LogoutButton from "@/components/Login/LogoutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,9 +56,9 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <a href="#" className="text-gray-700 hover:text-teal-500">
-              Blog
-            </a>
+            <Link href={"/forum"} className="text-gray-700 hover:text-teal-500">
+              Diễn đàn
+            </Link>
           </li>
         </ul>
       </div>
@@ -68,9 +69,12 @@ const NavBar = () => {
         <a href="tel:0922222016" className="text-gray-700 hover:text-gray-900">
           Hotline: **********
         </a>
-        <button className="bg-teal-400 hover:bg-teal-500 text-white py-2 px-6 rounded-full">
-          Liên hệ
-        </button>
+        <Link
+          href={"/forum/create-forum"}
+          className="bg-teal-400 hover:bg-teal-500 text-white py-2 px-6 rounded-full font-bold"
+        >
+          Viết bài chia sẻ
+        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar>
@@ -90,7 +94,7 @@ const NavBar = () => {
                 <DropdownMenuItem>
                   <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>Upload</DropdownMenuItem>
                 <DropdownMenuItem>Team</DropdownMenuItem>
                 <DropdownMenuItem>Subscription</DropdownMenuItem>
                 <DropdownMenuItem>

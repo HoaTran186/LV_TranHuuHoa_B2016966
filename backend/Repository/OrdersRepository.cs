@@ -45,6 +45,30 @@ namespace backend.Repository
             return await _context.Orders.Include(c => c.OrderDetails).FirstOrDefaultAsync(s => s.Id == id);
         }
 
+        public async Task<List<Orders>> GetOrdersByIds(List<int> orderIds)
+        {
+            return await _context.Orders
+                                    .Where(o => orderIds.Contains(o.Id))
+                                    .ToListAsync();
+        }
+
+        public async Task<Orders> GetPendingOrderByUserIdAndSellerIdAsync(string userId, string sellerId)
+        {
+            return await _context.Orders
+                                    .Include(o => o.OrderDetails) // Include OrderDetails for efficient filtering
+                                    .ThenInclude(od => od.Product) // Include Product to access the seller ID
+                                    .Where(o => o.UserId == userId && o.OrderStatus == "Pending" &&
+                                    o.OrderDetails.Any(od => od.Product.UserId == sellerId))
+                                    .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Orders>> GetPendingOrdersByUserIdAsync(string userId)
+        {
+            return await _context.Orders
+            .Where(order => order.UserId == userId && order.OrderStatus == "Pending")
+            .ToListAsync();
+        }
+
         public async Task<List<Orders>> GetUserOrders(AppUser appUser)
         {
             return await _context.Orders.Where(u => u.UserId == appUser.Id)
