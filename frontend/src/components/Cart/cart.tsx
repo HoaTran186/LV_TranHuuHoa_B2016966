@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { date } from "zod";
 
 interface OrderProps {
   Token: string | undefined;
@@ -33,7 +33,7 @@ interface Product {
 }
 interface OrderDetail {
   id: number;
-  orderId: number;
+  ordersId: number;
   productId: number;
   quantity: number;
   unitPrice: number;
@@ -52,13 +52,14 @@ interface UserInfo {
   userId: string;
 }
 export default function Cart({ Token }: OrderProps) {
+  const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
   const [error, setError] = useState<unknown>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo[]>([]);
-  const [orderId, setOrderId] = useState<number>();
+  const [orderId, setOrderId] = useState(0);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -212,7 +213,33 @@ export default function Cart({ Token }: OrderProps) {
       return updatedQuantities;
     });
   };
-
+  const handlePending = async (orderId: number) => {
+    try {
+      const res = await fetch(
+        `https://localhost:7146/api/user/orders/pending/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${Token}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch data. Please try again.",
+          variant: "destructive",
+        });
+      }
+      alert("Success");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   const handleIncrease = async (
     productId: number,
     orderDetailId: number,
@@ -253,89 +280,122 @@ export default function Cart({ Token }: OrderProps) {
       console.error("Error");
     }
   };
+  console.log(orderDetails);
   return (
     <div className="w-full">
-      <div className="mx-56 border rounded-3xl space-y-5 mb-10 p-10">
-        {orderDetails.map((detail) => {
-          const product = products.find((p) => p.id === detail.productId);
-          console.log(product);
-          if (!product) return null;
-          return (
-            <div key={detail.id}>
-              <div className="flex m-5 rounded-3xl border justify-between">
-                <div>
-                  <div className="m-5 flex space-x-4">
+      {orders.map((order) => (
+        <div
+          className="mx-56 border rounded-3xl space-y-5 mb-10 p-10"
+          key={order.id}
+        >
+          {orderDetails
+            .filter((detail) => detail.ordersId === order.id)
+            .map((detail) => {
+              const product = products.find((p) => p.id === detail.productId);
+              if (!product) return null;
+              return (
+                <div key={detail.id}>
+                  <div className="flex m-5 rounded-3xl border justify-between">
                     <div>
-                      <img
-                        src={
-                          product.productImages.length > 0
-                            ? `https://localhost:7146/Resources/${product.productImages[0].images}`
-                            : "/images/server/default.jpg"
-                        }
-                        alt={product.product_Name}
-                        className="rounded-3xl h-[100px] w-[100px]"
-                      />
-                    </div>
+                      <div className="m-5 flex space-x-4">
+                        <div>
+                          <img
+                            src={
+                              product.productImages.length > 0
+                                ? `https://localhost:7146/Resources/${product.productImages[0].images}`
+                                : "/images/server/default.jpg"
+                            }
+                            alt={product.product_Name}
+                            className="rounded-3xl h-[100px] w-[100px]"
+                          />
+                        </div>
 
-                    <div className="mt-5 flex flex-col space-y-3">
-                      <div className="font-bold">{product.product_Name}</div>
+                        <div className="mt-5 flex flex-col space-y-3">
+                          <div className="font-bold">
+                            {product.product_Name}
+                          </div>
+                          <div>
+                            {productTypes.find(
+                              (type) => type.id === product.productTypeId
+                            )?.productType_Name || "Unknown type"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex m-5 space-x-24">
                       <div>
-                        {productTypes.find(
-                          (type) => type.id === product.productTypeId
-                        )?.productType_Name || "Unknown type"}
+                        <div className="mt-5 font-bold text-lg">
+                          {product.price.toLocaleString("en-US")}đ
+                        </div>
+                        <div className="font-bold">/ sản phẩm</div>
+                      </div>
+
+                      <div className="flex items-center">
+                        <Button
+                          onClick={() => handleDecrease(product.id, detail.id)}
+                        >
+                          -
+                        </Button>
+                        <span className="mx-2">
+                          {quantities[product.id] || detail.quantity}
+                        </span>
+                        <Button
+                          onClick={() =>
+                            handleIncrease(
+                              detail.id,
+                              product.id,
+                              product.quantity
+                            )
+                          }
+                        >
+                          +
+                        </Button>
+                      </div>
+                      <div className="items-center flex">
+                        <Button
+                          className="bg-red-500 hover:bg-red-700"
+                          onClick={() => handleDelete(detail.id)}
+                        >
+                          <FaRegTrashAlt className="" />
+                        </Button>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="flex m-5 space-x-24">
-                  <div>
-                    <div className="mt-5 font-bold text-lg">
-                      {product.price.toLocaleString("en-US")}đ
-                    </div>
-                    <div className="font-bold">/ sản phẩm</div>
-                  </div>
-
-                  <div className="flex items-center">
-                    <Button
-                      onClick={() => handleDecrease(product.id, detail.id)}
-                    >
-                      -
-                    </Button>
-                    <span className="mx-2">
-                      {quantities[product.id] || detail.quantity}
-                    </span>
-                    <Button
-                      onClick={() =>
-                        handleIncrease(detail.id, product.id, product.quantity)
-                      }
-                    >
-                      +
-                    </Button>
-                  </div>
-                  <div className="items-center flex">
-                    <Button
-                      className="bg-red-500 hover:bg-red-700"
-                      onClick={() => handleDelete(detail.id)}
-                    >
-                      <FaRegTrashAlt className="" />
-                    </Button>
-                  </div>
+              );
+            })}
+          <div className="flex justify-between">
+            <div>
+              Tổng tiền:
+              <span>{order.totalAmount.toLocaleString("en-US")}đ</span>
+            </div>
+            <div>
+              <div>
+                <div className="font-bold">
+                  Trạng thái đơn hàng:{" "}
+                  {order.orderStatus === "Pending"
+                    ? "Chờ xác nhận"
+                    : order.orderStatus === "Confirmed"
+                    ? "Đơn hàng đã được xác nhận"
+                    : order.orderStatus === "Shipped"
+                    ? "Đã giao cho đơn vị vận chuyển"
+                    : order.orderStatus === "Complete"
+                    ? "Đã giao"
+                    : ""}
                 </div>
+                {order.orderStatus === "Buying" && (
+                  <Button
+                    className="rounded-full bg-teal-500 hover:bg-teal-700"
+                    onClick={() => handlePending(order.id)}
+                  >
+                    Thanh toán
+                  </Button>
+                )}
               </div>
             </div>
-          );
-        })}
-        <div className="flex justify-between">
-          <div>
-            Tổng tiền:<span>{totalPrice.toLocaleString("en-US")}đ</span>
-          </div>
-          <div>
-            <Button className="rounded-full bg-teal-500 hover:bg-teal-700">
-              Thanh toán
-            </Button>
           </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 }

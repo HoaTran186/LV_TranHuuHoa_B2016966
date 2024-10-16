@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -57,17 +57,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import ProductForm from "@/components/Admin/ProductForm";
 
 export type CombinedProduct = {
   id: number;
@@ -106,7 +96,9 @@ const TableProduct = ({ Token }: TableProductProps) => {
   const [productTypes, setProductTypes] = React.useState<ProductType[]>([]);
   const [userInfo, setUserInfo] = React.useState<UserInfo[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [origin, setOrigin] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] =
+    React.useState<CombinedProduct | null>(null);
   const { toast } = useToast();
 
   const fetchData = React.useCallback(async () => {
@@ -263,7 +255,6 @@ const TableProduct = ({ Token }: TableProductProps) => {
       accessorKey: "quantity",
       header: "Sô lượng",
     },
-    // Thêm cột loại sản phẩm
     {
       accessorKey: "productTypeId",
       header: "Lĩnh vực",
@@ -295,20 +286,24 @@ const TableProduct = ({ Token }: TableProductProps) => {
     {
       id: "action",
       cell: ({ row }) => {
-        setOrigin(row.original.origin);
-        const censor = row.original.censor;
+        const product = row.original;
         return (
           <div className="flex space-x-2">
             <Button
               className={`bg-green-400 hover:bg-green-600 ${
-                censor === true ? "hidden" : ""
+                product.censor ? "hidden" : ""
               }`}
-              onClick={() => handleUpdateCensor(row.original.id)}
+              onClick={() => handleUpdateCensor(product.id)}
             >
               <FaCheck />
             </Button>
-
-            <Button className="bg-blue-400 hover:bg-blue-600">
+            <Button
+              className="bg-blue-400 hover:bg-blue-600"
+              onClick={() => {
+                setSelectedProduct(product);
+                setOpen(true);
+              }}
+            >
               <FaRegEdit />
             </Button>
             <AlertDialog>
@@ -320,19 +315,19 @@ const TableProduct = ({ Token }: TableProductProps) => {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Bạn có chắc chắn muốn xóa?
+                    Are you sure you want to delete?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Hành động này không thể hoàn tác. Sản phẩm này sẽ bị xóa
-                    vĩnh viễn khỏi hệ thống.
+                    This action cannot be undone. This product will be
+                    permanently deleted from the system.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => handleDeleteProduct(row.original.id)}
+                    onClick={() => handleDeleteProduct(product.id)}
                   >
-                    Xác nhận
+                    Confirm
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -484,6 +479,46 @@ const TableProduct = ({ Token }: TableProductProps) => {
           </Button>
         </div>
       </div>
+      {open && selectedProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-auto">
+            <div className="relative p-6">
+              <ProductForm
+                type="update"
+                data={selectedProduct}
+                onUpdate={() => {
+                  fetchData();
+                  setOpen(false);
+                  setSelectedProduct(null);
+                }}
+                Token={Token}
+              />
+              <Button
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                onClick={() => {
+                  setOpen(false);
+                  setSelectedProduct(null);
+                }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

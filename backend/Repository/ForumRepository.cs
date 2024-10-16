@@ -43,6 +43,7 @@ namespace backend.Repository
         {
             var forum = _context.Forums
                             .Include(c => c.ForumImages)
+                            .Include(c => c.CommentForums)
                             .AsQueryable();
             if (!string.IsNullOrWhiteSpace(queryForum.Title))
             {

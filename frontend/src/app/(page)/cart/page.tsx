@@ -6,13 +6,13 @@ export default function CartPage() {
   const cookie = cookies().get("Token")?.value;
   if (cookie == null) {
     return (
-      <div>
+      <div className="mt-32">
         Go <Link href={"/login"}>Đăng nhập</Link>
       </div>
     );
   } else {
     return (
-      <div>
+      <div className="mt-32">
         <Cart Token={cookie} />
       </div>
     );

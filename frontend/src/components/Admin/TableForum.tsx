@@ -47,8 +47,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ForumForm from "@/components/Admin/ForumForm";
 
-export type CombinedProduct = {
+export type CombinedForum = {
   commentForums: [];
   forumImages: [];
   id: number;
@@ -71,9 +72,12 @@ interface TableProductProps {
 }
 
 const TableForum = ({ Token }: TableProductProps) => {
-  const [forumData, setForumData] = React.useState<CombinedProduct[]>([]);
+  const [forumData, setForumData] = React.useState<CombinedForum[]>([]);
   const [userInfo, setUserInfo] = React.useState<UserInfo[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [selectedForum, setSelectedForum] =
+    React.useState<CombinedForum | null>(null);
+  const [open, setOpen] = React.useState(false);
   const { toast } = useToast();
 
   const fetchData = React.useCallback(async () => {
@@ -179,7 +183,7 @@ const TableForum = ({ Token }: TableProductProps) => {
       });
     }
   };
-  const columns: ColumnDef<CombinedProduct>[] = [
+  const columns: ColumnDef<CombinedForum>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -242,6 +246,7 @@ const TableForum = ({ Token }: TableProductProps) => {
       id: "action",
       cell: ({ row }) => {
         const browse = row.original.browse;
+        const forum = row.original;
         return (
           <div className="flex space-x-2">
             <Button
@@ -253,7 +258,13 @@ const TableForum = ({ Token }: TableProductProps) => {
               <FaCheck />
             </Button>
 
-            <Button className="bg-blue-400 hover:bg-blue-600">
+            <Button
+              className="bg-blue-400 hover:bg-blue-600"
+              onClick={() => {
+                setSelectedForum(forum);
+                setOpen(true);
+              }}
+            >
               <FaRegEdit />
             </Button>
             <AlertDialog>
@@ -427,6 +438,46 @@ const TableForum = ({ Token }: TableProductProps) => {
           </Button>
         </div>
       </div>
+      {open && selectedForum && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-auto">
+            <div className="relative p-6">
+              <ForumForm
+                type="update"
+                data={selectedForum}
+                onUpdate={() => {
+                  fetchData();
+                  setOpen(false);
+                  setSelectedForum(null);
+                }}
+                Token={Token}
+              />
+              <Button
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                onClick={() => {
+                  setOpen(false);
+                  setSelectedForum(null);
+                }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

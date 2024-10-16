@@ -52,5 +52,30 @@ namespace backend.Controllers
             }
             return Ok(productImages);
         }
+        [HttpDelete]
+        [Route("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var existingProductImage = await _productImagesRepo.GetByIdAsync(id);
+
+            if (existingProductImage == null)
+            {
+                return NotFound();
+            }
+            var deleteResult = await _productImagesRepo.DeleteAsync(id);
+
+            if (deleteResult == null)
+            {
+                return NotFound();
+            }
+
+            _fileService.DeleteFile(existingProductImage.Images);
+            return Ok("Deleted product images");
+        }
     }
 }

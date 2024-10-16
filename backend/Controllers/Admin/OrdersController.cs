@@ -90,7 +90,8 @@ namespace backend.Controllers.Admin
             var orderDetails = await _ordersDetailsRepo.GetByOrderIdAsync(id);
             if (orderDetails == null || !orderDetails.Any())
             {
-                return NotFound();
+                await _ordersRepo.DeleteAsync(id);
+                return Ok("Deleted Orders");
             }
             foreach (var orderDetail in orderDetails)
             {
@@ -105,7 +106,7 @@ namespace backend.Controllers.Admin
             {
                 return NotFound();
             }
-            return Ok("Deleted Orders");
+            return Ok("Deleted Orders and Order detail");
         }
     }
 }

@@ -113,6 +113,26 @@ namespace backend.Controllers.Account
             _fileService.DeleteFile(existingForumImage.Images);
             return Ok("Deleted forum images");
         }
+        [HttpDelete("admin/{id}")]
+        public async Task<IActionResult> DeleteAdmin([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var existingForumImage = await _forumImagesRepo.GetByIdAsync(id);
+            if (existingForumImage == null)
+            {
+                return NotFound();
+            }
+            var deleteResult = await _forumImagesRepo.DeleteAsync(id);
+            if (deleteResult == null)
+            {
+                return NotFound();
+            }
+            _fileService.DeleteFile(existingForumImage.Images);
+            return Ok("Deleted forum images");
+        }
         [HttpDelete("delete-all/{forumId}")]
         public async Task<IActionResult> DeleteAll([FromRoute] int forumId)
         {

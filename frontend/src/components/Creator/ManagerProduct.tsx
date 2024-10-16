@@ -108,6 +108,11 @@ export default function ManagerProduct({ Token }: ManagerProductProps) {
               Đăng bán sản phẩm
             </Button>
           </Link>
+          <Link href={"/creator/orders"}>
+            <Button className="rounded-full bg-teal-500 hover:bg-teal-700">
+              Duyệt đơn hàng
+            </Button>
+          </Link>
         </div>
       </div>
       {roles.includes("Creator") && (

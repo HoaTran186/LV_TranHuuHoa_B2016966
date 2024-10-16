@@ -59,17 +59,24 @@ namespace backend.Controllers.Admin
             var appUser = await _userManager.FindByNameAsync(username);
             if (appUser == null) return NotFound("User not found.");
 
-            // Tìm đơn hàng đang chờ của người dùng và người bán (Truy vấn tối ưu)
+            // Tìm đơn hàng "Buying" của người dùng và người bán
             var targetOrder = await _ordersRepo.GetPendingOrderByUserIdAndSellerIdAsync(appUser.Id, product.UserId);
 
-            if (targetOrder == null)
+            // Kiểm tra trạng thái của đơn hàng
+            if (targetOrder != null && targetOrder.OrderStatus != "Buying")
             {
-                // Tạo đơn hàng mới nếu không tìm thấy đơn hàng phù hợp
-                targetOrder = new Orders { UserId = appUser.Id, OrderStatus = "Pending", OrderDate = DateTime.Now };
+                // Nếu đơn hàng không ở trạng thái "Buying", tạo một đơn hàng mới
+                targetOrder = new Orders { UserId = appUser.Id, OrderStatus = "Buying", OrderDate = DateTime.Now };
+                await _ordersRepo.CreateAsync(targetOrder);
+            }
+            else if (targetOrder == null)
+            {
+                // Nếu không có đơn hàng "Buying" nào, tạo mới đơn hàng
+                targetOrder = new Orders { UserId = appUser.Id, OrderStatus = "Buying", OrderDate = DateTime.Now };
                 await _ordersRepo.CreateAsync(targetOrder);
             }
 
-            // Kiểm tra chi tiết đơn hàng cho sản phẩm này trong đơn hàng
+            // Kiểm tra chi tiết đơn hàng cho sản phẩm này trong đơn hàng hiện tại
             var existingOrderDetail = await _ordersDetailsRepo.GetByProductIdAndOrderIdAsync(createOrderDetails.ProductId, targetOrder.Id);
 
             if (existingOrderDetail != null)
@@ -88,7 +95,7 @@ namespace backend.Controllers.Admin
                 await _ordersDetailsRepo.CreateAsync(newOrderDetail);
             }
 
-            // Cập nhật số lượng sản phẩm (Đặt bên ngoài if/else để rõ ràng hơn)
+            // Cập nhật số lượng sản phẩm
             var newQuantityProduct = product.Quantity - createOrderDetails.Quantity;
             if (newQuantityProduct < 0) return BadRequest("Product quantity is not enough");
             product.Quantity = newQuantityProduct;
@@ -100,6 +107,7 @@ namespace backend.Controllers.Admin
 
             return Ok();
         }
+
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateOrderDetailsDto updateOrderDetails)

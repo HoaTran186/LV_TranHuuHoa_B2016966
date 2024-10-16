@@ -159,13 +159,11 @@ namespace backend.Controllers.Account.Users
                 return NotFound(new { Message = "Order not found" });
             }
 
-            // Kiểm tra xem người dùng có phải chủ sở hữu của đơn hàng không
             if (order.UserId != appUser.Id)
             {
                 return BadRequest("You do not have permission to confirm this order.");
             }
 
-            // Chỉ cho phép xác nhận nếu trạng thái đơn hàng là "Shipped"
             if (order.OrderStatus != "Shipped")
             {
                 return BadRequest(new { Message = "Order is not yet shipped or already delivered." });
@@ -175,6 +173,34 @@ namespace backend.Controllers.Account.Users
             await _ordersRepo.UpdateAsync(orderId, order);
 
             return Ok(new { Message = "Order marked as received." });
+        }
+        [HttpPut("pending/{orderId:int}")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> ConfirmPending([FromRoute] int orderId)
+        {
+            var username = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(username);
+            var order = await _ordersRepo.GetByIdAsync(orderId);
+
+            if (order == null)
+            {
+                return NotFound(new { Message = "Order not found" });
+            }
+
+            if (order.UserId != appUser.Id)
+            {
+                return BadRequest("You do not have permission to confirm this order.");
+            }
+
+            if (order.OrderStatus != "Buying")
+            {
+                return BadRequest(new { Message = "Order is not yet buying." });
+            }
+
+            order.OrderStatus = "Pending";
+            await _ordersRepo.UpdateAsync(orderId, order);
+
+            return Ok(new { Message = "Order marked as pending." });
         }
     }
 }
