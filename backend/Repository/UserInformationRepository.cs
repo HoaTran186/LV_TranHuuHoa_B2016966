@@ -20,6 +20,18 @@ namespace backend.Repository
             return userInformation;
         }
 
+        public async Task<UserInformation?> Delete(string userId)
+        {
+            var userInfo = await _context.UserInformation.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (userInfo == null)
+            {
+                return null;
+            }
+            _context.UserInformation.Remove(userInfo);
+            await _context.SaveChangesAsync();
+            return userInfo;
+        }
+
         public async Task<UserInformation?> DeleteAsync(int id)
         {
             var userInfo = await _context.UserInformation.FirstOrDefaultAsync(u => u.Id == id);

@@ -10,7 +10,7 @@ namespace backend.Mappers
             return new OrderDetailsDto
             {
                 Id = orderDetailsModels.Id,
-                OrderId = orderDetailsModels.OrderId,
+                OrdersId = orderDetailsModels.OrdersId,
                 ProductId = orderDetailsModels.ProductId,
                 Quantity = orderDetailsModels.Quantity,
                 UnitPrice = orderDetailsModels.UnitPrice
@@ -20,7 +20,7 @@ namespace backend.Mappers
         {
             return new OrderDetails
             {
-                OrderId = orderDetailsDto.OrderId,
+                OrdersId = orderDetailsDto.OrdersId,
                 ProductId = orderDetailsDto.ProductId,
                 Quantity = orderDetailsDto.Quantity,
                 UnitPrice = unitPrice

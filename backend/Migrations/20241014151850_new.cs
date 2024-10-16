@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class news : Migration
+    public partial class @new : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -375,20 +375,26 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    OrdersId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OrdersId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Order Details", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Order Details_Orders_OrderId",
-                        column: x => x.OrderId,
+                        name: "FK_Order Details_Orders_OrdersId",
+                        column: x => x.OrdersId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Order Details_Orders_OrdersId1",
+                        column: x => x.OrdersId1,
+                        principalTable: "Orders",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Order Details_Products_ProductId",
                         column: x => x.ProductId,
@@ -446,9 +452,9 @@ namespace backend.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "3180525c-4152-4465-a162-0cf6c3e8500c", null, "User", "USER" },
-                    { "74377b13-d8b5-4412-838a-dd73bf785f4f", null, "Creator", "CREATOR" },
-                    { "8f1e40e7-d383-488f-b508-f6ac2d238f7f", null, "Admin", "ADMIN" }
+                    { "8d437a7d-381b-4713-84d7-4213d81bc0ae", null, "Creator", "CREATOR" },
+                    { "9cd5207a-77fb-42c8-896a-4aa11a56d052", null, "User", "USER" },
+                    { "fda24d77-87ed-4f3c-9bae-8fdd1fab8e99", null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -521,9 +527,14 @@ namespace backend.Migrations
                 column: "ForumId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order Details_OrderId",
+                name: "IX_Order Details_OrdersId",
                 table: "Order Details",
-                column: "OrderId");
+                column: "OrdersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order Details_OrdersId1",
+                table: "Order Details",
+                column: "OrdersId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order Details_ProductId",

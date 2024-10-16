@@ -160,47 +160,8 @@ const NewProductToken = ({ Token }: NewProductProps) => {
       router.push("/login");
       return;
     }
-    let orderId: number | null = null;
-    const existingOrder = orders.find(
-      (order) => order.orderStatus === "Pending"
-    );
-
-    if (existingOrder) {
-      orderId = existingOrder.id;
-    } else {
-      try {
-        const data = {
-          orderStatus: "Pending",
-          orderDate: Date.now,
-          totalAmount: 0,
-        };
-        const createOrderResponse = await fetch(
-          "https://localhost:7146/api/user/orders",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${Token}`,
-            },
-            body: JSON.stringify(data),
-          }
-        );
-        if (!createOrderResponse.ok) {
-          throw new Error(
-            `Failed to create new order: ${createOrderResponse.statusText}`
-          );
-        }
-
-        const newOrder = await createOrderResponse.json();
-        orderId = newOrder.id;
-      } catch (error: any) {
-        console.error("Error creating new order:", error);
-        alert(error.message || "An error occurred while creating a new order.");
-        return;
-      }
-    }
     const orderDetailData = {
-      orderId: orderId,
+      orderId: 0,
       productId: product.id,
       quantity: 1,
       unitPrice: 0,

@@ -41,5 +41,13 @@ namespace backend.Mappers
                 UploadDate = DateTime.Now,
             };
         }
+        public static Forum ToForumFromUpdateBrowseDto(this UpdateBrowseDto updateBrowseDto)
+        {
+            return new Forum
+            {
+                Browse = true
+
+            };
+        }
     }
 }

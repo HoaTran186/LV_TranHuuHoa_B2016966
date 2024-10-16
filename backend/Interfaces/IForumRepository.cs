@@ -13,5 +13,6 @@ namespace backend.Interfaces
         Task<Forum?> UpdateAsync(int id, Forum forumModel);
         Task<bool> ForumExists(int id);
         Task<Forum?> DeleteAsync(int id);
+        Task<Forum?> UpdateBrowse(int id, Forum updateBrowseForum);
     }
 }

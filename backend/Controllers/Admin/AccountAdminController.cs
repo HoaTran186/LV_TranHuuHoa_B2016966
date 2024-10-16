@@ -18,6 +18,8 @@ namespace backend.Controllers.Admin
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly IProductRepository _productRepo;
+        private readonly IOrdersRepository _ordersRepo;
+        private readonly IOrdersDetailsRepository _ordersDetailsRepo;
         public AccountAdminController(UserManager<AppUser> userManager, ITokenService tokenService,
         SignInManager<AppUser> signInManager, IEmailSender emailSender)
         {
@@ -33,6 +35,7 @@ namespace backend.Controllers.Admin
             {
                 return BadRequest(ModelState);
             }
+
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.Username.ToLower());
             if (user == null)
             {
@@ -40,24 +43,28 @@ namespace backend.Controllers.Admin
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-            if (!result.Succeeded) return Unauthorized("Username not found and/or password incorect!");
+            if (!result.Succeeded) return Unauthorized("Username or password incorrect!");
+
             var roles = await _userManager.GetRolesAsync(user);
-            if (roles == null || !roles.Any())
+            if (!roles.Contains("Admin"))
             {
-                return Unauthorized("No roles found for this user.");
+                return Unauthorized("Access restricted to Admin only.");
             }
-            if (!roles.Any(r => r.Equals("Admin", StringComparison.OrdinalIgnoreCase)))
+            var token = await _tokenService.CreateToken(user);
+            Response.Cookies.Append("Token", token, new CookieOptions
             {
-                return Unauthorized("You do not have permission to access this application.");
-            }
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.Now.AddHours(1),
+                SameSite = SameSiteMode.None
+            });
             return Ok(
                 new NewUserDto
                 {
                     Username = user.UserName,
                     Email = user.Email,
-                    Token = await _tokenService.CreateToken(user),
+                    Token = token,
                     Roles = roles
-
                 }
             );
         }

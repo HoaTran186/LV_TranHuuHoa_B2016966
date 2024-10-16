@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Dtos.Orders.Details;
 using backend.Models;
 
 namespace backend.Dtos.Orders
@@ -11,6 +12,7 @@ namespace backend.Dtos.Orders
         public DateTime OrderDate { get; set; }
         public DateTime? ShippedDate { get; set; }
         public decimal TotalAmount { get; set; }
+        public List<OrderDetailsDto> OrderDetail { get; set; } = new List<OrderDetailsDto>();
         public ICollection<OrderDetails> OrderDetails { get; set; }
 
     }

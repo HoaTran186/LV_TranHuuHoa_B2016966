@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Dtos.Orders;
 
 namespace backend.Models
 {
@@ -16,5 +17,9 @@ namespace backend.Models
         public AppUser AppUser { get; set; }
         public ICollection<OrderDetails> OrderDetails { get; set; }
 
+        public static implicit operator Orders(CreateOrderDto v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -105,5 +105,17 @@ namespace backend.Repository
 
             return existingForum;
         }
+
+        public async Task<Forum?> UpdateBrowse(int id, Forum updateBrowseForum)
+        {
+            var existingBrowse = await _context.Forums.FindAsync(id);
+            if (existingBrowse == null)
+            {
+                return null;
+            }
+            existingBrowse.Browse = updateBrowseForum.Browse;
+            await _context.SaveChangesAsync();
+            return existingBrowse;
+        }
     }
 }

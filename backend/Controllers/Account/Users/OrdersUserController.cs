@@ -171,8 +171,7 @@ namespace backend.Controllers.Account.Users
                 return BadRequest(new { Message = "Order is not yet shipped or already delivered." });
             }
 
-            // Cập nhật trạng thái thành "Delivered"
-            order.OrderStatus = "Delivered";
+            order.OrderStatus = "Complete";
             await _ordersRepo.UpdateAsync(orderId, order);
 
             return Ok(new { Message = "Order marked as received." });

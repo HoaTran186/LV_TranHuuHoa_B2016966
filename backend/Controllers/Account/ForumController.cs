@@ -146,5 +146,20 @@ namespace backend.Controllers.Account
             }
             return Ok("Deleted");
         }
+        [HttpPut]
+        [Route("browse/{id:int}")]
+        public async Task<IActionResult> UpdateBrowse([FromRoute] int id, [FromBody] UpdateBrowseDto updateBrowseDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var forumBrowse = await _forumRepo.UpdateBrowse(id, updateBrowseDto.ToForumFromUpdateBrowseDto());
+            if (forumBrowse == null)
+            {
+                return NotFound();
+            }
+            return Ok(forumBrowse.ToForumDto());
+        }
     }
 }

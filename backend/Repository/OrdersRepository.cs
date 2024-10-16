@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Interfaces;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -79,7 +80,9 @@ namespace backend.Repository
                 OrderStatus = orders.OrderStatus,
                 OrderDate = orders.OrderDate,
                 ShippedDate = orders.ShippedDate,
-                TotalAmount = orders.TotalAmount
+                TotalAmount = orders.TotalAmount,
+                OrderDetails = orders.OrderDetails
+
             }).ToListAsync();
         }
 

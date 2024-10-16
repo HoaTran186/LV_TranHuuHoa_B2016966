@@ -10,5 +10,6 @@ namespace backend.Interfaces
         Task<UserInformation> CreateAsync(UserInformation userInformation);
         Task<UserInformation?> UpddateAsync(int id, UserInformation updateUserInformation);
         Task<UserInformation?> DeleteAsync(int id);
+        Task<UserInformation?> Delete(string userId);
     }
 }

@@ -11,9 +11,11 @@ namespace backend.Hubs
     public class ChatHub : Hub
     {
         private readonly ApplicationDBContext _context;
-        public ChatHub(ApplicationDBContext context)
+        private readonly UserManager<AppUser> _userManager;
+        public ChatHub(ApplicationDBContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
         public async Task SendMessage(string user, string message)
         {
@@ -23,7 +25,7 @@ namespace backend.Hubs
         public override Task OnConnectedAsync()
         {
             var UserId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!String.IsNullOrEmpty(UserId))
+            if (!string.IsNullOrEmpty(UserId))
             {
                 var userName = _context.Users.FirstOrDefault(u => u.Id == UserId).UserName;
                 Clients.Users(HubConnections.OnlineUsers()).SendAsync("ReceiveUserConnected", UserId, userName);
@@ -77,10 +79,10 @@ namespace backend.Hubs
             await Clients.Group(roomName).SendAsync("ReceivePublicMessage", roomId, Context.UserIdentifier, message, roomName);
         }
 
-        public async Task SendPrivateMessage(string receiverId, string message, string userName)
-        {
-            await Clients.User(receiverId).SendAsync("ReceivePrivateMessage", Context.UserIdentifier, userName, receiverId, message, userName);
-        }
+        // public async Task SendPrivateMessage(string receiverId, string message)
+        // {
+        //     await Clients.User(receiverId).SendAsync("ReceivePrivateMessage", Context.UserIdentifier, receiverId, message);
+        // }
         // public async Task SendPublicMessage(int roomId, string message, string roomName)
         // {
         //     var UserId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -89,27 +91,25 @@ namespace backend.Hubs
         //     await Clients.All.SendAsync("ReceivePublicMessage", roomId, UserId, userName, message, roomName);
         // }
 
-        // public async Task SendPrivateMessage(string receiverId, string message, string receiverName)
-        // {
-        //     var senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //     var sender = _context.Users.FirstOrDefault(u => u.Id == senderId);
-        //     if (sender == null)
-        //     {
-        //         throw new Exception("Sender not found.");
-        //     }
-        //     var senderName = sender.UserName;
+        public async Task SendPrivateMessage(string senderId, string receiverId, string message, string receiverName)
+        {
+            var sender = await _userManager.FindByIdAsync(senderId);
+            if (sender == null)
+            {
+                throw new Exception("Sender not found.");
+            }
+            var senderName = sender.UserName;
 
-        //     var receiver = _context.Users.FirstOrDefault(u => u.Id == receiverId);
-        //     if (receiver == null)
-        //     {
-        //         throw new Exception("Receiver not found.");
-        //     }
+            var receiver = _context.Users.FirstOrDefault(u => u.Id == receiverId);
+            if (receiver == null)
+            {
+                throw new Exception("Receiver not found.");
+            }
 
-        //     var users = new string[] { senderId, receiverId };
+            var users = new string[] { senderId, receiverId };
 
-        //     await Clients.Users(users).SendAsync("ReceivePrivateMessage", senderId, senderName, receiverId, message, Guid.NewGuid(), receiverName);
-        // }
-
+            await Clients.Users(users).SendAsync("ReceivePrivateMessage", senderId, senderName, receiverId, message, Guid.NewGuid(), receiverName);
+        }
         public async Task SendOpenPrivateChat(string receiverId)
         {
             var username = Context.User.FindFirstValue(ClaimTypes.Name);

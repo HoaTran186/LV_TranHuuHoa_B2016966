@@ -35,7 +35,7 @@ namespace backend.Repository
 
         public async Task<List<OrderDetails?>> DeleteOrdersAsync(int orderId)
         {
-            var orderDetails = await _context.OrderDetails.Where(i => i.OrderId == orderId).ToListAsync();
+            var orderDetails = await _context.OrderDetails.Where(i => i.OrdersId == orderId).ToListAsync();
 
             if (!orderDetails.Any())
             {
@@ -60,7 +60,7 @@ namespace backend.Repository
 
         public async Task<List<OrderDetails>> GetByOrderIdAsync(int orderId)
         {
-            return await _context.OrderDetails.Where(o => o.OrderId == orderId)
+            return await _context.OrderDetails.Where(o => o.OrdersId == orderId)
             .Select(orderdetails => new OrderDetails
             {
                 Id = orderdetails.Id,
@@ -80,14 +80,14 @@ namespace backend.Repository
         public async Task<OrderDetails> GetByProductIdAndOrderIdAsync(int productId, int orderId)
         {
             return await _context.OrderDetails
-                .FirstOrDefaultAsync(od => od.ProductId == productId && od.OrderId == orderId);
+                .FirstOrDefaultAsync(od => od.ProductId == productId && od.OrdersId == orderId);
         }
 
 
         public async Task<decimal> GetTotalPriceByOrderIdAsync(int orderId)
         {
             return await _context.OrderDetails
-                .Where(o => o.OrderId == orderId)
+                .Where(o => o.OrdersId == orderId)
                 .SumAsync(o => o.UnitPrice);
         }
 

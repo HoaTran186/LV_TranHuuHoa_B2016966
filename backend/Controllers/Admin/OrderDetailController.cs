@@ -65,7 +65,7 @@ namespace backend.Controllers.Admin
             if (targetOrder == null)
             {
                 // Tạo đơn hàng mới nếu không tìm thấy đơn hàng phù hợp
-                targetOrder = new Orders { UserId = appUser.Id, OrderStatus = "Pending" };
+                targetOrder = new Orders { UserId = appUser.Id, OrderStatus = "Pending", OrderDate = DateTime.Now };
                 await _ordersRepo.CreateAsync(targetOrder);
             }
 
@@ -84,7 +84,7 @@ namespace backend.Controllers.Admin
                 // Tạo mới chi tiết đơn hàng
                 var unitPrice = product.Price * createOrderDetails.Quantity;
                 var newOrderDetail = createOrderDetails.ToOrderFromCreateDto(unitPrice);
-                newOrderDetail.OrderId = targetOrder.Id; // Gán OrderId rõ ràng
+                newOrderDetail.OrdersId = targetOrder.Id; // Gán OrderId rõ ràng
                 await _ordersDetailsRepo.CreateAsync(newOrderDetail);
             }
 

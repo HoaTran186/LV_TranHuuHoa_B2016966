@@ -15,7 +15,8 @@ namespace backend.Mappers
                 OrderStatus = ordersModel.OrderStatus,
                 OrderDate = ordersModel.OrderDate,
                 ShippedDate = ordersModel.ShippedDate,
-                TotalAmount = ordersModel.TotalAmount
+                TotalAmount = ordersModel.TotalAmount,
+
             };
         }
         public static Orders ToOrdersFromCreatesDto(this CreateOrderDto orderDto, string UserId)

@@ -246,6 +246,9 @@ export default function Cart({ Token }: OrderProps) {
         throw new Error("Failed");
       }
       alert("Sucess");
+      setOrderDetails((prevOrderDetails) =>
+        prevOrderDetails.filter((detail) => detail.id !== orderDetailId)
+      );
     } catch (error) {
       console.error("Error");
     }

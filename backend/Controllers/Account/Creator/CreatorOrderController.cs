@@ -38,7 +38,7 @@ namespace backend.Controllers.Account.Creator
             var product = await _product.GetUserProduct(appUser);
             var productId = product.Select(p => p.Id).ToList();
             var orderDetail = await _ordersDetailsRepo.GetByProductId(productId);
-            var orderIds = orderDetail.Select(od => od.OrderId).Distinct().ToList();
+            var orderIds = orderDetail.Select(od => od.OrdersId).Distinct().ToList();
             var orders = await _ordersRepo.GetOrdersByIds(orderIds);
 
             return Ok(orders);
@@ -61,12 +61,11 @@ namespace backend.Controllers.Account.Creator
             var productIds = products.Select(p => p.Id).ToList();
             var orderDetails = await _ordersDetailsRepo.GetByProductId(productIds);
 
-            if (!orderDetails.Any(od => od.OrderId == orderId))
+            if (!orderDetails.Any(od => od.OrdersId == orderId))
             {
                 return Forbid("You are not authorized to confirm this order.");
             }
 
-            // Xử lý logic cập nhật trạng thái đơn hàng
             if (order.OrderStatus == "Pending")
             {
                 order.OrderStatus = "Confirmed";

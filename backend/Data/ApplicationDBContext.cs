@@ -44,7 +44,7 @@ namespace backend.Data
             builder.Entity<OrderDetails>()
            .HasOne(od => od.Orders)
            .WithMany(o => o.OrderDetails)
-           .HasForeignKey(od => od.OrderId)
+           .HasForeignKey(od => od.OrdersId)
            .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<OrderDetails>()
