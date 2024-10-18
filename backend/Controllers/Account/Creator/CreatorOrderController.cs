@@ -1,4 +1,5 @@
 using backend.Extensions;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ namespace backend.Controllers.Account.Creator
         }
         [HttpGet]
         [Authorize(Roles = "Creator")]
-        public async Task<IActionResult> GetProductOrderCreator()
+        public async Task<IActionResult> GetProductOrderCreator([FromQuery] QueryProduct queryProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -35,7 +36,7 @@ namespace backend.Controllers.Account.Creator
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
             var order = await _ordersRepo.GetAllAsync();
-            var product = await _product.GetUserProduct(appUser);
+            var product = await _product.GetUserProduct(appUser, queryProduct);
             var productId = product.Select(p => p.Id).ToList();
             var orderDetail = await _ordersDetailsRepo.GetByProductId(productId);
             var orderIds = orderDetail.Select(od => od.OrdersId).Distinct().ToList();
@@ -45,7 +46,7 @@ namespace backend.Controllers.Account.Creator
         }
         [HttpPut("confirm/{orderId}")]
         [Authorize(Roles = "Creator")]
-        public async Task<IActionResult> ConfirmOrShipOrder(int orderId)
+        public async Task<IActionResult> ConfirmOrShipOrder(int orderId, [FromQuery] QueryProduct queryProduct)
         {
             var order = await _ordersRepo.GetByIdAsync(orderId);
 
@@ -57,7 +58,7 @@ namespace backend.Controllers.Account.Creator
             // Kiểm tra xem người dùng hiện tại có phải là chủ sở hữu sản phẩm trong đơn hàng không
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
-            var products = await _product.GetUserProduct(appUser);
+            var products = await _product.GetUserProduct(appUser, queryProduct);
             var productIds = products.Select(p => p.Id).ToList();
             var orderDetails = await _ordersDetailsRepo.GetByProductId(productIds);
 

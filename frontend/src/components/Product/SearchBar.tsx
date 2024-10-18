@@ -13,9 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { FaBoxOpen, FaCartPlus, FaMoneyCheckAlt } from "react-icons/fa";
+import {
+  FaArrowRight,
+  FaBoxOpen,
+  FaCartPlus,
+  FaMoneyCheckAlt,
+} from "react-icons/fa";
 
 import { FiSearch, FiStar } from "react-icons/fi";
 interface ProductImage {
@@ -27,6 +33,7 @@ interface Product {
   id: number;
   product_Name: string;
   userId: string;
+  censor: boolean;
   price: number;
   rating: number;
   quantity: number;
@@ -48,7 +55,15 @@ interface UserInfo {
   phone: string;
   userId: string;
 }
-const SearchBar = () => {
+interface UserRoles {
+  username: string;
+  email: string;
+  roles: string[];
+}
+interface SearchProps {
+  Token: string | undefined;
+}
+const SearchBar = ({ Token }: SearchProps) => {
   const [query, setQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
   const [suggestions, setSuggestions] = useState<Product[]>([]);
@@ -62,12 +77,13 @@ const SearchBar = () => {
   const [selectedProductTypes, setSelectedProductTypes] = useState<number[]>(
     []
   );
+  const router = useRouter();
   const [selectedPriceRange, setSelectedPriceRange] = useState<number>(0);
   const [selectedPriceRangeString, setSelectedPriceRangeString] = useState("");
   const [pageProduct, setPageProduct] = useState<Product[]>([]);
   const [noResults, setNoResults] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-
+  const [roles, setRoles] = useState<string[]>([]);
   useEffect(() => {
     const fetchProductType = async () => {
       try {
@@ -85,8 +101,11 @@ const SearchBar = () => {
         const response = await fetch("https://localhost:7146/api/product");
         if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
-        setProducts(data);
-        setProductCount(data.length);
+        const filteredData = data.filter(
+          (product: Product) => product.censor === true
+        );
+        setProducts(filteredData);
+        setProductCount(filteredData.length);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -108,6 +127,26 @@ const SearchBar = () => {
     fetchProducts();
     fetchProductType();
   }, []);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("https://localhost:7146/api/account", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${Token}`,
+          },
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch user!");
+        }
+        const data: UserRoles = await res.json();
+        setRoles(data.roles);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+    fetchUser();
+  }, [Token]);
   useEffect(() => {
     const fetchPageProduct = async () => {
       const res = await fetch(
@@ -203,15 +242,15 @@ const SearchBar = () => {
     setNoResults(false);
   };
 
-  const searchUrl = `https://localhost:3000/product?${
-    query == "" ? "" : `productName=${query}`
-  }${
-    (query == "" && productTypeId == 0) || query == "" || productTypeId == 0
-      ? ""
-      : "&"
-  }${productTypeId == 0 ? "" : `productTypeId=${productTypeId}`}${
-    (query == "" && productTypeId == 0) || selectedPriceRange == 0 ? "" : "&"
-  }${selectedPriceRange == 0 ? "" : `maxPrice=${selectedPriceRange}`}`;
+  // const searchUrl = `https://localhost:3000/product?${
+  //   query == "" ? "" : `productName=${query}`
+  // }${
+  //   (query == "" && productTypeId == 0) || query == "" || productTypeId == 0
+  //     ? ""
+  //     : "&"
+  // }${productTypeId == 0 ? "" : `productTypeId=${productTypeId}`}${
+  //   (query == "" && productTypeId == 0) || selectedPriceRange == 0 ? "" : "&"
+  // }${selectedPriceRange == 0 ? "" : `maxPrice=${selectedPriceRange}`}`;
   const handleSearch = async () => {
     try {
       const res = await fetch(
@@ -233,10 +272,13 @@ const SearchBar = () => {
         throw new Error("Failed to fetch product data");
       }
       const data = await res.json();
-      setFilteredProducts(data);
-      setPageProduct(data.slice(0, itemsPerPage));
-      setNoResults(data.length === 0);
-      setProductCount(data.length);
+      const filteredData = data.filter(
+        (product: Product) => product.censor === true
+      );
+      setProductCount(filteredData.length);
+      setFilteredProducts(filteredData);
+      setPageProduct(filteredData.slice(0, itemsPerPage));
+      setNoResults(filteredData.length === 0);
       setPageNumber(1);
     } catch (error) {
       console.error("Error searching products:", error);
@@ -250,6 +292,41 @@ const SearchBar = () => {
     const endIndex = startIndex + itemsPerPage;
     setPageProduct(filteredProducts.slice(startIndex, endIndex));
     setPageNumber(page);
+  };
+  const handleAddToCart = async (product: Product) => {
+    if (!Token) {
+      router.push("/login");
+      return;
+    }
+    if (roles.includes("Creator")) {
+      alert("Nhà cung cấp không có quyền đặt hàng");
+      return;
+    }
+    const orderDetailData = {
+      orderId: 0,
+      productId: product.id,
+      quantity: 1,
+      unitPrice: 0,
+    };
+    try {
+      const createOrderResponse = await fetch(
+        "https://localhost:7146/api/admin/orders-details",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+          body: JSON.stringify(orderDetailData),
+        }
+      );
+      if (!createOrderResponse.ok) {
+        throw new Error(`Failed : ${createOrderResponse.statusText}`);
+      }
+      alert("Add product success");
+    } catch (error: any) {
+      console.error("Error adding to cart:", error);
+    }
   };
   return (
     <div className="space-y-24">
@@ -350,20 +427,13 @@ const SearchBar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link
+
+          <Button
+            className="bg-teal-500 text-white py-2 px-6 rounded-full hover:bg-teal-600"
             onClick={handleSearch}
-            href={`${
-              query == "" &&
-              selectedPriceRange == 10000000000000000 &&
-              productTypeId == 0
-                ? "https://localhost:3000/product"
-                : searchUrl
-            }`}
           >
-            <Button className="bg-teal-500 text-white py-2 px-6 rounded-full hover:bg-teal-600">
-              Tìm kiếm
-            </Button>
-          </Link>
+            Tìm kiếm
+          </Button>
         </div>
       </div>
       <div className="flex flex-col">
@@ -418,32 +488,49 @@ const SearchBar = () => {
 
         <div className="w-3/4 mb-10 space-y-5">
           {noResults ? (
-            <div className="text-center text-xl font-semibold text-gray-600">
-              Hiện tại không có sản phẩm nào phù hợp với tìm kiếm hoặc bộ lọc
-              của bạn.
+            <div className="flex flex-col justify-center items-center pb-3 space-y-1 border rounded-3xl">
+              <img src={"/images/server/sad.png"} alt="" />
+              <div className="font-bold text-3xl">
+                Rất tiếc, InnoTrade không tìm thấy kết quả cho bạn
+              </div>
+              <p>Nhấn OK để bắt đầu tìm kiếm mới.</p>
+
+              <Button
+                className="rounded-full h-[50px] border-2 bg-white text-black hover:bg-gray-100"
+                onClick={handleResetFilters}
+              >
+                <span className="text-xl">Ok</span>{" "}
+                <FaArrowRight className="ml-2 text-xl" />
+              </Button>
             </div>
           ) : pageProduct.length > 0 ? (
-            pageProduct.map((product) => (
-              <div key={product.id} className="flex rounded-3xl border w-full">
-                <Link
-                  href={`/product/search-product/${product.product_Name.replaceAll(
-                    " ",
-                    "-"
-                  )}?Id=${product.id}`}
+            pageProduct
+              .filter((product) => product.censor === true)
+              .map((product) => (
+                <div
+                  key={product.id}
+                  className="flex rounded-3xl border w-full"
                 >
-                  <div className="flex my-7 ml-7 w-full space-x-7">
-                    <img
-                      width={350}
-                      height={300}
-                      src={
-                        product.productImages &&
-                        product.productImages.length > 0
-                          ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
-                          : "/images/server/default.jpg"
-                      }
-                      alt={product.product_Name}
-                      className="rounded-3xl  h-[250px] w-[1/2]"
-                    />
+                  <div className="flex my-7 ml-7 w-full space-x-7 max-w-4xl">
+                    <Link
+                      href={`/product/search-product/${product.product_Name.replaceAll(
+                        " ",
+                        "-"
+                      )}?Id=${product.id}`}
+                    >
+                      <img
+                        width={350}
+                        height={300}
+                        src={
+                          product.productImages &&
+                          product.productImages.length > 0
+                            ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
+                            : "/images/server/default.jpg"
+                        }
+                        alt={product.product_Name}
+                        className="rounded-3xl  h-[250px] w-[1/2]"
+                      />
+                    </Link>
 
                     <div className="w-3/5 space-y-3">
                       <div className="flex items-center rounded-full w-36 bg-yellow-300 px-1 text-sm">
@@ -484,92 +571,101 @@ const SearchBar = () => {
                           {product.price.toLocaleString("en-US")}đ
                         </div>
                         <div>
-                          <Link href={"/cart"}>
-                            <Button className="rounded-full bg-teal-500 hover:bg-teal-700">
-                              Đặt hàng
-                            </Button>
-                          </Link>
+                          <Button
+                            className="rounded-full bg-teal-500 hover:bg-teal-700"
+                            onClick={() => handleAddToCart(product)}
+                          >
+                            Đặt hàng
+                          </Button>
                         </div>
                       </div>
                     </div>
                   </div>
-                </Link>
-              </div>
-            ))
+                </div>
+              ))
           ) : (
-            pageProduct.map((product) => (
-              <div key={product.id} className="flex rounded-3xl border w-full">
-                <Link
-                  href={`/product/search-product/${product.product_Name.replaceAll(
-                    " ",
-                    "-"
-                  )}?Id=${product.id}`}
+            pageProduct
+              .filter((product) => product.censor === true)
+              .map((product) => (
+                <div
+                  key={product.id}
+                  className="flex rounded-3xl border w-full"
                 >
-                  <div className="flex my-7 ml-7 w-full space-x-7">
-                    <img
-                      width={350}
-                      height={300}
-                      src={
-                        product.productImages &&
-                        product.productImages.length > 0
-                          ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
-                          : "/images/server/default.jpg"
-                      }
-                      alt={product.product_Name}
-                      className="rounded-3xl  h-[250px] w-[1/2]"
-                    />
+                  <Link
+                    href={`/product/search-product/${product.product_Name.replaceAll(
+                      " ",
+                      "-"
+                    )}?Id=${product.id}`}
+                  >
+                    <div className="flex my-7 ml-7 w-full space-x-7">
+                      <img
+                        width={350}
+                        height={300}
+                        src={
+                          product.productImages &&
+                          product.productImages.length > 0
+                            ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
+                            : "/images/server/default.jpg"
+                        }
+                        alt={product.product_Name}
+                        className="rounded-3xl  h-[250px] w-[1/2]"
+                      />
 
-                    <div className="w-3/5 space-y-3">
-                      <div className="flex items-center rounded-full w-36 bg-yellow-300 px-1 text-sm">
-                        <FiStar className="mr-1" />{" "}
-                        {product.rating
-                          ? `${product.rating} ( ${product.comments.length} Đánh giá)`
-                          : "No rating"}
-                      </div>
-                      <div className="font-bold text-3xl">
-                        {product.product_Name}
-                      </div>
-                      <div>
-                        {userInfo.find((user) => user.userId === product.userId)
-                          ?.fullName || "N/A"}
-                      </div>
-                      <div>
-                        {productTypes.find(
-                          (type) => type.id === product.productTypeId
-                        )?.productType_Name || "Unknown type"}
-                      </div>
-                      <div className="flex space-x-4">
-                        <div className="rounded-full flex items-center">
-                          Số lượng:
-                          <span className="text-teal-400 font-bold text-lg pl-2">
-                            {product.quantity}
-                          </span>
+                      <div className="w-3/5 space-y-3">
+                        <div className="flex items-center rounded-full w-36 bg-yellow-300 px-1 text-sm">
+                          <FiStar className="mr-1" />{" "}
+                          {product.rating
+                            ? `${product.rating} ( ${product.comments.length} Đánh giá)`
+                            : "No rating"}
                         </div>
-                        <div className="rounded-full flex items-center">
-                          Đã bán:
-                          <span className="text-teal-700 font-bold text-lg pl-2">
-                            0
-                          </span>
-                        </div>
-                      </div>
-                      <div className="border w-full"></div>
-                      <div className="flex mx-3 justify-between items-center">
-                        <div className="text-teal-500 font-bold text-xl">
-                          {product.price.toLocaleString("en-US")}đ
+                        <div className="font-bold text-3xl">
+                          {product.product_Name}
                         </div>
                         <div>
-                          <Link href={"/cart"}>
-                            <Button className="rounded-full bg-teal-500 hover:bg-teal-700">
-                              Đặt hàng
-                            </Button>
-                          </Link>
+                          {userInfo.find(
+                            (user) => user.userId === product.userId
+                          )?.fullName || "N/A"}
+                        </div>
+                        <div>
+                          {productTypes.find(
+                            (type) => type.id === product.productTypeId
+                          )?.productType_Name || "Unknown type"}
+                        </div>
+                        <div className="flex space-x-4">
+                          <div className="rounded-full flex items-center">
+                            Số lượng:
+                            <span className="text-teal-400 font-bold text-lg pl-2">
+                              {product.quantity}
+                            </span>
+                          </div>
+                          <div className="rounded-full flex items-center">
+                            Đã bán:
+                            <span className="text-teal-700 font-bold text-lg pl-2">
+                              0
+                            </span>
+                          </div>
+                        </div>
+                        <div className="border w-full"></div>
+                        <div className="flex mx-3 justify-between items-center">
+                          <div className="text-teal-500 font-bold text-xl">
+                            {product.price.toLocaleString("en-US")}đ
+                          </div>
+                          <div>
+                            <Link href={"/cart"}>
+                              <Button
+                                className="rounded-full bg-teal-500 hover:bg-teal-700"
+                                onClick={() => handleAddToCart(product)}
+                              >
+                                Đặt hàng
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              </div>
-            ))
+                  </Link>
+                </div>
+              ))
           )}
           <div>
             <Pagination

@@ -2,8 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
 #nullable disable
@@ -51,19 +49,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "fda24d77-87ed-4f3c-9bae-8fdd1fab8e99",
+                            Id = "dbbc4f7b-b2a4-413b-ad8a-b6981f0baabf",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "9cd5207a-77fb-42c8-896a-4aa11a56d052",
+                            Id = "696f22b6-8c42-46cc-8c06-1cab6d91f35e",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "8d437a7d-381b-4713-84d7-4213d81bc0ae",
+                            Id = "89868eca-5c5c-4cf7-97c3-c1f58dcfbb9b",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -173,6 +171,32 @@ namespace backend.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("backend.Models.ActiveUser", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("HasPurchased")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasViewed")
+                        .HasColumnType("bit");
+
+                    b.HasKey("UserId", "ProductId");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ActiveUsers");
                 });
 
             modelBuilder.Entity("backend.Models.AppUser", b =>
@@ -413,9 +437,6 @@ namespace backend.Migrations
                     b.Property<int>("OrdersId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OrdersId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -428,8 +449,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrdersId");
-
-                    b.HasIndex("OrdersId1");
 
                     b.HasIndex("ProductId");
 
@@ -675,6 +694,23 @@ namespace backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("backend.Models.ActiveUser", b =>
+                {
+                    b.HasOne("backend.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("backend.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("backend.Models.CommentForum", b =>
                 {
                     b.HasOne("backend.Models.AppUser", "AppUser")
@@ -734,10 +770,6 @@ namespace backend.Migrations
                         .HasForeignKey("OrdersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("backend.Models.Orders", null)
-                        .WithMany("OrderDetail")
-                        .HasForeignKey("OrdersId1");
 
                     b.HasOne("backend.Models.Product", "Product")
                         .WithMany("OrderDetails")
@@ -829,8 +861,6 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Orders", b =>
                 {
-                    b.Navigation("OrderDetail");
-
                     b.Navigation("OrderDetails");
                 });
 

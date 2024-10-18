@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { FaRegCommentDots } from "react-icons/fa";
 
@@ -9,8 +10,7 @@ interface Comment {
   star: number;
   productId: number;
   userId: string;
-  product: null;
-  appUser: null;
+  datecomment: Date;
 }
 
 interface User {
@@ -27,12 +27,18 @@ export default function Comments() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [users, setUsers] = useState<Record<string, string>>({});
   const [selectedCommentIndex, setSelectedCommentIndex] = useState(0);
-
+  const [productName, setProductName] = useState("");
+  const selectedComment = comments[selectedCommentIndex];
+  const reviewerName =
+    selectedComment && selectedComment.userId
+      ? users[selectedComment.userId] || "Unknown user"
+      : "Unknown user";
   useEffect(() => {
+    // fetch(`https://localhost:7146/api/product/${productId}`);
     // Fetch comments
     fetch("https://localhost:7146/api/account/comment")
       .then((response) => response.json())
-      .then((data) => setComments(data.slice(0, 5))); // Limit to 5 comments
+      .then((data) => setComments(data.slice(0, 5)));
 
     // Fetch user information
     fetch("https://localhost:7146/api/users-information")
@@ -58,9 +64,6 @@ export default function Comments() {
     return <div>Loading comments...</div>;
   }
 
-  const selectedComment = comments[selectedCommentIndex];
-  const reviewerName = users[selectedComment.userId] || "Unknown user";
-
   return (
     <div className="flex items-center justify-center bg-gray-50 p-4">
       <section className="bg-white p-8 rounded-lg shadow-lg w-full">
@@ -72,32 +75,38 @@ export default function Comments() {
           Khách hàng chia sẻ về những kỷ niệm tuyệt vời trên chuyến du lịch với
           chúng tôi.
         </p>
+        <Link
+          href={`/product/search-product/${selectedComment.title.replaceAll(
+            " ",
+            "-"
+          )}?Id=${selectedComment.productId}`}
+        >
+          <div className="mb-8">
+            {/* Display the title before the comment */}
+            <p className="text-xl font-semibold text-gray-900 mb-2">
+              {selectedComment.title}
+            </p>
+            <p className="text-lg italic text-gray-700 mb-4 flex">
+              <FaRegCommentDots className="mr-1 text-3xl text-teal-500" />
+              {selectedComment.comment}
+            </p>
+            <p className="text-left font-bold text-gray-800">{reviewerName}</p>
+          </div>
 
-        <div className="mb-8">
-          {/* Display the title before the comment */}
-          <p className="text-xl font-semibold text-gray-900 mb-2">
-            {selectedComment.title}
-          </p>
-          <p className="text-lg italic text-gray-700 mb-4 flex">
-            <FaRegCommentDots className="mr-1 text-3xl text-teal-500" />
-            {selectedComment.comment}
-          </p>
-          <p className="text-left font-bold text-gray-800">{reviewerName}</p>
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          {comments.map((comment, index) => (
-            <span
-              key={comment.id}
-              onClick={() => setSelectedCommentIndex(index)}
-              className={`bg-gray-100 border rounded-full px-4 py-2 text-gray-800 cursor-pointer hover:bg-gray-200 transition ${
-                selectedCommentIndex === index ? "bg-gray-300" : ""
-              }`}
-            >
-              {users[comment.userId] || "Unknown user"}
-            </span>
-          ))}
-        </div>
+          <div className="flex flex-wrap gap-4">
+            {comments.map((comment, index) => (
+              <span
+                key={comment.id}
+                onClick={() => setSelectedCommentIndex(index)}
+                className={`bg-gray-100 border rounded-full px-4 py-2 text-gray-800 cursor-pointer hover:bg-gray-200 transition ${
+                  selectedCommentIndex === index ? "bg-gray-300" : ""
+                }`}
+              >
+                {users[comment.userId] || "Unknown user"}
+              </span>
+            ))}
+          </div>
+        </Link>
       </section>
     </div>
   );

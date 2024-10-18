@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { FaBoxOpen, FaMoneyCheckAlt } from "react-icons/fa";
 
@@ -28,7 +30,9 @@ const Search = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [selectedProductType, setSelectedProductType] = useState<string>("");
-
+  const [selectedPriceRange, setSelectedPriceRange] = useState<number>(0);
+  const [productTypeId, setProductTypeId] = useState<number>(0);
+  const [selectedPriceRangeString, setSelectedPriceRangeString] = useState("");
   useEffect(() => {
     const fetchProductType = async () => {
       try {
@@ -89,10 +93,54 @@ const Search = () => {
     setSuggestions([]);
   };
 
-  const handleProductTypeChange = (productType: string) => {
+  const handleProductTypeChange = (
+    productType: string,
+    productTypeId: number
+  ) => {
     setSelectedProductType(productType);
+    setProductTypeId(productTypeId);
   };
-
+  const handlePriceRangeChange = (
+    priceRange: number,
+    priceRangeString: string
+  ) => {
+    setSelectedPriceRange(priceRange);
+    setSelectedPriceRangeString(priceRangeString);
+  };
+  const searchUrl = `https://localhost:3000/product?${
+    query == "" ? "" : `productName=${query}`
+  }${
+    (query == "" && productTypeId == 0) || query == "" || productTypeId == 0
+      ? ""
+      : "&"
+  }${productTypeId == 0 ? "" : `productTypeId=${productTypeId}`}${
+    (query == "" && productTypeId == 0) || selectedPriceRange == 0 ? "" : "&"
+  }${selectedPriceRange == 0 ? "" : `maxPrice=${selectedPriceRange}`}`;
+  const handleSearch = async () => {
+    try {
+      const res = await fetch(
+        `https://localhost:7146/api/product/search-product?${
+          query == "" ? "" : `productName=${query.replaceAll(" ", "-")}`
+        }${
+          (query == "" && productTypeId == 0) ||
+          query == "" ||
+          productTypeId == 0
+            ? ""
+            : "&"
+        }${productTypeId == 0 ? "" : `productTypeId=${productTypeId}`}${
+          (query == "" && productTypeId == 0) || selectedPriceRange == 0
+            ? ""
+            : "&"
+        }${selectedPriceRange == 0 ? "" : `maxPrice=${selectedPriceRange}`}`
+      );
+      if (!res.ok) {
+        throw new Error("Failed to fetch product data");
+      }
+      const data = await res.json();
+    } catch (error) {
+      console.error("Error searching products:", error);
+    }
+  };
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl mt-96 space-y-5 bg-white pt-14 pb-9 px-5 rounded-xl shadow-lg z-10">
       <h1 className="text-4xl font-bold text-center mb-4">
@@ -130,20 +178,26 @@ const Search = () => {
           )}
         </div>
 
-        {/* Dropdown Menu for Product Types */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex border  border-gray-300 py-2 px-4 rounded-full cursor-pointer text-gray-500 focus:ring-2 focus:ring-teal-400 text-[1rem]">
+          <DropdownMenuTrigger className="flex border border-gray-300 py-2 px-4 rounded-full cursor-pointer text-gray-500 focus:ring-2 focus:ring-teal-400 text-[1rem]">
             <FaBoxOpen className="mt-1 mr-1" />
             {selectedProductType || "Loại sản phẩm"}
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white border border-gray-200 rounded-md shadow-md p-2">
+          <DropdownMenuContent className=" bg-white border border-gray-200 rounded-md shadow-md p-2 mt-2 max-h-60 overflow-y-auto">
             <DropdownMenuLabel>Chọn Loại sản phẩm</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleProductTypeChange("", 0)}>
+              Chọn tất cả sản phẩm
+            </DropdownMenuItem>
             {productTypes.map((producttype) => (
               <DropdownMenuItem
+                className=""
                 key={producttype.id}
                 onClick={() =>
-                  handleProductTypeChange(producttype.productType_Name)
+                  handleProductTypeChange(
+                    producttype.productType_Name,
+                    producttype.id
+                  )
                 }
               >
                 {producttype.productType_Name}
@@ -155,21 +209,47 @@ const Search = () => {
         {/* DropdownMenu for Price Range */}
         <DropdownMenu>
           <DropdownMenuTrigger className="flex border border-gray-300 py-2 px-4 rounded-full cursor-pointer text-gray-500 focus:ring-2 focus:ring-teal-400 text-[1rem]">
-            <FaMoneyCheckAlt className="mt-1 mr-1" /> Tất cả mức giá
+            <FaMoneyCheckAlt className="mt-1 mr-1" />{" "}
+            {selectedPriceRangeString || "Tất cả mức giá"}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-white border border-gray-200 rounded-md shadow-md p-2">
             <DropdownMenuLabel> Chọn mức giá</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Dưới 1 triệu</DropdownMenuItem>
-            <DropdownMenuItem>1 - 3 triệu</DropdownMenuItem>
-            <DropdownMenuItem>Trên 3 triệu</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                handlePriceRangeChange(9999999999999999, "Chọn tất cả")
+              }
+            >
+              Chọn tất cả
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handlePriceRangeChange(3000000, "Dưới 3 triệu")}
+            >
+              Dưới 3 triệu
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handlePriceRangeChange(30000000, "Trên 3 triệu")}
+            >
+              Trên 3 triệu
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
         {/* Search Button */}
-        <button className="bg-teal-500 text-white py-2 px-6 rounded-full hover:bg-teal-600">
-          Tìm kiếm
-        </button>
+        <Link
+          onClick={handleSearch}
+          href={`${
+            query == "" &&
+            selectedPriceRange == 10000000000000000 &&
+            productTypeId == 0
+              ? "https://localhost:3000/product"
+              : searchUrl
+          }`}
+        >
+          <Button className="bg-teal-500 text-white py-2 px-6 rounded-full hover:bg-teal-600">
+            Tìm kiếm
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -116,17 +116,27 @@ namespace backend.Controllers.Admin
             {
                 return BadRequest(ModelState);
             }
-            var quantity = updateOrderDetails.Quantity;
+
+            // Lấy thông tin sản phẩm
             var product = await _product.GetByIdAsync(updateOrderDetails.ProductId);
             if (product == null)
             {
                 return NotFound();
             }
+
+            // Lấy thông tin chi tiết đơn hàng hiện tại
             var orderdetail = await _ordersDetailsRepo.GetByIdAsync(id);
+            if (orderdetail == null)
+            {
+                return NotFound();
+            }
+
+            // Cập nhật số lượng sản phẩm
             var quantityProduct = product.Quantity + orderdetail.Quantity;
             product.Quantity = quantityProduct;
-            var unitPrice = product.Price * quantity;
+            var unitPrice = product.Price * updateOrderDetails.Quantity;
             quantityProduct = product.Quantity - updateOrderDetails.Quantity;
+
             if (quantityProduct >= 0)
             {
                 product.Quantity = quantityProduct;
@@ -136,13 +146,35 @@ namespace backend.Controllers.Admin
             {
                 return Ok("Product quantity is not enough");
             }
-            var orderdetailsModel = await _ordersDetailsRepo.UpdateAsync(id, updateOrderDetails.ToOrderFromUpdateDto(updateOrderDetails.ProductId, unitPrice));
-            if (orderdetailsModel == null)
+
+            // Cập nhật chi tiết đơn hàng
+            var updatedOrderDetail = await _ordersDetailsRepo.UpdateAsync(id, updateOrderDetails.ToOrderFromUpdateDto(updateOrderDetails.ProductId, unitPrice));
+            if (updatedOrderDetail == null)
             {
                 return NotFound();
             }
-            return Ok(orderdetailsModel.ToOrderDetailsDto());
+
+            // Tính tổng số tiền của đơn hàng
+            var orderId = updatedOrderDetail.OrdersId;
+            var orderDetails = await _ordersDetailsRepo.GetByOrderIdAsync(orderId); // Giả sử bạn có phương thức này để lấy tất cả chi tiết đơn hàng của một đơn hàng.
+
+            decimal totalAmount = 0;
+            foreach (var detail in orderDetails)
+            {
+                totalAmount = totalAmount + detail.UnitPrice;
+            }
+
+            var order = await _ordersRepo.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            order.TotalAmount = totalAmount;
+            await _ordersRepo.UpdateAsync(orderId, order);
+
+            return Ok(updatedOrderDetail.ToOrderDetailsDto());
         }
+
         [HttpDelete]
         [Route("delete/{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)

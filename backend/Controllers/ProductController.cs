@@ -60,67 +60,97 @@ namespace backend.Controllers
           [HttpGet("search-product")]
           public ActionResult<IEnumerable<Product>> MLNetSearch(string productName = "", int? productTypeId = null, decimal? maxPrice = null)
           {
-               // Bước 1: Lọc sơ bộ các sản phẩm từ database theo productTypeId và maxPrice
-               var query = _context.Products
-                                   .AsNoTracking()
-                                   .Include(c => c.ProductImages)
-                                   .Include(c => c.Comments)
-                                   .AsQueryable();
-
-               if (productTypeId.HasValue)
+               try
                {
-                    query = query.Where(p => p.ProductTypeId == productTypeId.Value);
-               }
+                    // Bước 1: Lọc sơ bộ các sản phẩm từ database theo productTypeId và maxPrice
+                    var query = _context.Products
+                                        .AsNoTracking()
+                                        .Include(c => c.ProductImages)
+                                        .Include(c => c.Comments)
+                                        .AsQueryable();
 
-               if (maxPrice.HasValue)
-               {
-                    query = query.Where(p => p.Price <= maxPrice.Value);
-               }
-
-               // Lọc theo productName chứa chuỗi tìm kiếm (không phân biệt hoa thường)
-               if (!string.IsNullOrEmpty(productName))
-               {
-                    string searchLower = productName.ToLower();  // Chuyển chuỗi tìm kiếm sang chữ thường
-                    query = query.Where(p => p.Product_Name.ToLower().Contains(searchLower));  // Chuyển tên sản phẩm sang chữ thường trước khi so sánh  // Chuyển tên sản phẩm sang chữ thường trước khi so sánh
-               }
-
-               var products = query.ToList();
-
-               // Bước 2: Nếu có productName, thực hiện tiếp vector hóa và tính toán độ tương đồng
-               if (!string.IsNullOrEmpty(productName))
-               {
-
-                    var productData = products.Select(p => new ProductInput { Name = p.Product_Name }).ToList();
-                    // Huấn luyện mô hình với dữ liệu sản phẩm
-                    var dataView = _mlContext.Data.LoadFromEnumerable(productData);
-                    var model = _pipeline.Fit(dataView);
-
-                    // Vector hóa tên sản phẩm trong database
-                    var transformedData = model.Transform(dataView);
-                    var productVectors = _mlContext.Data.CreateEnumerable<ProductVector>(transformedData, reuseRowObject: false).ToList();
-
-                    // Vector hóa từ khóa tìm kiếm
-                    var searchData = new List<ProductInput> { new ProductInput { Name = productName } };
-                    var searchView = _mlContext.Data.LoadFromEnumerable(searchData);
-                    var searchVectorData = model.Transform(searchView);
-                    var searchVector = _mlContext.Data.CreateEnumerable<ProductVector>(searchVectorData, reuseRowObject: false).FirstOrDefault();
-
-                    // Bước 3: Tính toán độ tương đồng Cosine giữa vector từ khóa và từng vector sản phẩm
-                    var similarProducts = products.Zip(productVectors, (product, vector) => new
+                    if (productTypeId.HasValue)
                     {
-                         Product = product,
-                         Similarity = CosineSimilarity(searchVector.Features, vector.Features)
-                    })
-                    .Where(x => x.Similarity >= 0.1)
-                    .OrderByDescending(x => x.Similarity)
-                    .Select(x => x.Product)
-                    .ToList();
+                         query = query.Where(p => p.ProductTypeId == productTypeId.Value);
+                    }
 
-                    return Ok(similarProducts);
+                    if (maxPrice.HasValue)
+                    {
+                         query = query.Where(p => p.Price <= maxPrice.Value);
+                    }
+
+                    // Lọc theo productName chứa chuỗi tìm kiếm (không phân biệt hoa thường)
+                    if (!string.IsNullOrEmpty(productName))
+                    {
+                         string searchLower = productName.ToLower();  // Chuyển chuỗi tìm kiếm sang chữ thường
+                         query = query.Where(p => p.Product_Name.ToLower().Contains(searchLower));  // So sánh không phân biệt chữ hoa chữ thường
+                    }
+
+                    var products = query.ToList();
+
+                    // Nếu không có sản phẩm nào từ database, trả về danh sách rỗng
+                    if (products.Count == 0)
+                    {
+                         return Ok(new List<Product>());
+                    }
+
+                    // Bước 2: Nếu có productName, thực hiện tiếp vector hóa và tính toán độ tương đồng
+                    if (!string.IsNullOrEmpty(productName))
+                    {
+                         // Chuẩn bị dữ liệu sản phẩm để vector hóa
+                         var productData = products.Select(p => new ProductInput { Name = p.Product_Name }).ToList();
+                         var dataView = _mlContext.Data.LoadFromEnumerable(productData);
+
+                         // Xây dựng pipeline ML.NET
+                         var _pipeline = _mlContext.Transforms.Text.FeaturizeText("Features", nameof(ProductInput.Name))
+                                             .Append(_mlContext.Transforms.NormalizeLpNorm("Features"));  // Normalize text features
+
+                         var model = _pipeline.Fit(dataView);
+
+                         // Vector hóa tên sản phẩm trong database
+                         var transformedData = model.Transform(dataView);
+                         var productVectors = _mlContext.Data.CreateEnumerable<ProductVector>(transformedData, reuseRowObject: false).ToList();
+
+                         // Vector hóa từ khóa tìm kiếm
+                         var searchData = new List<ProductInput> { new ProductInput { Name = productName } };
+                         var searchView = _mlContext.Data.LoadFromEnumerable(searchData);
+                         var searchVectorData = model.Transform(searchView);
+                         var searchVector = _mlContext.Data.CreateEnumerable<ProductVector>(searchVectorData, reuseRowObject: false).FirstOrDefault();
+
+                         // Kiểm tra nếu không tìm thấy vector cho từ khóa tìm kiếm
+                         if (searchVector == null)
+                         {
+                              return Ok(new List<Product>());  // Trả về danh sách rỗng nếu không có sản phẩm phù hợp
+                         }
+
+                         // Bước 3: Tính toán độ tương đồng Cosine giữa vector từ khóa và từng vector sản phẩm
+                         var similarProducts = products.Zip(productVectors, (product, vector) => new
+                         {
+                              Product = product,
+                              Similarity = CosineSimilarity(searchVector.Features, vector.Features)
+                         })
+                         .Where(x => x.Similarity >= 0.1)  // Lọc sản phẩm có độ tương đồng >= 0.1
+                         .OrderByDescending(x => x.Similarity)  // Sắp xếp theo độ tương đồng giảm dần
+                         .Select(x => x.Product)
+                         .ToList();
+
+                         return Ok(similarProducts);  // Trả về danh sách các sản phẩm tương tự
+                    }
+
+                    return Ok(products);  // Trả về danh sách các sản phẩm nếu không có tìm kiếm từ khóa
                }
-
-               return Ok(products);
+               catch (ArgumentOutOfRangeException ex)
+               {
+                    // Xử lý lỗi schema mismatch và trả về thông báo lỗi
+                    return BadRequest("Có lỗi xảy ra trong quá trình tìm kiếm. Vui lòng kiểm tra lại từ khóa.");
+               }
+               catch (Exception ex)
+               {
+                    // Xử lý lỗi khác và trả về thông báo lỗi
+                    return StatusCode(500, "Đã có sự cố xảy ra. Vui lòng thử lại sau.");
+               }
           }
+
 
 
 

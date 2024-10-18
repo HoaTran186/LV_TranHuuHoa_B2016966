@@ -9,7 +9,7 @@ export default function PageLayout({
   return (
     <div>
       <NavBar />
-      <section>{children}</section>
+      <div className="mt-32 mb-3">{children}</div>
       <Footer />
     </div>
   );

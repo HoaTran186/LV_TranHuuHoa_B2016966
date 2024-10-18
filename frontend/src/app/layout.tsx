@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/components/Home/NavBar";
-import Footer from "@/components/Home/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel="manifest" href="/manifest.json" />
       <body className={inter.className}>{children}</body>
     </html>
   );

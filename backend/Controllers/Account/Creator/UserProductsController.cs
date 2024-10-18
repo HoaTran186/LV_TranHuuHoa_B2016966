@@ -1,5 +1,6 @@
 using backend.Dtos.Product;
 using backend.Extensions;
+using backend.Helpers;
 using backend.Interfaces;
 using backend.Mappers;
 using backend.Models;
@@ -25,11 +26,11 @@ namespace backend.Controllers.Account.Creator
         }
         [HttpGet]
         [Authorize(Roles = "Creator")]
-        public async Task<IActionResult> GetAllUser()
+        public async Task<IActionResult> GetAllUser([FromQuery] QueryProduct queryProduct)
         {
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
-            var userProduct = await _productRepo.GetUserProduct(appUser);
+            var userProduct = await _productRepo.GetUserProduct(appUser, queryProduct);
             return Ok(userProduct);
         }
         [HttpGet]

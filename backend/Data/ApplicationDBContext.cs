@@ -25,11 +25,14 @@ namespace backend.Data
         public DbSet<Forum> Forums { get; set; }
         public DbSet<ForumImages> ForumImages { get; set; }
         public DbSet<CommentForum> CommentForums { get; set; }
+        public DbSet<ActiveUser> ActiveUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             builder.Entity<UserProduct>(x => x.HasKey(p => new { p.UserId, p.productId }));
+            builder.Entity<ActiveUser>()
+            .HasKey(up => new { up.UserId, up.ProductId });
 
             builder.Entity<UserProduct>()
             .HasOne(u => u.AppUser)

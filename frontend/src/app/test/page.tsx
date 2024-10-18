@@ -6,7 +6,7 @@ export default function page() {
   const cookie = cookies().get("Token")?.value;
   return (
     <div>
-      <ChatPrivate Token={cookie} />
+      <Chat Token={cookie} />
     </div>
   );
 }

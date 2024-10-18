@@ -58,7 +58,7 @@ namespace backend.Repository
             return await _context.Orders
                                     .Include(o => o.OrderDetails) // Include OrderDetails for efficient filtering
                                     .ThenInclude(od => od.Product) // Include Product to access the seller ID
-                                    .Where(o => o.UserId == userId && o.OrderStatus == "Pending" &&
+                                    .Where(o => o.UserId == userId && o.OrderStatus == "Buying" &&
                                     o.OrderDetails.Any(od => od.Product.UserId == sellerId))
                                     .FirstOrDefaultAsync();
         }

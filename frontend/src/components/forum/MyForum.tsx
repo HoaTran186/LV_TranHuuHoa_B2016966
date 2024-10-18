@@ -139,10 +139,21 @@ export default function MyForum({ Token }: MyForumProps) {
                 <p className="text-gray-600 text-sm line-clamp-2 mb-4">
                   {forum.content}
                 </p>
-                <p className="text-gray-400 text-xs">
-                  {" "}
-                  {new Date(forum.uploadDate).toLocaleDateString()}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-gray-400 text-xs">
+                    {" "}
+                    {new Date(forum.uploadDate).toLocaleDateString()}
+                  </p>
+                  <p
+                    className={`${
+                      forum.browse === true
+                        ? "bg-green-300 rounded-full p-1"
+                        : "bg-red-300 rounded-full p-1"
+                    }`}
+                  >
+                    {forum.browse === true ? "Đã duyệt" : "Chưa được duyệt"}
+                  </p>
+                </div>
               </div>
             </Link>
           </div>

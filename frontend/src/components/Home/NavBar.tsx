@@ -1,18 +1,8 @@
-import LogoutButton from "@/components/Login/LogoutButton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import CountCart from "@/components/Home/CountCart";
+import DropDownAvatar from "@/components/Home/DropDownAvatar";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
-import { IoCartOutline } from "react-icons/io5";
 
 const NavBar = () => {
   const cookie = cookies().get("Token")?.value;
@@ -63,9 +53,7 @@ const NavBar = () => {
         </ul>
       </div>
       <div className="flex items-center space-x-6 font-bold">
-        <a href="/cart">
-          <IoCartOutline className="text-[25px] text-gray-700 hover:text-gray-900" />
-        </a>
+        <CountCart Token={cookie} />
         <a href="tel:0922222016" className="text-gray-700 hover:text-gray-900">
           Hotline: **********
         </a>
@@ -75,35 +63,7 @@ const NavBar = () => {
         >
           Viết bài chia sẻ
         </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar>
-              <AvatarImage src="/images/server/user.png" alt="@InnoTrade" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {cookie == null ? (
-              <DropdownMenuItem>
-                <Link href="/login">Đăng nhập</Link>
-              </DropdownMenuItem>
-            ) : (
-              <>
-                <DropdownMenuItem>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>Upload</DropdownMenuItem>
-                <DropdownMenuItem>Team</DropdownMenuItem>
-                <DropdownMenuItem>Subscription</DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LogoutButton />
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DropDownAvatar Token={cookie} />
       </div>
     </nav>
   );

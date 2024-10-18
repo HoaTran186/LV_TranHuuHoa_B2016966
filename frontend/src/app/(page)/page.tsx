@@ -1,8 +1,5 @@
 import Comments from "@/components/Home/Comment";
-import Footer from "@/components/Home/Footer";
-import NavBar from "@/components/Home/NavBar";
 import NewProduct from "@/components/Home/NewProduct";
-import NewProductToken from "@/components/Home/NewProductToken";
 import Search from "@/components/Home/Search";
 import Suggested from "@/components/Home/Suggested";
 import { cookies } from "next/headers";
@@ -26,7 +23,7 @@ export default function HomePage() {
         </div>
         <div className="mt-52">
           <Suggested />
-          {cookie == null ? <NewProduct /> : <NewProductToken Token={cookie} />}
+          <NewProduct Token={cookie} />
         </div>
         <Comments />
       </div>

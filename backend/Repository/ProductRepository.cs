@@ -67,9 +67,9 @@ namespace backend.Repository
             return await _context.Products.FirstOrDefaultAsync(s => s.Product_Name == productname);
         }
 
-        public async Task<List<Product>> GetUserProduct(AppUser appUser)
+        public async Task<List<Product>> GetUserProduct(AppUser appUser, QueryProduct queryProduct)
         {
-            return await _context.Products
+            var product = _context.Products
             .Include(c => c.ProductImages)
             .Include(c => c.Comments)
             .Where(u => u.UserId == appUser.Id)
@@ -84,10 +84,17 @@ namespace backend.Repository
                 Rating = products.Rating,
                 Result = products.Result,
                 Price = products.Price,
+                Censor = products.Censor,
                 ProductTypeId = products.ProductTypeId,
                 ProductImages = products.ProductImages,
                 Comments = products.Comments
-            }).ToListAsync();
+            }).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(queryProduct.Product_Name))
+            {
+                product = product.Where(s => s.Product_Name.Contains(queryProduct.Product_Name));
+            }
+            var skipNumber = (queryProduct.PageNumber - 1) * queryProduct.PageSize;
+            return await product.Skip(skipNumber).Take(queryProduct.PageSize).ToListAsync();
         }
 
         public async Task<Product> GetUserProductById(AppUser appUser, int id)

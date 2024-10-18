@@ -1,4 +1,5 @@
 "use client";
+import StarRating from "@/components/forum/StarRating";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
@@ -63,6 +64,49 @@ export default function Cart({ Token }: OrderProps) {
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [comment, setComment] = useState<{ [key: number]: string }>({});
+  const [stars, setStars] = useState(0);
+  const [title, setTitle] = useState<{ [key: number]: string }>({});
+  const [isComment, setIsComment] = useState(true);
+  const handleCommentChange = (productId: number, value: string) => {
+    setComment((prev) => ({ ...prev, [productId]: value }));
+  };
+
+  const handleRatingChange = (newRating: number) => {
+    setStars(newRating);
+  };
+
+  const handleTitleChange = (productId: number, value: string) => {
+    setTitle((prev) => ({ ...prev, [productId]: value }));
+  };
+  const submitReview = async (productId: number) => {
+    const payload = {
+      title: title[productId] || "",
+      comment: comment[productId] || "",
+      star: stars || 0,
+    };
+
+    try {
+      const response = await fetch(
+        `https://localhost:7146/api/account/comment/${productId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit review");
+      }
+      alert("Review submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -213,6 +257,22 @@ export default function Cart({ Token }: OrderProps) {
       return updatedQuantities;
     });
   };
+  const handleIncrease = async (
+    productId: number,
+    orderDetailId: number,
+    maxQuantity: number
+  ) => {
+    setQuantities((prevQuantities) => {
+      const updatedQuantities = {
+        ...prevQuantities,
+        [productId]: Math.min(maxQuantity, prevQuantities[productId] + 1),
+      };
+
+      updateOrderDetail(orderDetailId, productId, updatedQuantities[productId]);
+      calculateTotalPrice(updatedQuantities, products);
+      return updatedQuantities;
+    });
+  };
   const handlePending = async (orderId: number) => {
     try {
       const res = await fetch(
@@ -232,6 +292,11 @@ export default function Cart({ Token }: OrderProps) {
         });
       }
       alert("Success");
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, orderStatus: "Pending" } : order
+        )
+      );
     } catch (error) {
       toast({
         title: "Error",
@@ -240,23 +305,39 @@ export default function Cart({ Token }: OrderProps) {
       });
     }
   };
-  const handleIncrease = async (
-    productId: number,
-    orderDetailId: number,
-    maxQuantity: number
-  ) => {
-    setQuantities((prevQuantities) => {
-      const updatedQuantities = {
-        ...prevQuantities,
-        [productId]: Math.min(maxQuantity, prevQuantities[productId] + 1),
-      };
-
-      updateOrderDetail(orderDetailId, productId, updatedQuantities[productId]);
-
-      calculateTotalPrice(updatedQuantities, products);
-      return updatedQuantities;
-    });
+  const handleComplete = async (orderId: number) => {
+    try {
+      const res = await fetch(
+        `https://localhost:7146/api/user/orders/receive/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${Token}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch data. Please try again.",
+          variant: "destructive",
+        });
+      }
+      alert("Success");
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, orderStatus: "Complete" } : order
+        )
+      );
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
   const handleDelete = async (orderDetailId: number) => {
     try {
       const res = await fetch(
@@ -280,7 +361,6 @@ export default function Cart({ Token }: OrderProps) {
       console.error("Error");
     }
   };
-  console.log(orderDetails);
   return (
     <div className="w-full">
       {orders.map((order) => (
@@ -306,7 +386,7 @@ export default function Cart({ Token }: OrderProps) {
                                 : "/images/server/default.jpg"
                             }
                             alt={product.product_Name}
-                            className="rounded-3xl h-[100px] w-[100px]"
+                            className="rounded-3xl h-[100px] max-w-[100px]"
                           />
                         </div>
 
@@ -330,7 +410,7 @@ export default function Cart({ Token }: OrderProps) {
                         <div className="font-bold">/ sản phẩm</div>
                       </div>
 
-                      <div className="flex items-center">
+                      <div className={`flex items-center`}>
                         <Button
                           onClick={() => handleDecrease(product.id, detail.id)}
                         >
@@ -342,8 +422,8 @@ export default function Cart({ Token }: OrderProps) {
                         <Button
                           onClick={() =>
                             handleIncrease(
-                              detail.id,
                               product.id,
+                              detail.id,
                               product.quantity
                             )
                           }
@@ -360,6 +440,37 @@ export default function Cart({ Token }: OrderProps) {
                         </Button>
                       </div>
                     </div>
+                    {order.orderStatus === "Complete" && (
+                      <div className={`mt-5 space-y-3 mb-3`}>
+                        <input
+                          type="text"
+                          placeholder="Enter title"
+                          value={title[product.id] || ""}
+                          onChange={(e) =>
+                            handleTitleChange(product.id, e.target.value)
+                          }
+                          className="border rounded-md p-2"
+                        />
+                        <textarea
+                          placeholder="Enter your comment"
+                          value={comment[product.id] || ""}
+                          onChange={(e) =>
+                            handleCommentChange(product.id, e.target.value)
+                          }
+                          className="border rounded-md p-2 w-full"
+                        />
+                        <div className="mt-2">
+                          <label>Rating: </label>
+                          <StarRating onRatingChange={handleRatingChange} />
+                        </div>
+                        <Button
+                          onClick={() => submitReview(product.id)}
+                          className="rounded-full bg-teal-500 hover:bg-teal-700"
+                        >
+                          Submit Review
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -367,7 +478,7 @@ export default function Cart({ Token }: OrderProps) {
           <div className="flex justify-between">
             <div>
               Tổng tiền:
-              <span>{order.totalAmount.toLocaleString("en-US")}đ</span>
+              <span>{totalPrice.toLocaleString("en-US")}đ</span>
             </div>
             <div>
               <div>
@@ -390,6 +501,16 @@ export default function Cart({ Token }: OrderProps) {
                   >
                     Thanh toán
                   </Button>
+                )}
+                {order.orderStatus === "Shipped" && (
+                  <div className="text-right">
+                    <Button
+                      className="rounded-full bg-teal-500 hover:bg-teal-700"
+                      onClick={() => handleComplete(order.id)}
+                    >
+                      Đã nhận hàng
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
