@@ -1,3 +1,4 @@
+using backend.Bots;
 using backend.Data;
 using backend.Hubs;
 using backend.Interfaces;
@@ -7,6 +8,8 @@ using backend.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Bot.Builder.BotFramework;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -15,10 +18,22 @@ using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+string contentRootPath = builder.Environment.ContentRootPath;
+
+
+builder.Services.AddSingleton(builder.Configuration);
+
+builder.Services.AddBot<MyBot>(options =>
+{
+    options.CredentialProvider = new ConfigurationCredentialProvider(builder.Configuration);
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpClient();
+
 
 builder.Services.AddSwaggerGen(option =>
 {
@@ -131,6 +146,7 @@ builder.Services.AddScoped<IOrdersDetailsRepository, OrdersDetailRepository>();
 builder.Services.AddScoped<IForumRepository, ForumRepository>();
 builder.Services.AddScoped<IForumImagesRepository, ForumImagesRepository>();
 builder.Services.AddScoped<IForumCommentRepository, ForumCommentRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -178,6 +194,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
-
-
+app.UseBotFramework();
 app.Run();

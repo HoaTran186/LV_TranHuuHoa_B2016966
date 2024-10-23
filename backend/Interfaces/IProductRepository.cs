@@ -5,6 +5,7 @@ namespace backend.Interfaces
 {
     public interface IProductRepository
     {
+        Task<List<Product>> GetProductsByIdsAsync(List<int> productIds);
         Task<List<Product>> GetAllProducts();
         Task<List<Product>> GetAllAsync(QueryProduct queryProduct);
         Task<Product?> GetByIdAsync(int id);

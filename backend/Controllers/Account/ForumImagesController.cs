@@ -145,12 +145,6 @@ namespace backend.Controllers.Account
             {
                 return NotFound("Forum does not exist");
             }
-            var username = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(username);
-            if (forum.UserId != appUser.Id)
-            {
-                return BadRequest("You are not authorized to delete images for this product.");
-            }
             var forumImages = await _forumImagesRepo.GetByForumId(forumId);
             if (forumImages == null || !forumImages.Any())
             {

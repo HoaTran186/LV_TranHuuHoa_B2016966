@@ -13,7 +13,7 @@ namespace backend.Service
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;
         private readonly UserManager<AppUser> _userManager;
-        public TokenService(IConfiguration config,  UserManager<AppUser> userManager)
+        public TokenService(IConfiguration config, UserManager<AppUser> userManager)
         {
             _config = config;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
@@ -32,11 +32,11 @@ namespace backend.Service
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-            
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddHours(3),
+                Expires = DateTime.Now.AddHours(24),
                 SigningCredentials = creds,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]

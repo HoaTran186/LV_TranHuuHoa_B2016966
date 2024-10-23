@@ -1,33 +1,43 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  HubConnection,
   HubConnectionBuilder,
+  HubConnection,
   LogLevel,
 } from "@microsoft/signalr";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { IoSendSharp } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
 
 interface Message {
-  senderId: string;
-  senderName: string;
-  receiverId: string;
+  receiver: string;
+  message: string;
+}
+interface Mess {
+  id: number;
+  userId: string;
   content: string;
-  id: string;
+  timestamp: Date;
 }
 interface User {
   id: number;
   fullName: string;
   userId: string;
 }
-interface ChatPrivateProps {
+interface ChatProps {
   Token: string | undefined;
 }
-
-export default function ChatPrivate({ Token }: ChatPrivateProps) {
+export default function ChatPrivate({ Token }: ChatProps) {
   const [connection, setConnection] = useState<HubConnection | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState<string>("");
-  const [receiverId, setReceiverId] = useState<string>("");
-  const [senderId, setSenderId] = useState("");
+  const [user, setUser] = useState("");
+  const [receiver, setReceiver] = useState("");
+  const [message, setMessage] = useState("");
+  const [mess, setMess] = useState<Mess[]>([]);
+  const [userId, setUserId] = useState("");
+  const [allUser, setAllUser] = useState<User[]>([]);
+  const [visibleMessages, setVisibleMessages] = useState(10);
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
       .withUrl("https://localhost:7146/chatHub")
@@ -41,36 +51,13 @@ export default function ChatPrivate({ Token }: ChatPrivateProps) {
         console.log("Connected to SignalR hub");
         setConnection(newConnection);
 
-        newConnection.on(
-          "ReceivePrivateMessage",
-          (
-            senderId: string,
-            senderName: string,
-            receiverId: string,
-            message: string,
-            messageId: string,
-            receiverName: string
-          ) => {
-            console.log(
-              "Received private message:",
-              senderId,
-              senderName,
-              receiverId,
-              message,
-              messageId
-            );
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              {
-                senderId,
-                senderName,
-                receiverId,
-                content: message,
-                id: messageId,
-              },
-            ]);
-          }
-        );
+        newConnection.on("ReceiveMessage", (receiver, message) => {
+          console.log("Received message:", receiver, message);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { receiver, message },
+          ]);
+        });
       })
       .catch((error) =>
         console.error("Error connecting to SignalR hub:", error)
@@ -81,84 +68,235 @@ export default function ChatPrivate({ Token }: ChatPrivateProps) {
         newConnection.stop();
       }
     };
-  }, [Token]);
+  }, []);
   useEffect(() => {
-    try {
-      const fetchUser = async () => {
-        try {
-          const res = await fetch(
-            "https://localhost:7146/api/user/user-information",
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${Token}`,
-              },
-            }
-          );
-          if (!res.ok) {
-            throw new Error("Failed to fetch user");
-          }
-          const data = await res.json();
-          setSenderId(data.userId);
-        } catch (error) {}
-      };
-      fetchUser();
-    } catch (error) {}
-  });
-  const sendPrivateMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (connection && newMessage && receiverId) {
+    const fetchMessageHistory = async () => {
       try {
-        await connection.invoke(
-          "SendPrivateMessage",
-          senderId,
-          receiverId,
-          newMessage,
-          ""
+        const response = await fetch("https://localhost:7146/api/messages", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+        });
+
+        if (response.ok) {
+          const messages: Mess[] = await response.json();
+          setMess(messages);
+        } else {
+          console.error("Error fetching message history:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching message history:", error);
+      }
+    };
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(
+          "https://localhost:7146/api/user/user-information",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${Token}`,
+            },
+          }
         );
-        setNewMessage("");
+        if (!res.ok) {
+          throw new Error("Failed to fetch user");
+        }
+        const data = await res.json();
+        setUser(data.fullName);
+        setUserId(data.userId);
+      } catch (error) {}
+    };
+    const fetchAllUser = async () => {
+      try {
+        const res = await fetch("https://localhost:7146/api/users-information");
+        if (!res.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const data: User[] = await res.json();
+        setAllUser(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUser();
+    fetchAllUser();
+    fetchMessageHistory();
+  }, []);
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (connection && message && receiver) {
+      try {
+        console.log("Sending message:", receiver, message);
+        await connection.invoke("SendMessageToGroup", receiver, message);
+        const response = await fetch("https://localhost:7146/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+          body: JSON.stringify({ content: message }),
+        });
+
+        if (response.ok) {
+          const savedMessage = await response.json();
+          console.log("Message saved:", savedMessage);
+          setMessage("");
+        } else {
+          console.error("Error saving message:", response.status);
+        }
       } catch (error) {
         console.error("Error sending message:", error);
       }
     }
   };
-  console.log(newMessage);
-  console.log(messages);
+  const showMoreMessages = () => {
+    setVisibleMessages((prevVisible) => prevVisible + 10);
+  };
   return (
-    <div className="flex flex-col h-screen p-5 bg-gray-100">
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Private Chat</h2>
-        <ul className="flex flex-col gap-2 overflow-y-auto">
-          {messages.map((msg, index) => (
-            <li key={index} className="bg-white p-3 rounded-md shadow-md">
-              <span className="font-bold mr-2">{msg.senderName}:</span>{" "}
-              {msg.content}
-            </li>
-          ))}
-        </ul>
+    <div className="border-2 mx-[25rem] mb-10 rounded-3xl p-10">
+      <h1>Real-time Chat</h1>
+      <div className="flex flex-col items-start">
+        {visibleMessages < mess.length && (
+          <button
+            onClick={showMoreMessages}
+            className="text-blue-500 hover:underline"
+          >
+            Xem thêm tin nhắn cũ
+          </button>
+        )}
+        {/* Hiển thị lịch sử tin nhắn */}
+        {mess.slice(-visibleMessages).map((mess) => {
+          const user = allUser.find((u) => u.userId === mess.userId);
+          const isCurrentUser = mess.userId === userId;
+          return (
+            <div
+              key={mess.id}
+              className={`flex items-center mb-[8px] ${
+                isCurrentUser ? "self-end" : "self-start"
+              }`}
+            >
+              {!isCurrentUser && (
+                <div className="mr-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+              <div
+                className={`flex flex-col ${
+                  isCurrentUser ? "items-end" : "items-start"
+                }`}
+              >
+                <small>{isCurrentUser ? "You" : user?.fullName}</small>
+                <div
+                  className={`py-[8px] px-[16px] rounded-[8px] ${
+                    isCurrentUser ? "bg-white" : "bg-[#39a7cb]"
+                  }`}
+                >
+                  <strong>{mess.content}</strong>
+                </div>
+              </div>
+              {isCurrentUser && (
+                <div className="ml-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
-      <form onSubmit={sendPrivateMessage} className="mt-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Enter receiver ID"
-          value={receiverId}
-          onChange={(e) => setReceiverId(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
-        />
-        <input
-          type="text"
-          placeholder="Enter message"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
-        />
-        <button
-          type="submit"
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
-        >
-          Send Message
-        </button>
-      </form>
+      <div className="flex flex-col items-start">
+        {/* Hiển thị tin nhắn mới từ SignalR */}
+        {messages.map((m, index) => {
+          const isCurrentUser = m.receiver === user;
+
+          return (
+            <div
+              key={index}
+              className={`flex items-center mb-[8px] ${
+                isCurrentUser ? "self-end" : "self-start"
+              }`}
+            >
+              {!isCurrentUser && (
+                <div className="mr-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+              <div
+                className={`flex flex-col ${
+                  isCurrentUser ? "items-end" : "items-start"
+                }`}
+              >
+                <small>{isCurrentUser ? "You" : m.receiver}</small>
+                <div
+                  className={`py-[8px] px-[16px] rounded-[8px] ${
+                    isCurrentUser ? "bg-white" : "bg-[#39a7cb]"
+                  }`}
+                >
+                  <strong>{m.message}</strong>
+                </div>
+              </div>
+              {isCurrentUser && (
+                <div className="ml-2">
+                  <Avatar>
+                    <AvatarImage
+                      src="/images/server/user.png"
+                      alt="@InnoTrade"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="text-right">
+        {" "}
+        <form onSubmit={sendMessage}>
+          <div className="flex space-x-4">
+            <Input
+              type="text"
+              placeholder="receiver"
+              value={receiver}
+              onChange={(e) => setReceiver(e.target.value)}
+              className="rounded-full"
+            />
+            <Input
+              type="text"
+              placeholder="Type a message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="rounded-full"
+            />
+            <Button
+              type="submit"
+              className="rounded-full bg-white hover:bg-slate-200"
+            >
+              <IoSendSharp className="text-2xl text-blue-400" />
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

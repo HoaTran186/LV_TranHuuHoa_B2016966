@@ -55,6 +55,7 @@ namespace backend.Controllers.Account
 
             return Ok(new
             {
+
                 Username = user.UserName,
                 Email = user.Email,
                 Roles = roles

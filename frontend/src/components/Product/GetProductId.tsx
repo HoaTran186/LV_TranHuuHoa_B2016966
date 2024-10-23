@@ -2,7 +2,12 @@
 import { useEffect, useState } from "react";
 import ThumbnailCarousel from "@/components/Product/ThumbnailCarousel";
 import Link from "next/link";
-import { FaArrowRight, FaCartPlus, FaChevronRight } from "react-icons/fa";
+import {
+  FaArrowRight,
+  FaCartPlus,
+  FaChevronRight,
+  FaSearchLocation,
+} from "react-icons/fa";
 import { IoHomeOutline } from "react-icons/io5";
 import { FiStar } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
@@ -10,7 +15,14 @@ import { Label } from "@/components/ui/label";
 import { IoIosSearch } from "react-icons/io";
 import ProductInfoCard from "@/components/Product/ProductInfoCard";
 import Pagination from "@/components/Product/Pagination";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface Comment {
   id: number;
@@ -39,8 +51,27 @@ interface Product {
   productTypeId: number;
   censor: boolean;
   quantity: number;
+  productImages: ProductImage[];
+  comments: string[];
 }
-const GetProductId = () => {
+interface ProductImage {
+  id: number;
+  images: string;
+  productId: number;
+}
+interface GetProductProps {
+  Token: string | undefined;
+}
+interface UserInfo {
+  username: string;
+  email: string;
+  roles: string[];
+}
+interface ProductType {
+  id: number;
+  productType_Name: string;
+}
+const GetProductId = ({ Token }: GetProductProps) => {
   const [productId, setProductId] = useState<number | null>(null);
   const [productData, setProductData] = useState<Product | null>(null);
   const [productTypeId, setProductTypeId] = useState<number | null>(null);
@@ -53,6 +84,30 @@ const GetProductId = () => {
   const [totalRatings, setTotalRatings] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const router = useRouter();
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("https://localhost:7146/api/account", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${Token}`,
+          },
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch user!");
+        }
+        const data: UserInfo = await res.json();
+        setRoles(data.roles);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+    fetchUser();
+  }, [Token]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
@@ -157,14 +212,58 @@ const GetProductId = () => {
           console.error("Error fetching user info:", error);
         }
       };
+      const fetchSimilarProducts = async () => {
+        try {
+          const res = await fetch(
+            `https://localhost:7146/api/product/suggest-similar-ml/${productId}`
+          );
+          if (!res.ok) {
+            throw new Error("Failed to fetch product suggest");
+          }
+          const data = await res.json();
+          setSimilarProducts(data);
+        } catch (error) {}
+      };
+      const fetchProductType = async () => {
+        try {
+          const res = await fetch(`https://localhost:7146/api/product-type`);
+          if (!res.ok) {
+            throw new Error("Failed to fetch product type");
+          }
+          const productType = await res.json();
+          setProductTypes(productType);
+        } catch (error) {
+          console.error("Error fetching product type:", error);
+        }
+      };
       if (productId !== null) {
         fetchProductData();
         fetchComments();
         fetchUserInfor();
         fetchCommentsAll();
+        fetchProductType();
+        fetchSimilarProducts();
       }
     }
   }, [productId, pageNumber]);
+  const findUserForProduct = (userId: string) => {
+    return userInfo.find((user) => user.userId === userId);
+  };
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      try {
+        const res = await fetch(
+          `https://localhost:7146/api/product/suggest-similar-ml/${productId}`
+        );
+        if (!res.ok) {
+          throw new Error("Failed to fetch product suggest");
+        }
+        const data = await res.json();
+        setSimilarProducts(data);
+      } catch (error) {}
+    };
+    fetchSimilarProducts();
+  }, []);
   const getFullName = (userId: string): string => {
     const user = userInfo.find((user) => user.userId == userId);
     return user ? user.fullName : "Unknown user";
@@ -203,6 +302,46 @@ const GetProductId = () => {
   const itemsPerPage = 5;
   const handlePageChange = (page: number) => {
     setPageNumber(page);
+  };
+  const handleAddToCart = async (product: Product) => {
+    if (!Token) {
+      router.push("/login");
+      return;
+    }
+    if (roles.includes("Creator")) {
+      alert("Nhà cung cấp không có quyền đặt hàng");
+      return;
+    }
+    const orderDetailData = {
+      orderId: 0,
+      productId: product.id,
+      quantity: 1,
+      unitPrice: 0,
+    };
+    try {
+      const createOrderResponse = await fetch(
+        "https://localhost:7146/api/admin/orders-details",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Token}`,
+          },
+          body: JSON.stringify(orderDetailData),
+        }
+      );
+      if (!createOrderResponse.ok) {
+        throw new Error(`Failed : ${createOrderResponse.statusText}`);
+      }
+      alert("Add product success");
+    } catch (error: any) {
+      console.error("Error adding to cart:", error);
+      alert(error.message);
+    }
+  };
+  const getProductTypeName = (productTypeId: number) => {
+    const productType = productTypes.find((type) => type.id === productTypeId);
+    return productType ? productType.productType_Name : "Unknown";
   };
   return (
     <div>
@@ -355,6 +494,24 @@ const GetProductId = () => {
                 }}
               >
                 <Label>Kết quả</Label>
+              </Button>
+            </div>
+            <div>
+              <Button
+                className="bg-gray-100 w-[8.1rem] h-8 text-black hover:bg-white hover:shadow-2xl hover:shadow-gray-500"
+                onClick={() => {
+                  const commentsElement = document.getElementById("similar");
+                  if (commentsElement) {
+                    commentsElement.scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                    });
+                  }
+                }}
+              >
+                {productData && (
+                  <Label className="flex">Sản phẩm tương tự</Label>
+                )}
               </Button>
             </div>
             <div>
@@ -526,6 +683,90 @@ const GetProductId = () => {
           </Link>
         </div>
       )}
+      <div className="mx-36 space-y-3 mb-8" id="similar">
+        <p className="font-bold text-4xl">Sản phẩm tương tự</p>
+        <p className="font-bold text-2xl text-teal-500 pb-8">----------</p>
+        <Carousel
+          opts={{
+            align: "start",
+          }}
+        >
+          <CarouselContent>
+            {similarProducts
+              .filter((product) => product.censor === true)
+              .map((product) => {
+                const matchingUser = findUserForProduct(product.userId);
+                const userName = matchingUser
+                  ? matchingUser.fullName
+                  : "Unknown User";
+                return (
+                  <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                    <div className="bg-white border shadow-inner shadow-gray-200 rounded-2xl overflow-hidden">
+                      <div className="p-8">
+                        <img
+                          src={
+                            product.productImages &&
+                            product.productImages.length > 0
+                              ? `https://localhost:7146/Resources/${product.productImages[0]?.images}`
+                              : `/images/server/default.jpg`
+                          }
+                          alt={product.product_Name}
+                          className="w-[350px] h-[200px] rounded-2xl"
+                        />
+                      </div>
+
+                      <div className="p-4">
+                        <Link
+                          key={product.id}
+                          href={`/product/search-product/${product.product_Name.replaceAll(
+                            " ",
+                            "-"
+                          )}?Id=${product.id}`}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center text-yellow-500">
+                              <FiStar />
+                              <span className="ml-1 font-bold">
+                                {product.rating}
+                              </span>
+                              <span className="text-gray-500 text-sm ml-2">
+                                ({product.comments.length} đánh giá)
+                              </span>
+                            </div>
+                          </div>
+                          <h3 className="text-lg font-bold mb-2">
+                            {product.product_Name}
+                          </h3>
+                          <p className="text-gray-500 flex">
+                            <FaSearchLocation className="mt-1 mr-1" />
+                            {userName}
+                          </p>
+                          <p className="text-gray-500 text-sm">
+                            Loại sản phẩm:{" "}
+                            {getProductTypeName(product.productTypeId)}
+                          </p>
+                        </Link>
+                        <div className="flex mt-2 justify-between mx-4">
+                          <p className="text-teal-500 font-bold text-lg mt-2">
+                            {product.price.toLocaleString("en-US")}đ
+                          </p>
+                          <Button
+                            onClick={() => handleAddToCart(product)}
+                            className="bg-teal-500 text-white py-2 px-4 rounded-full ml-14 hover:bg-teal-600"
+                          >
+                            Đặt ngay
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                );
+              })}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      </div>
     </div>
   );
 };

@@ -153,9 +153,18 @@ const TableForum = ({ Token }: TableProductProps) => {
     }
   };
   const handleDeleteForum = async (forumId: number) => {
+    const respon = await fetch(
+      `https://localhost:7146/api/account/forum-images/delete-all/${forumId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${Token}`,
+        },
+      }
+    );
     try {
       const res = await fetch(
-        `https://localhost:7146/api/account/forum/${forumId}`,
+        `https://localhost:7146/api/account/forum/admin/${forumId}`,
         {
           method: "DELETE",
           headers: {

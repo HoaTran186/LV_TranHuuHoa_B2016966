@@ -67,6 +67,12 @@ namespace backend.Repository
             return await _context.Products.FirstOrDefaultAsync(s => s.Product_Name == productname);
         }
 
+        public async Task<List<Product>> GetProductsByIdsAsync(List<int> productIds)
+        {
+            return await _context.Products
+                             .Where(p => productIds.Contains(p.Id))
+                             .ToListAsync();
+        }
         public async Task<List<Product>> GetUserProduct(AppUser appUser, QueryProduct queryProduct)
         {
             var product = _context.Products

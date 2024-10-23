@@ -146,6 +146,44 @@ namespace backend.Controllers.Account
             }
             return Ok("Deleted");
         }
+        [HttpDelete]
+        [Route("admin/{id:int}")]
+        public async Task<IActionResult> AdminDelete([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var existingForum = await _forumRepo.GetByIdAsync(id);
+            if (existingForum == null)
+            {
+                return NotFound();
+            }
+
+            var comments = await _forumCommentRepo.GetByForumId(id);
+            if (comments != null)
+            {
+                foreach (var comment in comments)
+                {
+                    await _forumCommentRepo.DeleteAsync(comment.Id);
+                }
+            }
+            var images = await _forumImagesRepo.GetByForumId(id);
+            if (images != null)
+            {
+                foreach (var image in images)
+                {
+                    // Xóa hình ảnh khỏi thư mục hoặc cơ sở dữ liệu
+                    _forumImagesRepo.DeleteAsync(image.Id);
+                }
+            }
+            var forumModel = await _forumRepo.DeleteAsync(id);
+            if (forumModel == null)
+            {
+                return NotFound();
+            }
+            return Ok("Deleted");
+        }
         [HttpPut]
         [Route("browse/{id:int}")]
         public async Task<IActionResult> UpdateBrowse([FromRoute] int id, [FromBody] UpdateBrowseDto updateBrowseDto)

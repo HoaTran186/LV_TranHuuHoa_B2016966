@@ -175,3 +175,13 @@ C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\
 C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\AdaptiveCards.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Builder.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Builder.Integration.AspNet.Core.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Configuration.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Connector.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Connector.Streaming.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Schema.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Bot.Streaming.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Identity.Web.Certificateless.dll
+C:\Users\Admin\Documents\GitHub\LV_TranHuuHoa_B2016966\backend\bin\Debug\net8.0\Microsoft.Rest.ClientRuntime.dll

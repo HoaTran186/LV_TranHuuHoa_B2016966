@@ -2,6 +2,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
 #nullable disable
@@ -49,19 +51,19 @@ namespace backend.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "dbbc4f7b-b2a4-413b-ad8a-b6981f0baabf",
+                            Id = "c5b5c411-bc40-4260-8a4c-97ac20078fe6",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "696f22b6-8c42-46cc-8c06-1cab6d91f35e",
+                            Id = "81936374-c7bf-4640-8501-92cd93beceea",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "89868eca-5c5c-4cf7-97c3-c1f58dcfbb9b",
+                            Id = "bbb41d9c-d9dd-4ca8-8675-24f882e3e269",
                             Name = "Creator",
                             NormalizedName = "CREATOR"
                         });
@@ -414,12 +416,16 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
+                    b.Property<string>("ReceiveId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

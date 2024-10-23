@@ -255,7 +255,7 @@ const SearchBar = ({ Token }: SearchProps) => {
     try {
       const res = await fetch(
         `https://localhost:7146/api/product/search-product?${
-          query == "" ? "" : `productName=${query.replaceAll(" ", "-")}`
+          query == "" ? "" : `productName=${query}`
         }${
           (query == "" && productTypeId == 0) ||
           query == "" ||
